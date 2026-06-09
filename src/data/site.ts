@@ -4,7 +4,7 @@ export const site = {
   title: 'Guillermo López — Grafismo · Automatización · Desarrollo · Marca',
   description:
     'Portfolio y CV digital de Guillermo López del Castillo-Olivares. Grafismo en TV, automatización con IA, desarrollo web y gestión de marca real.',
-  url: 'https://guillermolopez.dev',
+  url: 'https://portfolio-guilles.vercel.app',
   locale: 'es_ES',
   ogImage: '/images/og-image.jpg',
 } as const;

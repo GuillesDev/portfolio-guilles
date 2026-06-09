@@ -1588,6 +1588,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
   /* ── Particle system ── */
   function initParticles() {
+    // Respect reduced-motion: skip the continuous particle animation entirely
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const canvas = document.getElementById('grafismo-particles') as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');

@@ -5,7 +5,7 @@ import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '../styles/global.css';
 import '../styles/animations.css';
-import { site } from '../data/site';
+import { site, social } from '../data/site';
 import Header from '../components/global/Header.astro';
 import Footer from '../components/global/Footer.astro';
 import { ViewTransitions } from 'astro:transitions';
@@ -23,6 +23,18 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, site.url);
+const ogImageURL = new URL(ogImage, site.url).toString();
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.fullName,
+  alternateName: site.name,
+  url: site.url,
+  email: social.email,
+  jobTitle: 'Grafista, automatización con IA, desarrollo web y gestión de marca',
+  sameAs: [social.linkedin],
+};
 ---
 
 <!doctype html>
@@ -35,24 +47,31 @@ const canonicalURL = new URL(Astro.url.pathname, site.url);
     <!-- SEO -->
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(ogImage, site.url)} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content={site.locale} />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(ogImage, site.url)} />
+    <meta name="twitter:image" content={ogImageURL} />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
 
     <!-- View Transitions -->
     <ViewTransitions />
@@ -94,6 +113,14 @@ const canonicalURL = new URL(Astro.url.pathname, site.url);
         // Kill old ScrollTrigger instances to prevent duplicates across View Transitions
         ScrollTrigger.getAll().forEach(st => st.kill());
         ScrollTrigger.refresh();
+
+        // Respect reduced-motion: reveal everything statically, skip scroll/parallax animations
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          gsap.utils.toArray<HTMLElement>('[data-animate], [data-parallax]').forEach((el) => {
+            gsap.set(el, { clearProps: 'all', opacity: 1, x: 0, y: 0, scale: 1 });
+          });
+          return;
+        }
 
         // Fade up elements
         gsap.utils.toArray<HTMLElement>('[data-animate="fade-up"]').forEach((el) => {
@@ -246,9 +273,11 @@ const canonicalURL = new URL(Astro.url.pathname, site.url);
           return;
         }
 
+        // Only block the reveal on above-the-fold images. Videos have posters
+        // and preload="metadata", and can weigh tens of MB — waiting on them
+        // forced the reveal to hit the timeout fallback (seconds of black screen).
         const imgs = Array.from(page.querySelectorAll('img:not([loading="lazy"])'));
-        const vids = Array.from(page.querySelectorAll('video'));
-        const total = imgs.length + vids.length;
+        const total = imgs.length;
         let loaded = 0;
         let revealed = false;
 
@@ -283,14 +312,8 @@ const canonicalURL = new URL(Astro.url.pathname, site.url);
           img.addEventListener('error', tick, { once: true });
         });
 
-        vids.forEach(vid => {
-          if ((vid as HTMLVideoElement).readyState >= 2) { tick(); return; }
-          vid.addEventListener('loadeddata', tick, { once: true });
-          vid.addEventListener('error', tick, { once: true });
-        });
-
-        // Fallback: reveal after 6s
-        setTimeout(() => { if (!revealed) reveal(); }, 6000);
+        // Fallback: reveal after 3s even if images are still loading
+        setTimeout(() => { if (!revealed) reveal(); }, 3000);
 
         // If no assets, reveal immediately
         if (total === 0) reveal();

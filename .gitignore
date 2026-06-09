@@ -27,5 +27,5 @@ pnpm-debug.log*
 .vercel
 .env*.local
 
-# Source video too large for regular git (>100MB) — excluded from Vercel deploy too
-public/media/fratelli/videos/reel-promo-cabramelizada-v1.mp4
+# stray build caches
+.next/
