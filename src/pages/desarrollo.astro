@@ -1,5 +1,67 @@
 ---
 import SectionLayout from '../layouts/SectionLayout.astro';
+
+const features = [
+  {
+    num: '01',
+    title: 'Panel de administración a medida',
+    desc: 'Sin WordPress, sin CMS de terceros. Portfolio, alquileres y contenidos se gestionan desde un panel propio con drag & drop entre secciones, edición inline y subida de archivos.',
+    tag: 'Producto',
+  },
+  {
+    num: '02',
+    title: 'Subida de vídeo por chunks',
+    desc: 'Los vídeos pesados se trocean en el navegador y se suben pieza a pieza con barra de progreso real, esquivando los límites del hosting. Hasta 2 GB por archivo, directo al servidor.',
+    tag: 'Ingeniería',
+  },
+  {
+    num: '03',
+    title: 'Seguridad endurecida',
+    desc: 'Sesiones firmadas, rate limiting en el login, validación de archivos por magic bytes, cabeceras HSTS y CSP, protección contra path traversal. Auditoría de seguridad completa aplicada.',
+    tag: 'Seguridad',
+  },
+  {
+    num: '04',
+    title: 'Rendimiento sin sacrificios',
+    desc: 'Páginas estáticas con revalidación instantánea: lo que se guarda en el admin aparece al momento en la web pública. Las imágenes se comprimen en el navegador antes de subir.',
+    tag: 'Rendimiento',
+  },
+  {
+    num: '05',
+    title: 'Accesibilidad de serie',
+    desc: 'Focus traps en modales, navegación por teclado, soporte de prefers-reduced-motion y error boundaries. La web funciona para todos, no solo para quien usa ratón.',
+    tag: 'A11y',
+  },
+  {
+    num: '06',
+    title: 'Deploy y mantenimiento',
+    desc: 'Git push y la web se despliega sola. Deploy keys de solo lectura, secretos fuera del repositorio y base de datos en producción. Mejoras semanales sin romper nada.',
+    tag: 'DevOps',
+  },
+];
+
+const reasons = [
+  {
+    num: '01',
+    title: 'Pienso como diseñador',
+    desc: 'Vengo del grafismo. La estética no es una capa final que se añade: cada decisión técnica protege la intención visual.',
+  },
+  {
+    num: '02',
+    title: 'Entrego producto, no maquetas',
+    desc: 'Black Gum no es un concepto de portfolio: es una plataforma en producción que una empresa real usa cada día para vender.',
+  },
+  {
+    num: '03',
+    title: 'Cubro todo el ciclo',
+    desc: 'Diseño, frontend, backend, base de datos, seguridad y deploy. Un solo perfil, sin fricción entre piezas.',
+  },
+  {
+    num: '04',
+    title: 'Mantengo y mejoro',
+    desc: 'Una web viva: auditorías, mejoras de rendimiento y features nuevas cada semana, con builds limpios y sin downtime.',
+  },
+];
 ---
 
 <SectionLayout
@@ -29,23 +91,25 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     </div>
   </section>
 
-  <!-- Proyecto 01 — Black Gum (banda oscura) -->
+  <!-- Case study — Black Gum (banda oscura) -->
   <section class="dev-casestudy">
     <div class="casestudy-bg"></div>
     <div class="casestudy-inner container" data-animate="fade-up">
 
       <div class="casestudy-content">
+        <span class="casestudy-kicker mono">Case study</span>
+
         <img src="/media/blackgum/logo-white.png" alt="Black Gum Studio" class="casestudy-logo" />
 
         <div class="casestudy-status">
           <span class="casestudy-pulse"></span>
-          <span class="casestudy-status__text mono">Construyendo ahora</span>
+          <span class="casestudy-status__text mono">En producción</span>
         </div>
 
         <p class="casestudy-desc">
           Plataforma full-stack para una productora audiovisual en Madrid.
-          Web pública, panel de administración y sistema de pagos — todo
-          el stack, del diseño al deploy.
+          Web pública, panel de administración propio y gestión completa
+          de contenidos — todo el stack, del diseño al deploy.
         </p>
 
         <p class="casestudy-insight">
@@ -54,8 +118,23 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         </p>
 
         <span class="casestudy-tech mono">
-          Next.js 14 · TypeScript · React · Tailwind · Prisma · Stripe · Node.js
+          Next.js 14 · TypeScript · React · Tailwind · Prisma · Node.js
         </span>
+
+        <div class="casestudy-stats" data-animate="stagger">
+          <div class="casestudy-stat">
+            <span class="casestudy-stat__value mono">40+</span>
+            <span class="casestudy-stat__label">páginas generadas</span>
+          </div>
+          <div class="casestudy-stat">
+            <span class="casestudy-stat__value mono">100%</span>
+            <span class="casestudy-stat__label">TypeScript estricto</span>
+          </div>
+          <div class="casestudy-stat">
+            <span class="casestudy-stat__value mono">0</span>
+            <span class="casestudy-stat__label">CMS de terceros</span>
+          </div>
+        </div>
 
         <a href="https://blackgumgroup.com/" target="_blank" rel="noopener noreferrer" class="casestudy-cta__link mono">
           Ver blackgumgroup.com →
@@ -64,43 +143,56 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     </div>
   </section>
 
-  <!-- Proyecto 02 — Fratelli Pazzi -->
-  <section class="dev-project-section section">
+  <!-- Qué hay debajo del capó -->
+  <section class="dev-features section">
     <div class="container">
-      <div class="project-block" data-animate="fade-up">
-        <div class="project-block__visual">
-          <div class="project-browser">
-            <div class="project-browser__bar">
-              <div class="browser-dots"><span></span><span></span><span></span></div>
-              <span class="browser-url mono">fratellipazzi.es</span>
+      <div class="dev-features__head" data-animate="fade-up">
+        <span class="dev-label mono">Debajo del capó</span>
+        <h2 class="dev-features__title">
+          Lo que hace de Black Gum<br />una web bien construida
+        </h2>
+        <p class="dev-features__subtitle">
+          Una web bonita es la mitad del trabajo. La otra mitad no se ve:
+          es lo que hace que sea rápida, segura y fácil de mantener.
+        </p>
+      </div>
+
+      <div class="dev-features__grid" data-animate="stagger">
+        {features.map((f) => (
+          <article class="feature-card">
+            <div class="feature-card__top">
+              <span class="feature-card__num mono">{f.num}</span>
+              <span class="feature-card__tag mono">{f.tag}</span>
             </div>
-            <div class="project-browser__screen">
-              <img src="/media/fratelli/signage/final/cartel-entrada-v2.jpeg" alt="Cartel de Fratelli Pazzi en la pizzería" loading="lazy" />
-            </div>
-          </div>
+            <h3 class="feature-card__title">{f.title}</h3>
+            <p class="feature-card__desc">{f.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Por qué también desarrollador -->
+  <section class="dev-why section">
+    <div class="container">
+      <div class="dev-why__inner">
+        <div class="dev-why__head" data-animate="fade-up">
+          <span class="dev-label mono">El perfil</span>
+          <h2 class="dev-why__title">
+            Por qué un grafista<br />puede ser tu desarrollador
+          </h2>
         </div>
-        <div class="project-block__info">
-          <span class="project-status project-status--done mono">Proyecto terminado</span>
-          <h2 class="project-block__title">Fratelli Pazzi</h2>
-          <p class="project-block__desc">
-            Web completa para una pizzería napolitana real que cofundé
-            en Las Rozas, Madrid. E-commerce con menú interactivo,
-            sistema de pedidos y plataforma de fidelización.
-          </p>
-          <p class="project-block__insight">
-            "Diseñé toda la identidad visual antes de escribir una línea
-            de código — la web nace del sistema de marca, no al revés."
-          </p>
-          <div class="project-block__numbers mono">
-            <span>4.7★ Google</span>
-            <span class="project-separator">·</span>
-            <span>300+ clientes</span>
-            <span class="project-separator">·</span>
-            <span>Negocio real operando</span>
-          </div>
-          <a href="https://www.fratellipazzi.es" target="_blank" rel="noopener noreferrer" class="project-block__link mono">
-            Ver fratellipazzi.es →
-          </a>
+
+        <div class="dev-why__list" data-animate="stagger">
+          {reasons.map((r) => (
+            <div class="why-row">
+              <span class="why-row__num mono">{r.num}</span>
+              <div class="why-row__body">
+                <h3 class="why-row__title">{r.title}</h3>
+                <p class="why-row__desc">{r.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -176,144 +268,6 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     opacity: 0.5;
   }
 
-  /* ── Project block (Fratelli) ── */
-  .project-block {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: var(--space-xl);
-    align-items: center;
-  }
-
-  .project-browser {
-    border: 1px solid var(--dev-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--dev-surface);
-    transition: transform var(--duration-base) var(--ease-out),
-                box-shadow var(--duration-base) var(--ease-out);
-  }
-
-  .project-browser:hover {
-    transform: scale(1.015);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-  }
-
-  .project-browser__bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-s);
-    padding: var(--space-xs) var(--space-s);
-    border-bottom: 1px solid var(--dev-border);
-    background: var(--dev-bg);
-  }
-
-  .browser-dots {
-    display: flex;
-    gap: 6px;
-  }
-
-  .browser-dots span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--dev-border);
-  }
-
-  .browser-url {
-    font-size: var(--step--2);
-    color: var(--dev-text-secondary);
-    opacity: 0.6;
-  }
-
-  .project-browser__screen {
-    overflow: hidden;
-    background: var(--dev-surface);
-  }
-
-  .project-browser__screen img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .project-block__info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .project-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5em;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    width: fit-content;
-    padding: 0.3em 0.9em;
-    border-radius: 999px;
-  }
-
-  .project-status--done {
-    color: var(--dev-accent);
-    border: 1px solid var(--dev-accent);
-    opacity: 0.8;
-  }
-
-  .project-block__title {
-    font-size: var(--step-3);
-    font-weight: 800;
-    color: var(--dev-primary);
-    letter-spacing: -0.02em;
-  }
-
-  .project-block__desc {
-    font-size: var(--step--1);
-    color: var(--dev-text-secondary);
-    line-height: 1.7;
-  }
-
-  .project-block__insight {
-    font-size: var(--step--1);
-    font-style: italic;
-    color: var(--dev-accent);
-    line-height: 1.6;
-    padding-left: var(--space-s);
-    border-left: 2px solid var(--dev-accent);
-    opacity: 0.85;
-  }
-
-  .project-block__numbers {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5em;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--dev-primary);
-    margin-top: var(--space-2xs);
-  }
-
-  .project-separator {
-    color: var(--dev-text-secondary);
-    opacity: 0.4;
-  }
-
-  .project-block__link {
-    display: inline-block;
-    margin-top: var(--space-xs);
-    font-size: var(--step--1);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--dev-accent);
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  .project-block__link:hover {
-    transform: translateX(4px);
-  }
-
   /* ── Case Study — Black Gum (dark band) ── */
   .dev-casestudy {
     position: relative;
@@ -345,6 +299,14 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       linear-gradient(to bottom, rgba(11,11,11,0.75) 0%, transparent 25%, transparent 75%, rgba(11,11,11,0.9) 100%);
   }
 
+  .casestudy-kicker {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #d7d1c5;
+    opacity: 0.45;
+  }
+
   .casestudy-logo {
     width: clamp(160px, 18vw, 240px);
     height: auto;
@@ -371,7 +333,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     align-items: center;
     gap: 0.6em;
     padding: 0.35em 1em;
-    border: 1px solid rgba(241,169,58,0.4);
+    border: 1px solid rgba(108,184,126,0.4);
     border-radius: 999px;
   }
 
@@ -379,7 +341,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #f1a93a;
+    background: #6cb87e;
     animation: pulse-dot 2s ease-in-out infinite;
   }
 
@@ -392,7 +354,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     font-size: var(--step--2);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: #f1a93a;
+    color: #6cb87e;
   }
 
   .casestudy-desc {
@@ -421,6 +383,34 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     opacity: 0.45;
   }
 
+  .casestudy-stats {
+    display: flex;
+    gap: var(--space-xl);
+    margin-top: var(--space-xs);
+  }
+
+  .casestudy-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35em;
+  }
+
+  .casestudy-stat__value {
+    font-size: var(--step-2);
+    font-weight: 700;
+    color: #f5f0e8;
+    letter-spacing: -0.02em;
+  }
+
+  .casestudy-stat__label {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #d7d1c5;
+    opacity: 0.5;
+  }
+
   .casestudy-cta__link {
     display: inline-block;
     font-size: var(--step--1);
@@ -438,6 +428,152 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   .casestudy-cta__link:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(199,66,46,0.45);
+  }
+
+  /* ── Features grid (debajo del capó) ── */
+  .dev-features__head {
+    text-align: center;
+    max-width: 640px;
+    margin-inline: auto;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .dev-features__title {
+    font-size: var(--step-3);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--dev-primary);
+    margin-bottom: var(--space-s);
+  }
+
+  .dev-features__subtitle {
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--dev-text-secondary);
+  }
+
+  .dev-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-m);
+  }
+
+  .feature-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-l);
+    background: var(--dev-surface);
+    border: 1px solid var(--dev-border);
+    border-radius: var(--radius-md);
+    transition: transform var(--duration-base) var(--ease-out),
+                box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.07);
+  }
+
+  .feature-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .feature-card__num {
+    font-size: var(--step--1);
+    color: var(--dev-accent);
+    opacity: 0.6;
+  }
+
+  .feature-card__tag {
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dev-accent);
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.25em 0.8em;
+    opacity: 0.75;
+  }
+
+  .feature-card__title {
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: var(--dev-primary);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .feature-card__desc {
+    font-size: var(--step--1);
+    line-height: 1.65;
+    color: var(--dev-text-secondary);
+  }
+
+  /* ── Por qué desarrollador ── */
+  .dev-why {
+    background: var(--dev-surface);
+  }
+
+  .dev-why__inner {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .dev-why__head {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+  }
+
+  .dev-why__title {
+    font-size: var(--step-3);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--dev-primary);
+  }
+
+  .dev-why__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .why-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-l);
+    align-items: baseline;
+    padding-block: var(--space-m);
+    border-bottom: 1px solid var(--dev-border);
+  }
+
+  .why-row:last-child {
+    border-bottom: none;
+  }
+
+  .why-row__num {
+    font-size: var(--step-1);
+    color: var(--dev-accent);
+    opacity: 0.45;
+  }
+
+  .why-row__title {
+    font-size: var(--step-1);
+    font-weight: 700;
+    color: var(--dev-primary);
+    letter-spacing: -0.01em;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .why-row__desc {
+    font-size: var(--step--1);
+    line-height: 1.65;
+    color: var(--dev-text-secondary);
+    max-width: 56ch;
   }
 
   /* ── CTA ── */
@@ -466,18 +602,32 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   }
 
   /* ── Responsive ── */
+  @media (max-width: 968px) {
+    .dev-features__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
   @media (max-width: 768px) {
     .dev-hero__title {
       font-size: clamp(2.2rem, 1.2rem + 5vw, 4rem);
     }
 
-    .project-block {
-      grid-template-columns: 1fr;
-    }
-
     .casestudy-insight {
       align-self: stretch;
       max-width: 100%;
+    }
+
+    .casestudy-stats {
+      gap: var(--space-l);
+    }
+
+    .dev-features__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .why-row {
+      gap: var(--space-s);
     }
   }
 </style>

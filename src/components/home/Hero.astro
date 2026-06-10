@@ -205,6 +205,8 @@ import Button from '../global/Button.astro';
 
 <script>
   function initHeroReel() {
+    // Respect reduced-motion: keep the static gradient background, skip the video reel
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const video = document.getElementById('hero-reel') as HTMLVideoElement | null;
     if (!video) return;
     const heroVideo: HTMLVideoElement = video;
