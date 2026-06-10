@@ -101,6 +101,7 @@ const marqueeItems = [
   <section class="dev-hero">
     <div class="dev-hero__glow" id="hero-glow" aria-hidden="true"></div>
     <div class="dev-hero__grid-bg" aria-hidden="true"></div>
+    <div class="dev-hero__3d" id="hero-3d" aria-hidden="true"></div>
 
     <div class="dev-hero__content container">
       <div class="dev-hero__text">
@@ -128,6 +129,7 @@ const marqueeItems = [
       </div>
 
       <!-- Editor window -->
+      <div class="editor-tilt" id="editor-tilt">
       <div class="editor" data-animate="fade-up" id="code-editor">
         <div class="editor__bar">
           <div class="editor__dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -142,6 +144,7 @@ const marqueeItems = [
           <span>·</span>
           <span>en producción — blackgumgroup.com</span>
         </div>
+      </div>
       </div>
     </div>
 
@@ -403,10 +406,200 @@ const marqueeItems = [
     document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
   }
 
+  // ── 3D wireframe (Three.js, lazy-loaded) ──
+  function initHero3D() {
+    const mount = document.getElementById('hero-3d');
+    if (!mount) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.innerWidth < 1025) return;
+
+    const probe = document.createElement('canvas');
+    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return;
+
+    let cleanup: (() => void) | null = null;
+
+    const io = new IntersectionObserver(async (entries) => {
+      const visible = entries[0]?.isIntersecting;
+      if (visible && !cleanup) {
+        io.disconnect();
+        cleanup = await buildScene(mount);
+      }
+    }, { threshold: 0.1 });
+
+    io.observe(mount);
+
+    document.addEventListener('astro:before-swap', () => {
+      io.disconnect();
+      cleanup?.();
+      cleanup = null;
+    }, { once: true });
+  }
+
+  async function buildScene(mount: HTMLElement): Promise<() => void> {
+    const THREE = await import('three');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 30);
+    camera.position.z = 5.2;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    mount.appendChild(renderer.domElement);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // Outer icosahedron — blueprint wireframe
+    const outerGeo = new THREE.IcosahedronGeometry(1.85, 1);
+    const outer = new THREE.LineSegments(
+      new THREE.WireframeGeometry(outerGeo),
+      new THREE.LineBasicMaterial({ color: 0x5b7b9a, transparent: true, opacity: 0.34 })
+    );
+    group.add(outer);
+
+    // Inner icosahedron — counter-rotating, fainter
+    const innerGeo = new THREE.IcosahedronGeometry(1.05, 0);
+    const inner = new THREE.LineSegments(
+      new THREE.WireframeGeometry(innerGeo),
+      new THREE.LineBasicMaterial({ color: 0x2d2d2d, transparent: true, opacity: 0.16 })
+    );
+    group.add(inner);
+
+    // Vertex nodes
+    const nodes = new THREE.Points(
+      outerGeo,
+      new THREE.PointsMaterial({ color: 0x5b7b9a, size: 0.045, transparent: true, opacity: 0.75 })
+    );
+    group.add(nodes);
+
+    function resize() {
+      const w = mount.clientWidth || 1;
+      const h = mount.clientHeight || 1;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(mount);
+
+    // Mouse parallax
+    let targetRX = 0, targetRY = 0;
+    function onPointer(e: PointerEvent) {
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      targetRY = nx * 0.35;
+      targetRX = ny * 0.25;
+    }
+    window.addEventListener('pointermove', onPointer, { passive: true });
+
+    let raf = 0;
+    let running = true;
+    const clock = new THREE.Clock();
+
+    function tick() {
+      if (!running) return;
+      const t = clock.getElapsedTime();
+      outer.rotation.y = t * 0.12;
+      outer.rotation.x = Math.sin(t * 0.18) * 0.18;
+      nodes.rotation.copy(outer.rotation);
+      inner.rotation.y = -t * 0.2;
+      inner.rotation.z = t * 0.08;
+      group.rotation.x += (targetRX - group.rotation.x) * 0.04;
+      group.rotation.y += (targetRY - group.rotation.y) * 0.04;
+      group.position.y = Math.sin(t * 0.5) * 0.08;
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(tick);
+    }
+
+    // Pause when hero is off-screen or tab hidden
+    const visIO = new IntersectionObserver((entries) => {
+      const onScreen = entries[0]?.isIntersecting ?? false;
+      if (onScreen && !running) { running = true; tick(); }
+      else if (!onScreen) { running = false; cancelAnimationFrame(raf); }
+    }, { threshold: 0.05 });
+    visIO.observe(mount);
+
+    function onVisibility() {
+      if (document.hidden) { running = false; cancelAnimationFrame(raf); }
+      else if (!running) { running = true; tick(); }
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+
+    tick();
+
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      visIO.disconnect();
+      ro.disconnect();
+      window.removeEventListener('pointermove', onPointer);
+      document.removeEventListener('visibilitychange', onVisibility);
+      outerGeo.dispose();
+      innerGeo.dispose();
+      (outer.material as { dispose(): void }).dispose();
+      (inner.material as { dispose(): void }).dispose();
+      (nodes.material as { dispose(): void }).dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+    };
+  }
+
+  // ── Editor 3D tilt following cursor ──
+  function initEditorTilt() {
+    const wrap = document.getElementById('editor-tilt');
+    if (!wrap) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+
+    const hero = wrap.closest('.dev-hero') as HTMLElement | null;
+    if (!hero) return;
+
+    let tx = 0, ty = 0, rx = 0, ry = 0;
+    let raf = 0;
+    let running = false;
+
+    function loop() {
+      rx += (tx - rx) * 0.08;
+      ry += (ty - ry) * 0.08;
+      wrap!.style.transform = `perspective(1100px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      if (Math.abs(tx - rx) < 0.01 && Math.abs(ty - ry) < 0.01 && tx === 0 && ty === 0) {
+        running = false;
+        return;
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    function start() {
+      if (!running) { running = true; loop(); }
+    }
+
+    hero.addEventListener('pointermove', (e) => {
+      const r = wrap!.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const dx = (e.clientX - cx) / (r.width / 2);
+      const dy = (e.clientY - cy) / (r.height / 2);
+      const clamp = (v: number) => Math.max(-1.6, Math.min(1.6, v));
+      ty = clamp(dx) * 3.2;
+      tx = clamp(-dy) * 3.2;
+      start();
+    }, { passive: true });
+
+    hero.addEventListener('pointerleave', () => {
+      tx = 0; ty = 0;
+      start();
+    });
+
+    document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
+  }
+
   document.addEventListener('astro:page-load', () => {
     initScramble();
     initEditor();
     initHeroGlow();
+    initHero3D();
+    initEditorTilt();
   });
 </script>
 
@@ -446,6 +639,29 @@ const marqueeItems = [
     transition: opacity 0.5s ease;
     pointer-events: none;
     will-change: transform;
+  }
+
+  .dev-hero__3d {
+    position: absolute;
+    top: 50%;
+    right: clamp(-6rem, -3vw, 0rem);
+    transform: translateY(-52%);
+    width: min(46vw, 720px);
+    aspect-ratio: 1;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .dev-hero__3d canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    .dev-hero__3d {
+      display: none;
+    }
   }
 
   .dev-hero__content {
@@ -549,6 +765,11 @@ const marqueeItems = [
   }
 
   /* ════ Editor window ════ */
+  .editor-tilt {
+    will-change: transform;
+    transform-style: preserve-3d;
+  }
+
   .editor {
     background: #16181d;
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -558,13 +779,10 @@ const marqueeItems = [
       0 1px 2px rgba(20, 20, 30, 0.12),
       0 12px 32px rgba(20, 20, 30, 0.18),
       0 32px 72px rgba(20, 20, 30, 0.16);
-    transform: rotate(0.6deg);
-    transition: transform var(--duration-base) var(--ease-out),
-                box-shadow var(--duration-base) var(--ease-out);
+    transition: box-shadow var(--duration-base) var(--ease-out);
   }
 
   .editor:hover {
-    transform: rotate(0deg) translateY(-4px);
     box-shadow:
       0 1px 2px rgba(20, 20, 30, 0.12),
       0 18px 44px rgba(20, 20, 30, 0.22),
