@@ -453,7 +453,7 @@ const marqueeItems = [
     const outerGeo = new THREE.IcosahedronGeometry(1.85, 1);
     const outer = new THREE.LineSegments(
       new THREE.WireframeGeometry(outerGeo),
-      new THREE.LineBasicMaterial({ color: 0x5b7b9a, transparent: true, opacity: 0.34 })
+      new THREE.LineBasicMaterial({ color: 0xf1a93a, transparent: true, opacity: 0.3 })
     );
     group.add(outer);
 
@@ -461,14 +461,14 @@ const marqueeItems = [
     const innerGeo = new THREE.IcosahedronGeometry(1.05, 0);
     const inner = new THREE.LineSegments(
       new THREE.WireframeGeometry(innerGeo),
-      new THREE.LineBasicMaterial({ color: 0x2d2d2d, transparent: true, opacity: 0.16 })
+      new THREE.LineBasicMaterial({ color: 0xc7422e, transparent: true, opacity: 0.22 })
     );
     group.add(inner);
 
     // Vertex nodes
     const nodes = new THREE.Points(
       outerGeo,
-      new THREE.PointsMaterial({ color: 0x5b7b9a, size: 0.045, transparent: true, opacity: 0.75 })
+      new THREE.PointsMaterial({ color: 0xf1a93a, size: 0.045, transparent: true, opacity: 0.8 })
     );
     group.add(nodes);
 
@@ -604,6 +604,17 @@ const marqueeItems = [
 </script>
 
 <style>
+  /* ════ Black Gum dark palette (scoped to this page) ════ */
+  :global([data-theme='desarrollo']) {
+    --dev-bg: #0d0d0e;
+    --dev-surface: #151517;
+    --dev-text: #d7d1c5;
+    --dev-text-secondary: #a39d8f;
+    --dev-primary: #f5f0e8;
+    --dev-accent: #f1a93a;
+    --dev-border: rgba(245, 240, 232, 0.08);
+  }
+
   /* ════ Hero ════ */
   .dev-hero {
     position: relative;
@@ -619,8 +630,8 @@ const marqueeItems = [
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(rgba(45, 45, 45, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(45, 45, 45, 0.035) 1px, transparent 1px);
+      linear-gradient(rgba(245, 240, 232, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245, 240, 232, 0.04) 1px, transparent 1px);
     background-size: 56px 56px;
     mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 30%, transparent);
     -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 30%, transparent);
@@ -634,7 +645,7 @@ const marqueeItems = [
     width: 600px;
     height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(91, 123, 154, 0.13) 0%, transparent 65%);
+    background: radial-gradient(circle, rgba(241, 169, 58, 0.09) 0%, transparent 65%);
     opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
@@ -736,6 +747,7 @@ const marqueeItems = [
     border-radius: 999px;
     background: var(--pill-bg);
     color: var(--pill-fg);
+    border: 1px solid rgba(245, 240, 232, 0.16);
     transition: transform var(--duration-fast) var(--ease-out),
                 box-shadow var(--duration-fast) var(--ease-out);
     cursor: default;
@@ -772,7 +784,7 @@ const marqueeItems = [
 
   .editor {
     background: #16181d;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-lg, 16px);
     overflow: hidden;
     box-shadow:
@@ -940,9 +952,10 @@ const marqueeItems = [
     overflow: hidden;
     margin-inline: clamp(0.75rem, 3vw, 3rem);
     border-radius: clamp(20px, 3vw, 36px);
-    background: #0b0b0b;
+    background: #060606;
     color: #f5f0e8;
-    border: 1px solid rgba(241, 169, 58, 0.12);
+    border: 1px solid rgba(241, 169, 58, 0.22);
+    box-shadow: 0 0 90px rgba(199, 66, 46, 0.1), 0 24px 60px rgba(0, 0, 0, 0.45);
   }
 
   .casestudy-bg {
@@ -1208,7 +1221,7 @@ const marqueeItems = [
   .feature-card:hover {
     transform: translateY(-5px);
     border-color: color-mix(in srgb, var(--card-accent) 45%, transparent);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
   }
 
   .feature-card__line {
@@ -1341,7 +1354,7 @@ const marqueeItems = [
   }
 
   .why-row:hover {
-    background: rgba(91, 123, 154, 0.06);
+    background: rgba(241, 169, 58, 0.05);
   }
 
   .why-row__num {
@@ -1408,7 +1421,7 @@ const marqueeItems = [
     letter-spacing: -0.03em;
     text-transform: uppercase;
     color: transparent;
-    -webkit-text-stroke: 1px rgba(45, 45, 45, 0.07);
+    -webkit-text-stroke: 1px rgba(245, 240, 232, 0.08);
     white-space: nowrap;
     pointer-events: none;
     user-select: none;
@@ -1442,7 +1455,7 @@ const marqueeItems = [
   .dev-cta__link:hover {
     background: var(--dev-accent);
     border-color: var(--dev-accent);
-    color: #fff;
+    color: #0b0b0b;
   }
 
   .dev-cta__arrow {

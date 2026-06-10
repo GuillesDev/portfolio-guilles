@@ -335,8 +335,8 @@ import { nav } from '../../data/site';
     window.addEventListener('scroll', handleScroll, { passive: true, signal });
     handleScroll();
 
-    // Detect light-themed section pages
-    const lightThemes = ['desarrollo'];
+    // Detect light-themed section pages (none right now — desarrollo went dark)
+    const lightThemes: string[] = [];
     const sectionPage = document.querySelector('[data-theme]');
     const theme = sectionPage?.getAttribute('data-theme') || '';
     header.classList.toggle('header--light', lightThemes.includes(theme));
