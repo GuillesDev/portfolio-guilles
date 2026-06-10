@@ -577,6 +577,7 @@ const marqueeItems = [
   async function buildBot(mount: HTMLElement): Promise<() => void> {
     const THREE = await import('three');
     const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+    const { buildRobotRig } = await import('../lib/robotRig');
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 20);
@@ -596,76 +597,9 @@ const marqueeItems = [
     rim.position.set(-2, 0.8, 2);
     scene.add(rim);
 
-    const bone = new THREE.MeshStandardMaterial({ color: 0xe8e2d6, roughness: 0.55, metalness: 0.1 });
-    const dark = new THREE.MeshStandardMaterial({ color: 0x141416, roughness: 0.35, metalness: 0.3 });
-    const amber = new THREE.MeshBasicMaterial({ color: 0xf1a93a });
-    const ember = new THREE.MeshBasicMaterial({ color: 0xc7422e });
-
-    const robot = new THREE.Group();
+    const rig = buildRobotRig(THREE, RoundedBoxGeometry);
+    const { robot, headGroup, eyeL, eyeR, eyesMat, armRPivot, antennaTip } = rig;
     scene.add(robot);
-
-    // Body
-    const body = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.55, 0.4, 4, 0.12), bone);
-    body.position.y = 0;
-    robot.add(body);
-
-    // Chest light
-    const chest = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.03, 20), amber);
-    chest.rotation.x = Math.PI / 2;
-    chest.position.set(0, 0.05, 0.21);
-    robot.add(chest);
-
-    // Head group (for gaze tracking)
-    const headGroup = new THREE.Group();
-    headGroup.position.y = 0.74;
-    robot.add(headGroup);
-
-    const head = new THREE.Mesh(new RoundedBoxGeometry(0.78, 0.6, 0.55, 4, 0.14), bone);
-    headGroup.add(head);
-
-    // Face screen
-    const screen = new THREE.Mesh(new RoundedBoxGeometry(0.56, 0.34, 0.08, 4, 0.04), dark);
-    screen.position.set(0, 0.01, 0.26);
-    headGroup.add(screen);
-
-    // Eyes (amber, blink via scale.y)
-    const eyeGeo = new THREE.SphereGeometry(0.055, 16, 16);
-    const eyeL = new THREE.Mesh(eyeGeo, amber);
-    eyeL.position.set(-0.13, 0.02, 0.31);
-    const eyeR = new THREE.Mesh(eyeGeo, amber);
-    eyeR.position.set(0.13, 0.02, 0.31);
-    headGroup.add(eyeL, eyeR);
-
-    // Ears
-    const earGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.06, 16);
-    const earL = new THREE.Mesh(earGeo, dark);
-    earL.rotation.z = Math.PI / 2;
-    earL.position.set(-0.42, 0, 0);
-    const earR = earL.clone();
-    earR.position.x = 0.42;
-    headGroup.add(earL, earR);
-
-    // Antenna
-    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.26, 8), dark);
-    antenna.position.y = 0.42;
-    headGroup.add(antenna);
-    const antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 16), ember);
-    antennaTip.position.y = 0.57;
-    headGroup.add(antennaTip);
-
-    // Arms — right one waves
-    const armGeo = new THREE.CapsuleGeometry(0.07, 0.26, 4, 12);
-    const armL = new THREE.Mesh(armGeo, bone);
-    armL.position.set(-0.42, 0, 0);
-    armL.rotation.z = 0.25;
-    robot.add(armL);
-
-    const armRPivot = new THREE.Group();
-    armRPivot.position.set(0.4, 0.16, 0);
-    robot.add(armRPivot);
-    const armR = new THREE.Mesh(armGeo, bone);
-    armR.position.y = -0.16;
-    armRPivot.add(armR);
 
     function resize() {
       const w = mount.clientWidth || 1;
@@ -678,49 +612,97 @@ const marqueeItems = [
     const ro = new ResizeObserver(resize);
     ro.observe(mount);
 
-    // Gaze target from pointer
+    // Gaze target from pointer + raycast picking (hit the robot with clicks)
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const editorEl = document.getElementById('code-editor');
+    const heroEl = mount.closest('.dev-hero') as HTMLElement | null;
+
+    function pickRobot(clientX: number, clientY: number): boolean {
+      const rect = renderer.domElement.getBoundingClientRect();
+      ndc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      ndc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      if (ndc.x < -1 || ndc.x > 1 || ndc.y < -1 || ndc.y > 1) return false;
+      raycaster.setFromCamera(ndc, camera);
+      return raycaster.intersectObject(robot, true).length > 0;
+    }
+
     let gazeX = 0, gazeY = 0;
     function onPointer(e: PointerEvent) {
       gazeX = (e.clientX / window.innerWidth) * 2 - 1;
       gazeY = (e.clientY / window.innerHeight) * 2 - 1;
+      // Pointer cursor when hovering the visible part of the robot
+      if (heroEl) {
+        const overEditor = !!editorEl && e.target instanceof Node && editorEl.contains(e.target);
+        heroEl.style.cursor = !overEditor && pickRobot(e.clientX, e.clientY) ? 'pointer' : '';
+      }
     }
     window.addEventListener('pointermove', onPointer, { passive: true });
+
+    let pendingHit = false;
+    function onClick(e: MouseEvent) {
+      // Ignore clicks that land on the editor window (robot's hidden lower body)
+      if (editorEl && e.target instanceof Node && editorEl.contains(e.target)) return;
+      if (pickRobot(e.clientX, e.clientY)) pendingHit = true;
+    }
+    window.addEventListener('click', onClick);
 
     let raf = 0;
     let running = true;
     let nextBlink = 2.2;
     let blinkUntil = 0;
+    // Damped spring driving the knock-back reaction
+    let hitRot = 0;
+    let hitVel = 0;
+    let lastHit = -10;
     const clock = new THREE.Clock();
 
     function tick() {
       if (!running) return;
-      const t = clock.getElapsedTime();
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const t = clock.elapsedTime;
 
-      // Idle float + sway
+      // Hit impulse: knock the robot back with a damped spring
+      if (pendingHit) {
+        pendingHit = false;
+        lastHit = t;
+        hitVel = -7;
+      }
+      hitVel += (-90 * hitRot - 8 * hitVel) * dt;
+      hitRot += hitVel * dt;
+      const hurt = t - lastHit < 0.55;
+
+      // Idle float + sway, plus knock-back lean and shift
       robot.position.y = Math.sin(t * 1.4) * 0.04;
+      robot.position.z = hitRot * 0.4;
+      robot.rotation.x = hitRot;
       robot.rotation.y = Math.sin(t * 0.55) * 0.06;
 
-      // Gaze follows cursor (clamped, smoothed)
+      // Gaze follows cursor (clamped, smoothed); head snaps back when hit
       headGroup.rotation.y += (gazeX * 0.5 - headGroup.rotation.y) * 0.07;
-      headGroup.rotation.x += (gazeY * 0.3 - headGroup.rotation.x) * 0.07;
+      headGroup.rotation.x += (gazeY * 0.3 + hitRot * 0.8 - headGroup.rotation.x) * 0.07;
 
-      // Greeting wave for the first ~2.4s, then rest
-      if (t < 2.4) {
+      // Arms: flail when hurt, greeting wave at start, rest otherwise
+      if (hurt) {
+        armRPivot.rotation.z += (-2.6 - armRPivot.rotation.z) * 0.3;
+      } else if (t < 2.4) {
         armRPivot.rotation.z = -2.3 + Math.sin(t * 9) * 0.28;
       } else {
         armRPivot.rotation.z += (-0.25 - armRPivot.rotation.z) * 0.06;
       }
 
-      // Blink
+      // Eyes: pained squint + ember flash while hurt, regular blink otherwise
       if (t > nextBlink) {
         blinkUntil = t + 0.13;
         nextBlink = t + 2.4 + Math.random() * 3;
       }
       const blinking = t < blinkUntil;
-      eyeL.scale.y = eyeR.scale.y = blinking ? 0.12 : 1;
+      eyesMat.color.setHex(hurt ? 0xc7422e : 0xf1a93a);
+      eyeL.scale.y = eyeR.scale.y = hurt ? 0.25 : (blinking ? 0.12 : 1);
 
-      // Antenna pulse
-      antennaTip.scale.setScalar(1 + Math.sin(t * 3) * 0.12);
+      // Antenna pulse — races for a moment after a hit
+      const recent = t - lastHit < 1.4;
+      antennaTip.scale.setScalar(1 + Math.sin(t * (recent ? 16 : 3)) * (recent ? 0.22 : 0.12));
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
@@ -747,12 +729,10 @@ const marqueeItems = [
       visIO.disconnect();
       ro.disconnect();
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('click', onClick);
       document.removeEventListener('visibilitychange', onVisibility);
-      scene.traverse((obj) => {
-        const mesh = obj as { geometry?: { dispose(): void } };
-        mesh.geometry?.dispose();
-      });
-      bone.dispose(); dark.dispose(); amber.dispose(); ember.dispose();
+      if (heroEl) heroEl.style.cursor = '';
+      rig.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };

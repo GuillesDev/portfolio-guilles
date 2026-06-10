@@ -1,0 +1,456 @@
+---
+/**
+ * RobotGuide — persistent robot mascot that guides visitors through the
+ * portfolio. Lives fixed at the bottom-right corner on every page, comments
+ * on each section as you scroll, suggests the next stop, follows the cursor
+ * with its gaze, and complains if you click (hit) it.
+ * Desktop-only; respects prefers-reduced-motion; Three.js loads lazily.
+ */
+---
+
+<div class="rg" id="robot-guide" transition:persist="robot-guide" aria-hidden="true">
+  <div class="rg__mount" id="rg-mount" title="Soy el bot de Guille"></div>
+  <div class="rg__bubble" id="rg-bubble">
+    <div class="rg__bar">
+      <span class="rg__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="rg__title">bot-guía — tour</span>
+      <button class="rg__close" id="rg-close" type="button" aria-label="Ocultar guía">×</button>
+    </div>
+    <p class="rg__text" id="rg-text"></p>
+  </div>
+</div>
+
+<script>
+  // ── Robot guide singleton (survives View Transitions via transition:persist) ──
+  const MESSAGES: Record<string, { sel: string; html: string }[]> = {
+    '/': [
+      { sel: '.hero', html: '¡Hola! 👋 Soy el bot de Guille. Haz scroll, que te enseño esto.' },
+      { sel: '.value', html: 'Resumen: diseña, automatiza y construye. Todo en una persona.' },
+      { sel: '.areas', html: 'Sus cuatro mundos. Pícale a cualquiera, yo te sigo.' },
+      { sel: '.about', html: '5+ años de grafismo en directo: Mediaset, RTVE, Movistar+…' },
+      { sel: '.contact', html: '¿Te cuadra? Escríbele. O sigue el tour: <a href="/grafismo">Grafismo →</a>' },
+    ],
+    '/grafismo': [
+      { sel: '.grafismo-hero', html: 'Esto es lo que ves en la tele cuando él está currando.' },
+      { sel: '.grafismo-showcase', html: 'Cabeceras, rótulos, piezas con IA… dale al play sin miedo.' },
+      { sel: '.grafismo-exp', html: 'Programas reales, en directo. Aquí no existe el "lo arreglo luego".' },
+      { sel: '.grafismo-tools', html: 'Sus herramientas. Siguiente parada: <a href="/automatizacion">Automatización →</a>' },
+    ],
+    '/automatizacion': [
+      { sel: '.auto-hero', html: 'Aquí se pone en modo máquina. Como yo, pero con café.' },
+      { sel: '.showcase', html: 'Plantillas que se montan solas. Mi parte favorita.' },
+      { sel: '.pipeline', html: 'Su cerebro en tres pasos: problema → sistema → resultado.' },
+      { sel: '.examples', html: 'Antes y después. Siguiente: <a href="/desarrollo">Desarrollo →</a>' },
+    ],
+    '/desarrollo': [
+      { sel: '.dev-hero', html: '¿Ves el robot del editor? Mi gemelo. No para de currar.' },
+      { sel: '.dev-casestudy', html: 'Black Gum: una web real en producción, no un mockup bonito.' },
+      { sel: '.dev-features', html: 'Lo que no se ve: seguridad, rendimiento, accesibilidad.' },
+      { sel: '.dev-why', html: '¿Grafista Y desarrollador? Existe. Lo estás viendo.' },
+      { sel: '.dev-cta', html: 'Última parada del tour: <a href="/fratelli-pazzi">una pizzería 🍕 →</a>' },
+    ],
+    '/fratelli-pazzi': [
+      { sel: '.fratelli-hero', html: 'Esto no es solo una web: es una pizzería DE VERDAD que cofundó.' },
+      { sel: '.fratelli-cta', html: 'Fin del tour 🤖 ¿Hablamos? <a href="/#contacto">Contacto →</a>' },
+    ],
+  };
+
+  const HIT_LINES = ['¡Ay! ⚡ ¿Eso por qué?', '¡Oye! Que soy el guía…', 'Vale, vale. Me lo merecía.', '⚡ Reiniciando dignidad…'];
+
+  let started = false;
+  let stopLoop: (() => void) | null = null;
+  let sectionIO: IntersectionObserver | null = null;
+  let typeTimer = 0;
+  let restoreTimer = 0;
+  let currentHtml = '';
+  let sectionHtml = '';
+  let showingHit = false;
+  let hitCount = 0;
+  let api: { hop: () => void; hit: () => void } | null = null;
+
+  function guideEls() {
+    return {
+      root: document.getElementById('robot-guide'),
+      mount: document.getElementById('rg-mount'),
+      bubble: document.getElementById('rg-bubble'),
+      text: document.getElementById('rg-text'),
+      close: document.getElementById('rg-close'),
+    };
+  }
+
+  function pathKey(): string {
+    const p = location.pathname.replace(/\/+$/, '');
+    return p === '' ? '/' : p;
+  }
+
+  function setMessage(html: string, opts?: { instant?: boolean }) {
+    const { text } = guideEls();
+    if (!text || html === currentHtml) return;
+    currentHtml = html;
+    clearTimeout(typeTimer);
+    if (opts?.instant) {
+      text.innerHTML = html;
+      return;
+    }
+    // Typewriter over plain text, then swap in the HTML (keeps links clickable)
+    const plain = html.replace(/<[^>]+>/g, '');
+    let i = 0;
+    text.textContent = '';
+    const step = () => {
+      i += 2;
+      text.textContent = plain.slice(0, i);
+      if (i < plain.length) {
+        typeTimer = window.setTimeout(step, 24);
+      } else {
+        text.innerHTML = html;
+      }
+    };
+    step();
+  }
+
+  async function startGuide(): Promise<void> {
+    const { root, mount } = guideEls();
+    if (!root || !mount) return;
+    if (sessionStorage.getItem('rg-hidden')) { root.style.display = 'none'; return; }
+    if (started) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { root.style.display = 'none'; return; }
+    if (window.innerWidth < 1025) { root.style.display = 'none'; return; }
+    const probe = document.createElement('canvas');
+    if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) { root.style.display = 'none'; return; }
+    started = true;
+
+    const THREE = await import('three');
+    const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+    const { buildRobotRig } = await import('../../lib/robotRig');
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 20);
+    // Same peeking framing as the /desarrollo editor bot
+    camera.position.set(0, 0.62, 3.4);
+    camera.lookAt(0, 0.55, 0);
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    mount.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xfff4e0, 1.1));
+    const key = new THREE.DirectionalLight(0xffffff, 2.2);
+    key.position.set(2, 3, 4);
+    scene.add(key);
+    const rim = new THREE.PointLight(0xf1a93a, 9, 10);
+    rim.position.set(-2, 0.8, 2);
+    scene.add(rim);
+
+    const rig = buildRobotRig(THREE, RoundedBoxGeometry);
+    scene.add(rig.robot);
+
+    function resize() {
+      const w = mount!.clientWidth || 1;
+      const h = mount!.clientHeight || 1;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(mount);
+
+    let gazeX = 0, gazeY = 0;
+    function onPointer(e: PointerEvent) {
+      // Gaze relative to the robot's own corner position
+      const rect = mount!.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      gazeX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth * 0.5)));
+      gazeY = Math.max(-1, Math.min(1, (e.clientY - cy) / (window.innerHeight * 0.5)));
+    }
+    window.addEventListener('pointermove', onPointer, { passive: true });
+
+    // Spring state: hit knock-back + hop bounce
+    let hitRot = 0, hitVel = 0, lastHit = -10;
+    let hopVel = 0, hopY = 0;
+    let pendingHit = false;
+    let waveUntil = 2.4;
+
+    function onMountClick() { pendingHit = true; }
+    mount.addEventListener('click', onMountClick);
+
+    let raf = 0;
+    let running = true;
+    let nextBlink = 2.2;
+    let blinkUntil = 0;
+    const clock = new THREE.Clock();
+
+    function tick() {
+      if (!running) return;
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const t = clock.elapsedTime;
+
+      if (pendingHit) {
+        pendingHit = false;
+        // Debounce: ignore hits landing within the recoil of the previous one
+        if (t - lastHit > 0.6) {
+          lastHit = t;
+          hitVel = -7;
+          hitCount++;
+          showingHit = true;
+          clearTimeout(restoreTimer);
+          setMessage(HIT_LINES[(hitCount - 1) % HIT_LINES.length], { instant: true });
+          restoreTimer = window.setTimeout(() => {
+            showingHit = false;
+            setMessage(sectionHtml, { instant: true });
+          }, 2200);
+        }
+      }
+
+      hitVel += (-90 * hitRot - 8 * hitVel) * dt;
+      hitRot += hitVel * dt;
+      hopVel += (-120 * hopY - 10 * hopVel) * dt;
+      hopY += hopVel * dt;
+      const hurt = t - lastHit < 0.55;
+
+      rig.robot.position.y = Math.sin(t * 1.4) * 0.04 + hopY;
+      rig.robot.position.z = hitRot * 0.4;
+      rig.robot.rotation.x = hitRot;
+      rig.robot.rotation.y = Math.sin(t * 0.55) * 0.06;
+
+      rig.headGroup.rotation.y += (gazeX * 0.55 - rig.headGroup.rotation.y) * 0.07;
+      rig.headGroup.rotation.x += (gazeY * 0.35 + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
+
+      if (hurt) {
+        rig.armRPivot.rotation.z += (-2.6 - rig.armRPivot.rotation.z) * 0.3;
+      } else if (t < waveUntil) {
+        rig.armRPivot.rotation.z = -2.3 + Math.sin(t * 9) * 0.28;
+      } else {
+        rig.armRPivot.rotation.z += (-0.25 - rig.armRPivot.rotation.z) * 0.06;
+      }
+
+      if (t > nextBlink) {
+        blinkUntil = t + 0.13;
+        nextBlink = t + 2.4 + Math.random() * 3;
+      }
+      const blinking = t < blinkUntil;
+      rig.eyesMat.color.setHex(hurt ? 0xc7422e : 0xf1a93a);
+      rig.eyeL.scale.y = rig.eyeR.scale.y = hurt ? 0.25 : (blinking ? 0.12 : 1);
+
+      const recent = t - lastHit < 1.4;
+      rig.antennaTip.scale.setScalar(1 + Math.sin(t * (recent ? 16 : 3)) * (recent ? 0.22 : 0.12));
+
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(tick);
+    }
+
+    function onVisibility() {
+      if (document.hidden) { running = false; cancelAnimationFrame(raf); }
+      else if (!running) { running = true; tick(); }
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+
+    tick();
+
+    api = {
+      hop: () => { hopVel = 1.6; },
+      hit: () => { pendingHit = true; },
+    };
+
+    stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener('pointermove', onPointer);
+      mount.removeEventListener('click', onMountClick);
+      document.removeEventListener('visibilitychange', onVisibility);
+      rig.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+    };
+  }
+
+  function setupPage() {
+    const { root, close } = guideEls();
+    if (!root || root.style.display === 'none') return;
+
+    sectionIO?.disconnect();
+    const msgs = MESSAGES[pathKey()];
+    if (!msgs) {
+      sectionHtml = 'Sigue explorando, yo te acompaño 🤖';
+      if (!showingHit) setMessage(sectionHtml, { instant: true });
+      return;
+    }
+
+    // Middle-band observer: fires when a section crosses the center of the
+    // viewport, so it also works for sections taller than the screen.
+    sectionIO = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const html = (entry.target as HTMLElement).dataset.rgMsg;
+        if (html && html !== sectionHtml) {
+          sectionHtml = html;
+          if (!showingHit) {
+            setMessage(html);
+            api?.hop();
+          }
+        }
+      });
+    }, { rootMargin: '-42% 0px -42% 0px', threshold: 0 });
+
+    let first = true;
+    msgs.forEach(({ sel, html }) => {
+      const el = document.querySelector<HTMLElement>(sel);
+      if (!el) return;
+      el.dataset.rgMsg = html;
+      sectionIO!.observe(el);
+      if (first) {
+        sectionHtml = html;
+        if (!showingHit) setMessage(html);
+        first = false;
+      }
+    });
+
+    close?.addEventListener('click', () => {
+      sessionStorage.setItem('rg-hidden', '1');
+      root.style.display = 'none';
+      stopLoop?.();
+      stopLoop = null;
+      started = false;
+    }, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    startGuide().then(setupPage);
+  });
+</script>
+
+<style>
+  /* Mini terminal window with the robot peeking over its top edge —
+     same composition as the /desarrollo editor mascot, in miniature. */
+  .rg {
+    position: fixed;
+    right: clamp(0.8rem, 2vw, 1.6rem);
+    bottom: clamp(0.8rem, 2vw, 1.6rem);
+    z-index: 11000;
+    width: 272px;
+    pointer-events: none;
+  }
+
+  /* Robot canvas: anchored over the terminal, lower body hidden behind it */
+  .rg__mount {
+    position: absolute;
+    bottom: calc(100% - 118px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 190px;
+    z-index: 0;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .rg__mount :global(canvas) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Terminal window */
+  .rg__bubble {
+    position: relative;
+    z-index: 1;
+    margin-top: 72px;
+    background: #16181d;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 1px 2px rgba(20, 20, 30, 0.12),
+      0 12px 32px rgba(20, 20, 30, 0.35),
+      0 28px 60px rgba(0, 0, 0, 0.35);
+    pointer-events: auto;
+  }
+
+  .rg__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.45rem 0.7rem;
+    background: #1d2026;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .rg__dots {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+
+  .rg__dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+  }
+
+  .rg__dots i:nth-child(1) { background: #ff5f57; }
+  .rg__dots i:nth-child(2) { background: #febc2e; }
+  .rg__dots i:nth-child(3) { background: #28c840; }
+
+  .rg__title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.45);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rg__close {
+    margin-left: auto;
+    width: 18px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    background: none;
+    border: none;
+    color: rgba(215, 209, 197, 0.45);
+    font-size: 0.95rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .rg__close:hover {
+    color: #f5f0e8;
+  }
+
+  .rg__text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    line-height: 1.55;
+    color: #d7d1c5;
+    padding: 0.65rem 0.8rem 0.75rem;
+    min-height: 3.4em;
+    margin: 0;
+  }
+
+  .rg__text::before {
+    content: '> ';
+    color: #f1a93a;
+  }
+
+  .rg__text :global(a) {
+    color: #f1a93a;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .rg__text :global(a:hover) {
+    color: #f5f0e8;
+  }
+
+  @media (max-width: 1024px), (prefers-reduced-motion: reduce) {
+    .rg {
+      display: none;
+    }
+  }
+</style>
