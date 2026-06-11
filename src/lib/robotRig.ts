@@ -11,6 +11,7 @@ export interface RobotRig {
   eyeL: any;
   eyeR: any;
   eyesMat: any;
+  chestMat: any;
   armRPivot: any;
   antennaTip: any;
   dispose: () => void;
@@ -100,5 +101,5 @@ export function buildRobotRig(THREE: any, RoundedBoxGeometry: any): RobotRig {
     eyesMat.dispose();
   }
 
-  return { robot, headGroup, eyeL, eyeR, eyesMat, armRPivot, antennaTip, dispose };
+  return { robot, headGroup, eyeL, eyeR, eyesMat, chestMat: amber, armRPivot, antennaTip, dispose };
 }

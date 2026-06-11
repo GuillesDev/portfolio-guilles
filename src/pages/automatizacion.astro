@@ -19,8 +19,24 @@ import { automatizacionVisualisers } from '../data/projects';
         <span class="auto-hero__title--short">Automatizar</span>
       </h1>
       <p class="auto-hero__sub">Detecto lo repetitivo, lo convierto en sistema y me olvido.</p>
+      <div class="auto-hero__tracks mono">
+        <a class="auto-hero__track" href="#after-effects"><span>01</span> After Effects</a>
+        <a class="auto-hero__track" href="#empresas"><span>02</span> Soluciones para empresas</a>
+      </div>
     </div>
   </section>
+
+  <!-- ━━ Bloque 01 · After Effects ━━ -->
+  <div class="track" id="after-effects">
+    <div class="container track__inner" data-animate="fade-up">
+      <span class="track__num" aria-hidden="true">01</span>
+      <div class="track__text">
+        <span class="track__kicker mono">// after effects</span>
+        <h2 class="track__title">Grafismo que se monta solo</h2>
+        <p class="track__sub">Plantillas, expresiones y scripts que convierten horas de rotulación en un click.</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Showcase — lo primero que se ve -->
   <section class="showcase" aria-label="Plantillas automatizadas">
@@ -183,9 +199,178 @@ import { automatizacionVisualisers } from '../data/projects';
     </div>
   </section>
 
+  <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
+  <div class="track" id="empresas">
+    <div class="container track__inner" data-animate="fade-up">
+      <span class="track__num" aria-hidden="true">02</span>
+      <div class="track__text">
+        <span class="track__kicker mono">// soluciones para empresas</span>
+        <h2 class="track__title">Bots que trabajan por tu empresa</h2>
+        <p class="track__sub">
+          No solo automatizo gráficos: monto <strong>chatbots y asistentes</strong> que atienden,
+          agendan citas y captan clientes mientras tú haces otra cosa. La demo de abajo se está
+          ejecutando sola, igual que lo haría en tu web o tu WhatsApp.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bots para empresas -->
+  <section class="bots section">
+    <div class="container">
+      <div class="bots__demo" data-animate="fade-up">
+        <!-- Demo: chatbot conversando solo -->
+        <div class="chat-demo">
+          <div class="chat-demo__bar mono">
+            <span class="chat-demo__status" aria-hidden="true"></span>
+            <span class="chat-demo__name">asistente — Clínica Dental Sonrisa</span>
+            <span class="chat-demo__tag">demo</span>
+          </div>
+          <div class="chat-demo__messages" id="chat-messages" aria-label="Conversación de ejemplo con un chatbot de empresa"></div>
+          <div class="chat-demo__input mono" aria-hidden="true">
+            <span>Escribe un mensaje…</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </div>
+        </div>
+
+        <!-- Cómo lo monto: diagrama + pasos -->
+        <div class="bots__how">
+          <h3 class="bots__how-title mono">// cómo lo monto</h3>
+
+          <div class="bots__flow" aria-hidden="true">
+            <div class="bots__flow-node">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+              <span>Web · WhatsApp<br />· Instagram</span>
+            </div>
+            <div class="bots__flow-arrow">
+              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
+            </div>
+            <div class="bots__flow-node bots__flow-node--bot">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><line x1="12" y1="7" x2="12" y2="3"/><circle cx="12" cy="3" r="1" fill="currentColor"/><circle cx="9.5" cy="12.5" r="1" fill="currentColor"/><circle cx="14.5" cy="12.5" r="1" fill="currentColor"/><path d="M9 16h6"/></svg>
+              <span>Bot<br />reglas + IA</span>
+            </div>
+            <div class="bots__flow-arrow">
+              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
+            </div>
+            <div class="bots__flow-node">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>Agenda · CRM<br />· Email</span>
+            </div>
+          </div>
+
+          <ol class="bots__steps">
+            <li><strong>Escucho.</strong> ¿Dónde pierde tiempo tu equipo? Preguntas repetidas, citas, presupuestos…</li>
+            <li><strong>Diseño el flujo.</strong> Árbol de conversación + IA para lo que se salga del guion.</li>
+            <li><strong>Lo conecto a tus herramientas.</strong> Agenda, CRM, email o WhatsApp: el bot ejecuta, no solo habla.</li>
+            <li><strong>Mido y mejoro.</strong> Cada conversación queda registrada: se ve qué pregunta la gente y qué convierte.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="bots__uses" data-animate="stagger">
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h3 class="bot-use__title">Atención 24/7</h3>
+          <p class="bot-use__text">Responde al instante las preguntas de siempre: horarios, precios, ubicación. Sin esperas y sin interrumpir a nadie del equipo.</p>
+        </div>
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+          </div>
+          <h3 class="bot-use__title">Reservas y citas</h3>
+          <p class="bot-use__text">El bot mira la agenda, propone hueco, reserva y manda recordatorios. Menos llamadas y menos citas perdidas.</p>
+        </div>
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          </div>
+          <h3 class="bot-use__title">Captación de leads</h3>
+          <p class="bot-use__text">Hace las preguntas clave, cualifica al cliente y te lo deja en el CRM o en el email con todo el contexto. Tú solo cierras.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </SectionLayout>
 
 <script is:inline>
+  // ── Chat demo: la conversación se escribe sola en bucle ──
+  (() => {
+    const SCRIPT = [
+      { from: 'user', text: 'Hola, ¿hacéis blanqueamiento dental?' },
+      { from: 'bot', text: '¡Claro! 😁 El blanqueamiento LED son 150 €. ¿Quieres una valoración gratuita antes?' },
+      { from: 'user', text: 'Sí, ¿tenéis hueco el jueves por la tarde?' },
+      { from: 'bot', text: 'Déjame mirar la agenda… ✅ Jueves 17:30 con la Dra. Ruiz. ¿Te lo reservo?' },
+      { from: 'user', text: 'Perfecto, resérvalo' },
+      { from: 'bot', text: 'Hecho 📅 Te llega la confirmación por WhatsApp y un recordatorio el día antes.' },
+      { from: 'sys', text: '→ cita creada en la agenda · lead guardado en el CRM · aviso enviado a la clínica' },
+    ];
+
+    function addMsg(box, from, text) {
+      const el = document.createElement('div');
+      el.className = 'chat-msg chat-msg--' + from;
+      el.textContent = text;
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+      return el;
+    }
+
+    function initChatDemo() {
+      const box = document.getElementById('chat-messages');
+      if (!box || box.dataset.init) return;
+      box.dataset.init = '1';
+
+      // Reduced motion: render the whole conversation statically, no loop
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        SCRIPT.forEach((m) => addMsg(box, m.from, m.text));
+        return;
+      }
+
+      let i = 0;
+      let timer = 0;
+
+      function step() {
+        if (!box.isConnected) return; // page swapped away — stop
+        if (i >= SCRIPT.length) {
+          // Conversation over: pause, clear, restart
+          timer = setTimeout(() => {
+            box.innerHTML = '';
+            i = 0;
+            step();
+          }, 4200);
+          return;
+        }
+        const msg = SCRIPT[i++];
+        if (msg.from === 'bot') {
+          const typing = addMsg(box, 'bot chat-msg--typing', '');
+          typing.innerHTML = '<i></i><i></i><i></i>';
+          timer = setTimeout(() => {
+            typing.remove();
+            addMsg(box, msg.from, msg.text);
+            timer = setTimeout(step, 1400);
+          }, 1100);
+        } else {
+          addMsg(box, msg.from, msg.text);
+          timer = setTimeout(step, msg.from === 'sys' ? 1600 : 1000);
+        }
+      }
+
+      // Start when the demo scrolls into view
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          step();
+        }
+      }, { threshold: 0.35 });
+      io.observe(box);
+    }
+
+    initChatDemo();
+    document.addEventListener('astro:page-load', initChatDemo);
+  })();
+
   // ── Showcase slider ──
   (() => {
     const slides = document.querySelectorAll('.showcase__slide');
@@ -902,11 +1087,407 @@ import { automatizacionVisualisers } from '../data/projects';
     }
   }
 
+  /* ── Hero: anclas a los dos bloques ── */
+  .auto-hero__tracks {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-m);
+    flex-wrap: wrap;
+  }
+
+  .auto-hero__track {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--auto-border);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    color: var(--auto-text-secondary);
+    text-decoration: none;
+    transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+  }
+
+  .auto-hero__track span {
+    color: var(--auto-accent);
+  }
+
+  .auto-hero__track:hover {
+    border-color: rgba(57, 211, 83, 0.45);
+    color: var(--auto-text);
+  }
+
+  /* ── Separadores de bloque (01 After Effects / 02 Empresas) ── */
+  .track {
+    position: relative;
+    z-index: 1;
+    background: var(--auto-bg);
+    padding-block: var(--space-2xl) var(--space-l);
+    scroll-margin-top: 90px;
+  }
+
+  .track__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-l);
+    border-top: 1px solid var(--auto-border);
+    padding-top: var(--space-xl);
+  }
+
+  .track__num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(4rem, 3rem + 6vw, 8rem);
+    font-weight: 800;
+    line-height: 0.9;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(57, 211, 83, 0.35);
+    flex-shrink: 0;
+  }
+
+  .track__kicker {
+    display: block;
+    color: var(--auto-accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .track__title {
+    font-size: var(--step-3);
+    color: var(--auto-primary);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .track__sub {
+    color: var(--auto-text-secondary);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    max-width: 62ch;
+  }
+
+  .track__sub strong {
+    color: var(--auto-accent);
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .track__inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-s);
+    }
+  }
+
+  /* ── Bots para empresas ── */
+  .bots__demo {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: var(--space-xl);
+    align-items: start;
+    margin-bottom: var(--space-2xl);
+  }
+
+  /* Chat demo */
+  .chat-demo {
+    background: var(--auto-surface);
+    border: 1px solid var(--auto-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  }
+
+  .chat-demo__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--auto-border);
+    font-size: 0.72rem;
+    color: var(--auto-text-secondary);
+  }
+
+  .chat-demo__status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--auto-accent);
+    box-shadow: 0 0 8px var(--auto-accent);
+    animation: chat-pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  .chat-demo__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-demo__tag {
+    margin-left: auto;
+    border: 1px solid rgba(57, 211, 83, 0.35);
+    color: var(--auto-accent);
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    flex-shrink: 0;
+  }
+
+  .chat-demo__messages {
+    height: 380px;
+    overflow: hidden;
+    padding: var(--space-s);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .chat-msg {
+    max-width: 84%;
+    padding: 0.55rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: chat-in 0.35s ease forwards;
+  }
+
+  .chat-msg--user {
+    align-self: flex-end;
+    background: rgba(57, 211, 83, 0.13);
+    border: 1px solid rgba(57, 211, 83, 0.28);
+    color: var(--auto-text);
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-msg--bot {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--auto-border);
+    color: var(--auto-text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-msg--sys {
+    align-self: center;
+    max-width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0.2rem 0;
+    color: var(--auto-accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+    text-align: center;
+    opacity: 0;
+  }
+
+  .chat-msg--typing {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    min-height: 1.9em;
+  }
+
+  .chat-msg--typing i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--auto-text-secondary);
+    animation: chat-typing 1s ease-in-out infinite;
+  }
+
+  .chat-msg--typing i:nth-child(2) { animation-delay: 0.15s; }
+  .chat-msg--typing i:nth-child(3) { animation-delay: 0.3s; }
+
+  .chat-demo__input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    border-top: 1px solid var(--auto-border);
+    color: var(--auto-text-secondary);
+    font-size: 0.72rem;
+    opacity: 0.65;
+  }
+
+  @keyframes chat-in {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes chat-pulse {
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes chat-typing {
+    50% { transform: translateY(-4px); opacity: 0.5; }
+  }
+
+  /* Cómo lo monto */
+  .bots__how-title {
+    color: var(--auto-accent);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-m);
+  }
+
+  .bots__flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0.4rem;
+    margin-bottom: var(--space-l);
+  }
+
+  .bots__flow-node {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+    background: var(--auto-surface);
+    border: 1px solid var(--auto-border);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 0.4rem;
+    color: var(--auto-text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    line-height: 1.45;
+  }
+
+  .bots__flow-node svg {
+    color: var(--auto-accent);
+  }
+
+  .bots__flow-node--bot {
+    border-color: rgba(57, 211, 83, 0.4);
+    box-shadow: 0 0 24px rgba(57, 211, 83, 0.08);
+    color: var(--auto-text);
+  }
+
+  .bots__flow-arrow {
+    width: 42px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .bots__dash {
+    animation: bots-dash 1.1s linear infinite;
+  }
+
+  @keyframes bots-dash {
+    to { stroke-dashoffset: -10; }
+  }
+
+  .bots__steps {
+    list-style: none;
+    counter-reset: bot-step;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+    padding: 0;
+    margin: 0;
+  }
+
+  .bots__steps li {
+    counter-increment: bot-step;
+    position: relative;
+    padding-left: 2.8rem;
+    color: var(--auto-text-secondary);
+    line-height: 1.55;
+    font-size: 0.9rem;
+  }
+
+  .bots__steps li::before {
+    content: '0' counter(bot-step);
+    position: absolute;
+    left: 0;
+    top: 0.1em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--auto-accent);
+    border: 1px solid rgba(57, 211, 83, 0.3);
+    border-radius: 6px;
+    padding: 0.12rem 0.4rem;
+  }
+
+  .bots__steps strong {
+    color: var(--auto-text);
+  }
+
+  /* Casos de uso */
+  .bots__uses {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-m);
+  }
+
+  .bot-use {
+    background: var(--auto-surface);
+    border: 1px solid var(--auto-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-m);
+    transition: border-color var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+
+  .bot-use:hover {
+    border-color: rgba(57, 211, 83, 0.35);
+    transform: translateY(-4px);
+  }
+
+  .bot-use__icon {
+    color: var(--auto-accent);
+    margin-bottom: var(--space-xs);
+  }
+
+  .bot-use__title {
+    font-size: var(--step-0);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--auto-text);
+  }
+
+  .bot-use__text {
+    color: var(--auto-text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    .bots__demo {
+      grid-template-columns: 1fr;
+      gap: var(--space-l);
+    }
+
+    .bots__uses {
+      grid-template-columns: 1fr;
+    }
+
+    .chat-demo__messages {
+      height: 320px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-demo__status,
+    .bots__dash {
+      animation: none;
+    }
+
+    .chat-msg {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+  }
+
   /* Ensure content sections are above particles */
   .showcase,
   .terminal-strip,
   .pipeline,
-  .examples {
+  .examples,
+  .bots {
     position: relative;
     z-index: 1;
   }

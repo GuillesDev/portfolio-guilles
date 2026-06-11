@@ -3,14 +3,20 @@
  * RobotGuide — persistent robot mascot that guides visitors through the
  * portfolio. Lives fixed at the bottom-right corner on every page, comments
  * on each section as you scroll, suggests the next stop, follows the cursor
- * with its gaze, and complains if you click (hit) it.
+ * with its gaze, and complains if you click (hit) it. Its eyes, chest light
+ * and terminal accent tint themselves with each page's palette so it blends
+ * into every section. On each new section it celebrates with a hop and a
+ * terminal pop. When it first appears it makes a rocket entrance: flies in
+ * from below with a thruster flame, lands, turns around, pulls its terminal
+ * sign off its back, and waves hello. On /desarrollo it stays offstage until
+ * you scroll past the hero (its big twin lives there).
  * Desktop-only; respects prefers-reduced-motion; Three.js loads lazily.
  */
 ---
 
-<div class="rg" id="robot-guide" transition:persist="robot-guide" aria-hidden="true">
+<div class="rg rg--offstage" id="robot-guide" transition:persist="robot-guide" aria-hidden="true">
   <div class="rg__mount" id="rg-mount" title="Soy el bot de Guille"></div>
-  <div class="rg__bubble" id="rg-bubble">
+  <div class="rg__bubble rg__bubble--hidden" id="rg-bubble">
     <div class="rg__bar">
       <span class="rg__dots" aria-hidden="true"><i></i><i></i><i></i></span>
       <span class="rg__title">bot-guía — tour</span>
@@ -38,13 +44,13 @@
     ],
     '/automatizacion': [
       { sel: '.auto-hero', html: 'Aquí se pone en modo máquina. Como yo, pero con café.' },
-      { sel: '.showcase', html: 'Plantillas que se montan solas. Mi parte favorita.' },
+      { sel: '.showcase', html: 'Bloque 01: plantillas de After Effects que se montan solas.' },
       { sel: '.pipeline', html: 'Su cerebro en tres pasos: problema → sistema → resultado.' },
-      { sel: '.examples', html: 'Antes y después. Siguiente: <a href="/desarrollo">Desarrollo →</a>' },
+      { sel: '.examples', html: 'Antes y después. Sin trampa: es el mismo día.' },
+      { sel: '.bots', html: 'Un primo mío atendiendo clientes 24/7. Siguiente: <a href="/desarrollo">Desarrollo →</a>' },
     ],
     '/desarrollo': [
-      { sel: '.dev-hero', html: '¿Ves el robot del editor? Mi gemelo. No para de currar.' },
-      { sel: '.dev-casestudy', html: 'Black Gum: una web real en producción, no un mockup bonito.' },
+      { sel: '.dev-casestudy', html: '¿Has visto a mi gemelo en el editor? Bueno, al tour: Black Gum, una web real en producción.' },
       { sel: '.dev-features', html: 'Lo que no se ve: seguridad, rendimiento, accesibilidad.' },
       { sel: '.dev-why', html: '¿Grafista Y desarrollador? Existe. Lo estás viendo.' },
       { sel: '.dev-cta', html: 'Última parada del tour: <a href="/fratelli-pazzi">una pizzería 🍕 →</a>' },
@@ -57,6 +63,17 @@
 
   const HIT_LINES = ['¡Ay! ⚡ ¿Eso por qué?', '¡Oye! Que soy el guía…', 'Vale, vale. Me lo merecía.', '⚡ Reiniciando dignidad…'];
 
+  // Page accent (eyes, chest light, terminal prompt) — mirrors tokens.css
+  const ACCENTS: Record<string, string> = {
+    '/': '#3B82F6',
+    '/grafismo': '#00D4FF',
+    '/automatizacion': '#39D353',
+    '/desarrollo': '#f1a93a',
+    '/fratelli-pazzi': '#D37968',
+  };
+  const DEFAULT_ACCENT = '#f1a93a';
+  let accentHex = 0xf1a93a;
+
   let started = false;
   let stopLoop: (() => void) | null = null;
   let sectionIO: IntersectionObserver | null = null;
@@ -66,7 +83,69 @@
   let sectionHtml = '';
   let showingHit = false;
   let hitCount = 0;
-  let api: { hop: () => void; hit: () => void } | null = null;
+  let api: { hop: () => void; rocket: () => void; hit: () => void } | null = null;
+  // Per-page reveal watcher teardown (e.g. /desarrollo scroll gate)
+  let revealCleanup: (() => void) | null = null;
+  let entranceTimer = 0;
+  let revealDelayTimer = 0;
+
+  /** Hop + terminal pop — played on every new section. */
+  function celebrate() {
+    api?.hop();
+    const { bubble } = guideEls();
+    if (!bubble) return;
+    bubble.classList.remove('rg__bubble--pop');
+    void bubble.offsetWidth; // restart the CSS animation
+    bubble.classList.add('rg__bubble--pop');
+  }
+
+  /** Rocket entrance: fly in, turn around, grab the sign off the back. */
+  function playEntrance() {
+    const { root, bubble } = guideEls();
+    api?.rocket();
+    if (!root || !bubble) return;
+    clearTimeout(entranceTimer);
+    bubble.classList.add('rg__bubble--hidden');
+    // While he carries and presents the 3D sign, the robot (and his arm)
+    // render IN FRONT of everything.
+    root.classList.add('rg--robot-front');
+    // At the "plant" the HTML terminal unfolds and the Z order swaps back:
+    // the robot ducks BEHIND it (peek-over), so the screen stays in front of
+    // him at rest. (flight 1.0s + wave + turn + present ≈ 3.45s.)
+    entranceTimer = window.setTimeout(() => {
+      bubble.classList.remove('rg__bubble--hidden');
+      root.classList.remove('rg--robot-front');
+      if (!showingHit) setMessage(sectionHtml, { force: true });
+    }, 3450);
+  }
+
+  /** Show/hide the whole widget. Revealing triggers the rocket entrance. */
+  function setOffstage(off: boolean) {
+    const { root } = guideEls();
+    if (!root) return;
+    if (off) {
+      root.classList.add('rg--offstage');
+      return;
+    }
+    if (root.classList.contains('rg--offstage')) {
+      playEntrance(); // hide the sign before the widget fades in
+      root.classList.remove('rg--offstage');
+    }
+  }
+
+  /** Hard-hide the widget with no fade — used on each page load so the
+   *  rocket entrance can replay cleanly. */
+  function goOffstageInstant() {
+    const { root, bubble } = guideEls();
+    if (!root) return;
+    clearTimeout(entranceTimer);
+    clearTimeout(revealDelayTimer);
+    root.style.transition = 'none';
+    root.classList.add('rg--offstage');
+    bubble?.classList.add('rg__bubble--hidden');
+    void root.offsetWidth; // flush, then restore the transition
+    root.style.transition = '';
+  }
 
   function guideEls() {
     return {
@@ -83,9 +162,9 @@
     return p === '' ? '/' : p;
   }
 
-  function setMessage(html: string, opts?: { instant?: boolean }) {
+  function setMessage(html: string, opts?: { instant?: boolean; force?: boolean }) {
     const { text } = guideEls();
-    if (!text || html === currentHtml) return;
+    if (!text || (html === currentHtml && !opts?.force)) return;
     currentHtml = html;
     clearTimeout(typeTimer);
     if (opts?.instant) {
@@ -118,6 +197,7 @@
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) { root.style.display = 'none'; return; }
     started = true;
+    root.style.display = ''; // clear any earlier hide (e.g. loaded narrow, then widened)
 
     const THREE = await import('three');
     const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
@@ -143,6 +223,61 @@
 
     const rig = buildRobotRig(THREE, RoundedBoxGeometry);
     scene.add(rig.robot);
+
+    // Rocket thruster under the robot — only visible during the entrance
+    const flameGeoIn = new THREE.ConeGeometry(0.07, 0.3, 10);
+    const flameGeoOut = new THREE.ConeGeometry(0.115, 0.46, 10);
+    const flameMatIn = new THREE.MeshBasicMaterial({ color: 0xffd27a, transparent: true, opacity: 0.95 });
+    const flameMatOut = new THREE.MeshBasicMaterial({ color: 0xc7422e, transparent: true, opacity: 0.55 });
+    const flame = new THREE.Group();
+    const flameIn = new THREE.Mesh(flameGeoIn, flameMatIn);
+    flameIn.rotation.x = Math.PI;
+    flameIn.position.y = -0.04;
+    const flameOut = new THREE.Mesh(flameGeoOut, flameMatOut);
+    flameOut.rotation.x = Math.PI;
+    flameOut.position.y = -0.1;
+    flame.add(flameOut, flameIn);
+    flame.position.y = -0.42;
+    flame.visible = false;
+    rig.robot.add(flame);
+
+    // 3D sign the robot carries flat on its back and reveals on entrance.
+    // Parented to the robot so it naturally faces the camera when he turns
+    // around; we then swing it to the front and hand off to the HTML terminal.
+    // Built to read as the exact same mini-terminal as the HTML bubble:
+    // bone frame, dark title bar with three traffic-light dots, dark screen
+    // and an accent "prompt line". The handoff then looks like one object.
+    const signFrameGeo = new RoundedBoxGeometry(0.64, 0.42, 0.05, 4, 0.06);
+    const signBodyGeo = new THREE.PlaneGeometry(0.56, 0.32);
+    const signBarGeo = new THREE.PlaneGeometry(0.56, 0.09);
+    const signStripGeo = new THREE.PlaneGeometry(0.32, 0.022);
+    const signDotGeo = new THREE.CircleGeometry(0.013, 14);
+    const signFrameMat = new THREE.MeshStandardMaterial({ color: 0xe8e2d6, roughness: 0.55, metalness: 0.1, transparent: true });
+    const signBodyMat = new THREE.MeshBasicMaterial({ color: 0x16181d, transparent: true });
+    const signBarMat = new THREE.MeshBasicMaterial({ color: 0x1d2026, transparent: true });
+    const signStripMat = new THREE.MeshBasicMaterial({ color: accentHex, transparent: true });
+    const signDotMats = [0xff5f57, 0xfebc2e, 0x28c840].map((c) => new THREE.MeshBasicMaterial({ color: c, transparent: true }));
+    const sign = new THREE.Group();
+    const signFrame = new THREE.Mesh(signFrameGeo, signFrameMat);
+    const signBody = new THREE.Mesh(signBodyGeo, signBodyMat);
+    signBody.position.set(0, -0.025, 0.03);
+    const signBar = new THREE.Mesh(signBarGeo, signBarMat);
+    signBar.position.set(0, 0.145, 0.031);
+    const signStrip = new THREE.Mesh(signStripGeo, signStripMat);
+    signStrip.position.set(-0.1, -0.04, 0.032);
+    sign.add(signFrame, signBody, signBar, signStrip);
+    const signDots = signDotMats.map((m, i) => {
+      const d = new THREE.Mesh(signDotGeo, m);
+      d.position.set(-0.24 + i * 0.038, 0.145, 0.033);
+      return d;
+    });
+    sign.add(...signDots);
+    const signMats = [signFrameMat, signBodyMat, signBarMat, signStripMat, ...signDotMats];
+    sign.position.set(0, 0.12, -0.26); // flat against the back
+    sign.rotation.y = Math.PI;
+    sign.scale.setScalar(0.001);
+    sign.visible = false;
+    rig.robot.add(sign);
 
     function resize() {
       const w = mount!.clientWidth || 1;
@@ -170,10 +305,16 @@
     let hitRot = 0, hitVel = 0, lastHit = -10;
     let hopVel = 0, hopY = 0;
     let pendingHit = false;
-    let waveUntil = 2.4;
+    // Rocket entrance: robot parks below the frame until it flies in
+    let pendingRocket = false;
+    let rocketStart = -10;
+    let hasEntered = false;
 
     function onMountClick() { pendingHit = true; }
     mount.addEventListener('click', onMountClick);
+
+    // Scratch color for lerping eyes/chest toward the page accent
+    const tint = new THREE.Color(accentHex);
 
     let raf = 0;
     let running = true;
@@ -209,28 +350,99 @@
       hopY += hopVel * dt;
       const hurt = t - lastHit < 0.55;
 
-      rig.robot.position.y = Math.sin(t * 1.4) * 0.04 + hopY;
+      // Rocket entrance: rise from below the frame with ease-out-back
+      // (slight overshoot on landing), thruster burning until touchdown
+      if (pendingRocket) {
+        pendingRocket = false;
+        rocketStart = t;
+        hasEntered = true;
+      }
+      const FLIGHT = 1.0;
+      const rp = (t - rocketStart) / FLIGHT;
+      let entryY = hasEntered ? 0 : -2.4;
+      if (hasEntered && rp < 1) {
+        const k = 1.70158;
+        const ease = 1 + (k + 1) * Math.pow(rp - 1, 3) + k * Math.pow(rp - 1, 2);
+        entryY = -2.4 * (1 - ease);
+      }
+      const thrust = hasEntered && rp >= 0 && rp < 0.9 ? 1 - rp / 0.9 : 0;
+      flame.visible = thrust > 0;
+      if (thrust > 0) {
+        const flicker = 1 + Math.sin(t * 42) * 0.22;
+        flame.scale.set(flicker, (0.65 + thrust * 0.65) * flicker, flicker);
+        flameMatIn.opacity = 0.95 * Math.min(1, thrust * 1.8);
+        flameMatOut.opacity = 0.55 * Math.min(1, thrust * 1.8);
+      }
+
+      // ── Entrance choreography (seconds since landing) ──
+      // smoothstep, used as building block for every phase ramp
+      const smooth = (a: number, b: number, x: number) => {
+        const p = Math.min(1, Math.max(0, (x - a) / (b - a)));
+        return p * p * (3 - 2 * p);
+      };
+      const s = t - rocketStart - FLIGHT;
+
+      // 1) wave hello  2) turn around  3) lift sign off back
+      // 4) turn back presenting it  5) lower it behind body (HTML takes over)
+      const waving = hasEntered && s > 0.2 && s < 1.15;
+      const turnY = Math.PI * (smooth(1.2, 1.55, s) - smooth(2.0, 2.5, s));
+      const grab = smooth(1.45, 1.95, s);   // sign lifts off the back
+      const bring = smooth(2.0, 2.5, s);     // swings around to the front
+      const handoff = smooth(2.45, 2.95, s); // descends behind body + fades
+
+      const signActive = hasEntered && s > 1.1 && s < 3.05;
+      sign.visible = signActive;
+      if (signActive) {
+        sign.position.set(0, 0.12 + grab * 0.12 + bring * 0.14 - handoff * 0.66, -0.26 + bring * 0.56);
+        // Counter-rotate against the body so the screen always faces the
+        // camera as he swings it from his back around to the front.
+        sign.rotation.y = -turnY;
+        sign.scale.setScalar(Math.max(0.001, grab * (1 - handoff * 0.3)));
+        const op = (1 - handoff) * Math.min(1, grab * 3);
+        for (const m of signMats) m.opacity = op;
+      }
+
+      rig.robot.position.y = Math.sin(t * 1.4) * 0.04 + hopY + entryY;
       rig.robot.position.z = hitRot * 0.4;
       rig.robot.rotation.x = hitRot;
-      rig.robot.rotation.y = Math.sin(t * 0.55) * 0.06;
+      rig.robot.rotation.y = Math.sin(t * 0.55) * 0.06 + turnY;
+      rig.robot.rotation.z = Math.sin(t * 10) * 0.08 * thrust;
 
-      rig.headGroup.rotation.y += (gazeX * 0.55 - rig.headGroup.rotation.y) * 0.07;
-      rig.headGroup.rotation.x += (gazeY * 0.35 + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
+      // Gaze follows the cursor, but not while flying or turned around
+      const gazeDamp = (1 - turnY / Math.PI) * (1 - thrust);
+      rig.headGroup.rotation.y += (gazeX * 0.55 * gazeDamp - rig.headGroup.rotation.y) * 0.07;
+      rig.headGroup.rotation.x += (gazeY * 0.35 * gazeDamp + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
 
+      // Right arm: flail when hit > wave hello > reach back for the sign > rest
+      let armTarget = -0.25;
+      let armLerp = 0.06;
       if (hurt) {
-        rig.armRPivot.rotation.z += (-2.6 - rig.armRPivot.rotation.z) * 0.3;
-      } else if (t < waveUntil) {
-        rig.armRPivot.rotation.z = -2.3 + Math.sin(t * 9) * 0.28;
-      } else {
-        rig.armRPivot.rotation.z += (-0.25 - rig.armRPivot.rotation.z) * 0.06;
+        armTarget = -2.6; armLerp = 0.3;
+      } else if (waving) {
+        armTarget = -2.3 + Math.sin(t * 9) * 0.28; armLerp = 0.25;
+      } else if (grab > 0.05 && turnY > 0.4 && handoff < 0.5) {
+        armTarget = -0.25 - 2.1 * grab; armLerp = 0.3;
       }
+      rig.armRPivot.rotation.z += (armTarget - rig.armRPivot.rotation.z) * armLerp;
+      // Bring the waving arm forward in Z so it sweeps in FRONT of the body
+      // instead of disappearing behind it.
+      const armFwd = waving ? 0.28 : 0;
+      rig.armRPivot.position.z += (armFwd - rig.armRPivot.position.z) * 0.18;
 
       if (t > nextBlink) {
         blinkUntil = t + 0.13;
         nextBlink = t + 2.4 + Math.random() * 3;
       }
       const blinking = t < blinkUntil;
-      rig.eyesMat.color.setHex(hurt ? 0xc7422e : 0xf1a93a);
+      // Eyes & chest light glide toward the current page accent (red while hurt)
+      tint.setHex(accentHex);
+      if (hurt) {
+        rig.eyesMat.color.setHex(0xc7422e);
+      } else {
+        rig.eyesMat.color.lerp(tint, 0.06);
+      }
+      rig.chestMat.color.lerp(tint, 0.06);
+      signStripMat.color.lerp(tint, 0.06);
       rig.eyeL.scale.y = rig.eyeR.scale.y = hurt ? 0.25 : (blinking ? 0.12 : 1);
 
       const recent = t - lastHit < 1.4;
@@ -250,6 +462,7 @@
 
     api = {
       hop: () => { hopVel = 1.6; },
+      rocket: () => { pendingRocket = true; },
       hit: () => { pendingHit = true; },
     };
 
@@ -260,6 +473,16 @@
       window.removeEventListener('pointermove', onPointer);
       mount.removeEventListener('click', onMountClick);
       document.removeEventListener('visibilitychange', onVisibility);
+      flameGeoIn.dispose();
+      flameGeoOut.dispose();
+      flameMatIn.dispose();
+      flameMatOut.dispose();
+      signFrameGeo.dispose();
+      signBodyGeo.dispose();
+      signBarGeo.dispose();
+      signStripGeo.dispose();
+      signDotGeo.dispose();
+      for (const m of signMats) m.dispose();
       rig.dispose();
       renderer.dispose();
       renderer.domElement.remove();
@@ -269,6 +492,30 @@
   function setupPage() {
     const { root, close } = guideEls();
     if (!root || root.style.display === 'none') return;
+
+    // Tint the robot + terminal with this page's accent
+    const accent = ACCENTS[pathKey()] ?? DEFAULT_ACCENT;
+    accentHex = parseInt(accent.slice(1), 16);
+    root.style.setProperty('--rg-accent', accent);
+
+    // The rocket entrance replays on every page: hard-hide first, then reveal.
+    // On /desarrollo the big editor twin owns the hero, so we hold the guide
+    // offstage until the hero is mostly scrolled away before launching.
+    revealCleanup?.();
+    revealCleanup = null;
+    goOffstageInstant();
+    const hero = pathKey() === '/desarrollo' ? document.querySelector('.dev-hero') : null;
+    if (hero) {
+      const onScroll = () => {
+        setOffstage(hero.getBoundingClientRect().bottom > window.innerHeight * 0.45);
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      revealCleanup = () => window.removeEventListener('scroll', onScroll);
+    } else {
+      // Let the new page settle, then launch in
+      revealDelayTimer = window.setTimeout(() => setOffstage(false), 450);
+    }
 
     sectionIO?.disconnect();
     const msgs = MESSAGES[pathKey()];
@@ -288,7 +535,7 @@
           sectionHtml = html;
           if (!showingHit) {
             setMessage(html);
-            api?.hop();
+            celebrate();
           }
         }
       });
@@ -331,9 +578,23 @@
     z-index: 11000;
     width: 272px;
     pointer-events: none;
+    transition: opacity 0.35s ease;
   }
 
-  /* Robot canvas: anchored over the terminal, lower body hidden behind it */
+  /* Offstage: quick fade — the rocket entrance provides the motion */
+  .rg--offstage {
+    opacity: 0;
+  }
+
+  .rg--offstage .rg__mount,
+  .rg--offstage .rg__bubble {
+    pointer-events: none;
+  }
+
+  /* Robot canvas: peeks over the terminal's top edge at rest (behind it).
+     During the entrance the robot is bumped IN FRONT (.rg--robot-front) so he
+     and his arm render over everything while he presents the sign; at the
+     "plant" the class is dropped and he ducks back behind the terminal. */
   .rg__mount {
     position: absolute;
     bottom: calc(100% - 118px);
@@ -344,6 +605,10 @@
     z-index: 0;
     pointer-events: auto;
     cursor: pointer;
+  }
+
+  .rg--robot-front .rg__mount {
+    z-index: 2;
   }
 
   .rg__mount :global(canvas) {
@@ -366,6 +631,37 @@
       0 12px 32px rgba(20, 20, 30, 0.35),
       0 28px 60px rgba(0, 0, 0, 0.35);
     pointer-events: auto;
+    transform-origin: top center;
+    transition:
+      transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.25s ease;
+  }
+
+  /* Stowed: collapsed against its top edge so the reveal "unfolds" downward
+     from the title bar — picking up exactly where the 3D sign descends. */
+  .rg__bubble--hidden {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.12);
+    pointer-events: none;
+  }
+
+  /* Section-change pop: quick squash + accent ring flash */
+  .rg__bubble--pop {
+    animation: rg-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes rg-pop {
+    0% {
+      transform: scale(0.86);
+      box-shadow: 0 0 0 2px var(--rg-accent, #f1a93a), 0 0 26px var(--rg-accent, #f1a93a);
+    }
+    60% {
+      box-shadow: 0 0 0 1px var(--rg-accent, #f1a93a), 0 0 14px transparent;
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 transparent;
+    }
   }
 
   .rg__bar {
@@ -435,11 +731,12 @@
 
   .rg__text::before {
     content: '> ';
-    color: #f1a93a;
+    color: var(--rg-accent, #f1a93a);
+    transition: color 600ms ease;
   }
 
   .rg__text :global(a) {
-    color: #f1a93a;
+    color: var(--rg-accent, #f1a93a);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
