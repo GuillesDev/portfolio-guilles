@@ -26,12 +26,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         <p class="fratelli-hero__subtitle hero-anim hero-anim--3">
           Esta no es una página de proyecto. Es la historia de cómo monté
           una pizzería napolitana real desde cero: marca, cartel, carta,
-          contenido para redes y plataforma digital.
+          contenido para redes y piezas para el local.
         </p>
-
-        <a href="https://www.fratellipazzi.es" target="_blank" rel="noopener noreferrer" class="fratelli-hero__link mono hero-anim hero-anim--4">
-          fratellipazzi.es →
-        </a>
       </div>
     </section>
 
@@ -223,13 +219,13 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <section class="fratelli-cta section">
       <div class="container">
         <div class="fratelli-cta__inner" data-animate="fade-up">
-          <h2 class="fratelli-cta__title">¿Quieres ver el resultado?</h2>
+          <h2 class="fratelli-cta__title">¿Quieres ver una marca así?</h2>
           <p class="fratelli-cta__text">
-            Puedes visitar la web o venir al local en Las Rozas para ver
-            esta historia convertida en producto real.
+            De una idea en papel a una identidad que vive en logo, carta,
+            fachada, redes y pantallas del local.
           </p>
-          <a href="https://www.fratellipazzi.es" target="_blank" rel="noopener noreferrer" class="fratelli-cta__btn mono">
-            Visitar fratellipazzi.es →
+          <a href="/#contacto" class="fratelli-cta__btn mono">
+            Hablemos de tu marca →
           </a>
         </div>
       </div>
@@ -295,17 +291,17 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
     // Fratelli palette for the slice body
     const bodyColors: [number, number, number][] = [
-      [211, 121, 104],  // terracotta
-      [132, 170, 121],  // sage green
-      [255, 235, 162],  // golden
-      [211, 121, 104],  // terracotta (weighted)
+      [244, 179, 78],   // baked cheese
+      [230, 125, 64],   // tomato edge
+      [255, 216, 112],  // mozzarella highlight
+      [238, 151, 69],   // toasted dough
     ];
 
     // Crust is always a warm brown/golden tone
     const crustColors: [number, number, number][] = [
-      [200, 160, 100],
-      [180, 140, 90],
-      [210, 175, 120],
+      [204, 139, 64],
+      [176, 104, 48],
+      [226, 164, 82],
     ];
 
     function resize() {
@@ -494,9 +490,9 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     z-index: -2;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 90% 60% at 30% 15%, rgba(211,121,104,0.25) 0%, transparent 60%),
-      radial-gradient(ellipse 70% 50% at 75% 25%, rgba(132,170,121,0.18) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 50% 60%, rgba(255,235,162,0.1) 0%, transparent 50%);
+      radial-gradient(ellipse 90% 60% at 30% 15%, rgba(255,107,74,0.34) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 50% at 75% 25%, rgba(143,214,110,0.26) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 60%, rgba(255,216,77,0.16) 0%, transparent 50%);
   }
 
   .fratelli-page::after {
@@ -510,17 +506,17 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     pointer-events: none;
     background:
       /* warm tint at top */
-      linear-gradient(180deg, rgba(211,121,104,0.07) 0%, transparent 35%),
+      linear-gradient(180deg, rgba(255,107,74,0.11) 0%, transparent 35%),
       /* vignette — darkens edges, keeps center open */
-      radial-gradient(ellipse 72% 62% at 50% 36%, transparent 22%, rgba(30,31,31,0.78) 100%),
+      radial-gradient(ellipse 72% 62% at 50% 36%, transparent 22%, rgba(23,27,23,0.72) 100%),
       /* bottom fade to solid page bg */
       linear-gradient(
         to bottom,
-        rgba(30,31,31,0.32) 0%,
-        rgba(30,31,31,0.08) 22%,
-        rgba(30,31,31,0.08) 42%,
-        rgba(30,31,31,0.55) 68%,
-        rgba(30,31,31,1) 94%
+        rgba(23,27,23,0.26) 0%,
+        rgba(23,27,23,0.06) 22%,
+        rgba(23,27,23,0.06) 42%,
+        rgba(23,27,23,0.48) 68%,
+        rgba(23,27,23,1) 94%
       );
   }
 
@@ -591,24 +587,6 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     max-width: 50ch;
     margin-bottom: var(--space-l);
     text-align: center;
-  }
-
-  .fratelli-hero__link {
-    display: inline-block;
-    font-size: var(--step--1);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--fratelli-primary);
-    padding: 0.6em 1.5em;
-    border: 1px solid var(--fratelli-border);
-    border-radius: var(--radius-sm);
-    transition: all var(--duration-fast) var(--ease-out);
-  }
-
-  .fratelli-hero__link:hover {
-    border-color: var(--fratelli-primary);
-    background: rgba(211, 121, 104, 0.1);
-    transform: translateY(-2px);
   }
 
   /* ── Section headings ── */

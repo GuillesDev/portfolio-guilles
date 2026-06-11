@@ -74,14 +74,6 @@ export const automatizacionVisualisers: AutomationVisualiser[] = [
 
 export const desarrolloProjects: Project[] = [
   {
-    title: 'Fratelli Pazzi — Web de pizzería',
-    description:
-      'Diseño y desarrollo de la web completa para Fratelli Pazzi: menú interactivo, sistema de pedidos, gestión de ofertas y plataforma de fidelización de clientes.',
-    tags: ['E-commerce', 'Diseño UI', 'Desarrollo Web'],
-    link: 'https://www.fratellipazzi.es',
-    featured: true,
-  },
-  {
     title: 'Black Gum Studio',
     description:
       'Plataforma full-stack para productora audiovisual en Madrid: web pública, panel de administración con auth, sistema de pagos con Stripe y gestión de contenidos. En producción.',
@@ -100,11 +92,10 @@ export const fratelliProjects: Project[] = [
     featured: true,
   },
   {
-    title: 'Plataforma digital',
+    title: 'Sistema visual para el local',
     description:
-      'Web con menú interactivo, sistema de pedidos online, programa de puntos y fidelización, y gestión integral del negocio digital.',
-    tags: ['Web', 'E-commerce', 'Fidelización'],
-    link: 'https://www.fratellipazzi.es',
+      'Aplicación de la marca en carta, flyers, redes, piezas promocionales y pantallas del local para mantener una experiencia reconocible.',
+    tags: ['Diseño aplicado', 'Carta', 'Redes'],
     featured: true,
   },
   {

@@ -19,9 +19,17 @@ import { automatizacionVisualisers } from '../data/projects';
         <span class="auto-hero__title--short">Automatizar</span>
       </h1>
       <p class="auto-hero__sub">Detecto lo repetitivo, lo convierto en sistema y me olvido.</p>
-      <div class="auto-hero__tracks mono">
-        <a class="auto-hero__track" href="#after-effects"><span>01</span> After Effects</a>
-        <a class="auto-hero__track" href="#empresas"><span>02</span> Soluciones para empresas</a>
+      <div class="auto-hero__tracks" aria-label="Elegir bloque de automatizacion">
+        <a class="auto-hero__track" href="#after-effects">
+          <span class="auto-hero__track-num mono">01</span>
+          <strong>After Effects</strong>
+          <small>Grafismo, plantillas y renders que se montan solos</small>
+        </a>
+        <a class="auto-hero__track" href="#empresas">
+          <span class="auto-hero__track-num mono">02</span>
+          <strong>Empresas</strong>
+          <small>Bots, CRM, citas, documentos y reporting automatizado</small>
+        </a>
       </div>
     </div>
   </section>
@@ -92,124 +100,53 @@ import { automatizacionVisualisers } from '../data/projects';
     </div>
   </section>
 
-  <!-- Pipeline: problema → sistema → resultado -->
-  <section class="pipeline section">
+  <!-- Sistemas After Effects -->
+  <section class="ae-services section">
     <div class="container">
-      <div class="pipeline__header" data-animate="fade-up">
-        <h2 class="pipeline__title">Cómo funciona mi cabeza</h2>
-        <p class="pipeline__desc">
-          Cada vez que hago algo más de una vez, pienso:
-          <em>"esto se puede automatizar"</em>. Y lo hago.
+      <div class="ae-services__header" data-animate="fade-up">
+        <span class="ae-services__kicker mono">// after effects automation</span>
+        <h3 class="ae-services__title">No es hacer una pieza: es construir la fabrica</h3>
+        <p class="ae-services__desc">
+          Trabajo el grafismo como un sistema: datos de entrada, variables de marca, renders por lote
+          y menos cambios manuales de ultima hora.
         </p>
       </div>
 
-      <div class="pipeline__flow" data-animate="stagger">
-        <div class="pipeline__node pipeline__node--problem">
-          <div class="pipeline__icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><path d="M8 15h8"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/>
-            </svg>
-          </div>
-          <h3 class="pipeline__node-title">El problema</h3>
-          <p class="pipeline__node-text">"Llevo 2 horas cambiando rótulos a mano y aún me quedan 40"</p>
-        </div>
-
-        <div class="pipeline__connector" aria-hidden="true">
-          <svg viewBox="0 0 80 24" fill="none">
-            <path d="M0 12h60" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/>
-            <path d="M56 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2" fill="none"/>
-          </svg>
-        </div>
-
-        <div class="pipeline__node pipeline__node--system">
-          <div class="pipeline__icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-            </svg>
-          </div>
-          <h3 class="pipeline__node-title">El sistema</h3>
-          <p class="pipeline__node-text">Plantilla + expresiones + variables = un click y listo</p>
-        </div>
-
-        <div class="pipeline__connector" aria-hidden="true">
-          <svg viewBox="0 0 80 24" fill="none">
-            <path d="M0 12h60" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/>
-            <path d="M56 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2" fill="none"/>
-          </svg>
-        </div>
-
-        <div class="pipeline__node pipeline__node--result">
-          <div class="pipeline__icon">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-          </div>
-          <h3 class="pipeline__node-title">El resultado</h3>
-          <p class="pipeline__node-text">40 rótulos en 2 minutos. Y te sobra tiempo para el café.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Antes → Después -->
-  <section class="examples section">
-    <div class="container">
-      <div class="examples__header" data-animate="fade-up">
-        <h2 class="examples__title">Antes → Después</h2>
-        <p class="examples__desc">Ejemplos reales de lo que automatizo en el día a día.</p>
-      </div>
-
-      <div class="examples__grid" data-animate="stagger">
-        <div class="example-card">
-          <div class="example-card__before">
-            <span class="example-card__label mono">Antes</span>
-            <p>Cambiar texto, color y datos en 47 rótulos uno a uno</p>
-          </div>
-          <div class="example-card__arrow" aria-hidden="true">→</div>
-          <div class="example-card__after">
-            <span class="example-card__label example-card__label--after mono">Después</span>
-            <p>Un JSON con los datos y el sistema lo hace solo</p>
-          </div>
-        </div>
-
-        <div class="example-card">
-          <div class="example-card__before">
-            <span class="example-card__label mono">Antes</span>
-            <p>Ajustar colores de marca en cada pieza manualmente</p>
-          </div>
-          <div class="example-card__arrow" aria-hidden="true">→</div>
-          <div class="example-card__after">
-            <span class="example-card__label example-card__label--after mono">Después</span>
-            <p>Cambio una variable y todo se actualiza al instante</p>
-          </div>
-        </div>
-
-        <div class="example-card">
-          <div class="example-card__before">
-            <span class="example-card__label mono">Antes</span>
-            <p>Exportar 20 versiones con distintos textos y formatos</p>
-          </div>
-          <div class="example-card__arrow" aria-hidden="true">→</div>
-          <div class="example-card__after">
-            <span class="example-card__label example-card__label--after mono">Después</span>
-            <p>Un script renderiza todo mientras me tomo el café</p>
-          </div>
-        </div>
+      <div class="ae-services__grid" data-animate="stagger">
+        <article class="ae-card">
+          <span class="ae-card__num mono">AE-01</span>
+          <h4>Rotulos desde datos</h4>
+          <p>CSV, JSON o Google Sheets alimentando nombres, titulares, resultados, colores y versiones sin tocar capa por capa.</p>
+        </article>
+        <article class="ae-card">
+          <span class="ae-card__num mono">AE-02</span>
+          <h4>Kits de marca variables</h4>
+          <p>Una misma plantilla se adapta por programa, cliente o campaña: tipografias, paletas, lower thirds, bumpers y cierres.</p>
+        </article>
+        <article class="ae-card">
+          <span class="ae-card__num mono">AE-03</span>
+          <h4>Render por lote</h4>
+          <p>Exporto paquetes completos en varios formatos y duraciones mientras el equipo revisa o avanza con otra cosa.</p>
+        </article>
+        <article class="ae-card">
+          <span class="ae-card__num mono">AE-04</span>
+          <h4>Paneles y scripts internos</h4>
+          <p>Botones hechos para el flujo real del estudio: importar datos, actualizar textos, preparar versiones y evitar errores tontos.</p>
+        </article>
       </div>
     </div>
   </section>
 
   <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
-  <div class="track" id="empresas">
+  <div class="track track--business" id="empresas">
     <div class="container track__inner" data-animate="fade-up">
       <span class="track__num" aria-hidden="true">02</span>
       <div class="track__text">
         <span class="track__kicker mono">// soluciones para empresas</span>
-        <h2 class="track__title">Bots que trabajan por tu empresa</h2>
+        <h2 class="track__title">Automatizaciones que quitan trabajo real</h2>
         <p class="track__sub">
-          No solo automatizo gráficos: monto <strong>chatbots y asistentes</strong> que atienden,
-          agendan citas y captan clientes mientras tú haces otra cosa. La demo de abajo se está
-          ejecutando sola, igual que lo haría en tu web o tu WhatsApp.
+          Chatbots, formularios inteligentes, CRM, agendas, documentos y reportes conectados.
+          La idea no es tener mas software: es que las tareas repetidas ocurran solas y queden registradas.
         </p>
       </div>
     </div>
@@ -223,48 +160,54 @@ import { automatizacionVisualisers } from '../data/projects';
         <div class="chat-demo">
           <div class="chat-demo__bar mono">
             <span class="chat-demo__status" aria-hidden="true"></span>
-            <span class="chat-demo__name">asistente — Clínica Dental Sonrisa</span>
+            <span class="chat-demo__name">asistente — Clinica Dental Sonrisa</span>
             <span class="chat-demo__tag">demo</span>
           </div>
-          <div class="chat-demo__messages" id="chat-messages" aria-label="Conversación de ejemplo con un chatbot de empresa"></div>
+          <div class="chat-demo__messages" id="chat-messages" aria-label="Conversacion de ejemplo con un chatbot de empresa"></div>
           <div class="chat-demo__input mono" aria-hidden="true">
-            <span>Escribe un mensaje…</span>
+            <span>Escribe un mensaje...</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           </div>
         </div>
 
         <!-- Cómo lo monto: diagrama + pasos -->
         <div class="bots__how">
-          <h3 class="bots__how-title mono">// cómo lo monto</h3>
+          <h3 class="bots__how-title mono">// arquitectura de automatizacion</h3>
 
           <div class="bots__flow" aria-hidden="true">
             <div class="bots__flow-node">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              <span>Web · WhatsApp<br />· Instagram</span>
+              <span>Web · WhatsApp<br />· Formularios</span>
             </div>
             <div class="bots__flow-arrow">
               <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
             </div>
             <div class="bots__flow-node bots__flow-node--bot">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><line x1="12" y1="7" x2="12" y2="3"/><circle cx="12" cy="3" r="1" fill="currentColor"/><circle cx="9.5" cy="12.5" r="1" fill="currentColor"/><circle cx="14.5" cy="12.5" r="1" fill="currentColor"/><path d="M9 16h6"/></svg>
-              <span>Bot<br />reglas + IA</span>
+              <span>Reglas<br />+ IA + APIs</span>
             </div>
             <div class="bots__flow-arrow">
               <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
             </div>
             <div class="bots__flow-node">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>Agenda · CRM<br />· Email</span>
+              <span>CRM · Agenda<br />· Docs · Email</span>
             </div>
           </div>
 
           <ol class="bots__steps">
-            <li><strong>Escucho.</strong> ¿Dónde pierde tiempo tu equipo? Preguntas repetidas, citas, presupuestos…</li>
-            <li><strong>Diseño el flujo.</strong> Árbol de conversación + IA para lo que se salga del guion.</li>
-            <li><strong>Lo conecto a tus herramientas.</strong> Agenda, CRM, email o WhatsApp: el bot ejecuta, no solo habla.</li>
-            <li><strong>Mido y mejoro.</strong> Cada conversación queda registrada: se ve qué pregunta la gente y qué convierte.</li>
+            <li><strong>Detecto el cuello de botella.</strong> Donde se pierden mensajes, datos, citas, presupuestos o seguimiento.</li>
+            <li><strong>Dibujo el flujo.</strong> Que entra, que decide el sistema, que herramienta toca y que aviso sale.</li>
+            <li><strong>Lo conecto.</strong> Web, WhatsApp, email, Sheets, Airtable, Notion, CRM, agenda o APIs propias.</li>
+            <li><strong>Lo dejo medible.</strong> Registro de conversaciones, leads, conversiones, errores y tareas completadas.</li>
           </ol>
         </div>
+      </div>
+
+      <div class="bots__services-head" data-animate="fade-up">
+        <span class="bots__services-kicker mono">// servicios para empresas</span>
+        <h3>Automatizaciones con impacto directo</h3>
+        <p>Servicios pensados para negocios que viven de responder rapido, no perder oportunidades y tener los datos ordenados.</p>
       </div>
 
       <div class="bots__uses" data-animate="stagger">
@@ -287,7 +230,28 @@ import { automatizacionVisualisers } from '../data/projects';
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
           </div>
           <h3 class="bot-use__title">Captación de leads</h3>
-          <p class="bot-use__text">Hace las preguntas clave, cualifica al cliente y te lo deja en el CRM o en el email con todo el contexto. Tú solo cierras.</p>
+          <p class="bot-use__text">Hace las preguntas clave, cualifica al cliente y lo deja en el CRM o en el email con todo el contexto. Tu solo cierras.</p>
+        </div>
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          </div>
+          <h3 class="bot-use__title">Presupuestos y documentos</h3>
+          <p class="bot-use__text">Formulario o chat de entrada, PDF generado con tus datos, envio al cliente y copia ordenada en Drive o CRM.</p>
+        </div>
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-7"/><circle cx="7" cy="15" r="1" fill="currentColor"/><circle cx="11" cy="11" r="1" fill="currentColor"/><circle cx="14" cy="14" r="1" fill="currentColor"/><circle cx="19" cy="7" r="1" fill="currentColor"/></svg>
+          </div>
+          <h3 class="bot-use__title">Reporting y alertas</h3>
+          <p class="bot-use__text">Resumen semanal, avisos si baja una metrica, panel con leads/citas/ventas y datos limpios sin perseguir excels.</p>
+        </div>
+        <div class="bot-use">
+          <div class="bot-use__icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M10 6.5h4M17.5 10v4M14 17.5h-4M6.5 14v-4"/></svg>
+          </div>
+          <h3 class="bot-use__title">Back-office conectado</h3>
+          <p class="bot-use__text">Sheets, Airtable, Notion, email, formularios y APIs hablando entre si: menos copiar-pegar y menos datos perdidos.</p>
         </div>
       </div>
     </div>
@@ -808,181 +772,86 @@ import { automatizacionVisualisers } from '../data/projects';
     transform: scaleX(1);
   }
 
-  /* ── Pipeline ── */
-  .pipeline__header {
-    text-align: center;
-    margin-bottom: var(--space-2xl);
+  /* ── After Effects systems ── */
+  .ae-services {
+    background:
+      radial-gradient(circle at 12% 0%, rgba(121, 192, 255, 0.1), transparent 34%),
+      linear-gradient(180deg, #121821 0%, var(--auto-bg) 100%);
   }
 
-  .pipeline__title {
-    font-size: var(--step-3);
-    color: var(--auto-primary);
-    margin-bottom: var(--space-s);
-  }
-
-  .pipeline__desc {
-    color: var(--auto-text-secondary);
-    font-size: var(--step-0);
-    line-height: 1.6;
-    max-width: 50ch;
-    margin-inline: auto;
-  }
-
-  .pipeline__desc em {
-    color: var(--auto-accent);
-    font-style: normal;
-    font-weight: 600;
-  }
-
-  .pipeline__flow {
-    display: flex;
-    align-items: center;
-    gap: 0;
-  }
-
-  .pipeline__node {
-    flex: 1;
-    padding: var(--space-l);
-    background: var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-xs);
-    transition: border-color 0.25s ease;
-  }
-
-  .pipeline__node:hover {
-    border-color: var(--auto-accent);
-  }
-
-  .pipeline__node--problem .pipeline__icon { color: #F85149; }
-  .pipeline__node--system .pipeline__icon  { color: #79C0FF; }
-  .pipeline__node--result .pipeline__icon  { color: var(--auto-accent); }
-
-  .pipeline__icon {
-    margin-bottom: var(--space-3xs);
-  }
-
-  .pipeline__node-title {
-    font-size: var(--step-0);
-    font-weight: 700;
-    color: var(--auto-primary);
-  }
-
-  .pipeline__node-text {
-    font-size: var(--step--1);
-    color: var(--auto-text-secondary);
-    line-height: 1.6;
-  }
-
-  .pipeline__connector {
-    flex-shrink: 0;
-    width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .pipeline__connector svg {
-    width: 100%;
-    height: 24px;
-  }
-
-  /* ── Examples before/after ── */
-  .examples__header {
-    text-align: center;
+  .ae-services__header {
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+    gap: var(--space-xl);
+    align-items: end;
     margin-bottom: var(--space-xl);
   }
 
-  .examples__title {
-    font-size: var(--step-3);
-    color: var(--auto-primary);
-    margin-bottom: var(--space-s);
+  .ae-services__kicker {
+    display: block;
+    grid-column: 1 / -1;
+    color: var(--auto-accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
   }
 
-  .examples__desc {
+  .ae-services__title {
+    color: var(--auto-primary);
+    font-size: var(--step-2);
+    line-height: 1.08;
+    max-width: 13ch;
+  }
+
+  .ae-services__desc {
     color: var(--auto-text-secondary);
     font-size: var(--step-0);
-    line-height: 1.6;
-    text-align: center;
-    margin-inline: auto;
+    line-height: 1.65;
+    max-width: 58ch;
   }
 
-  .examples__grid {
-    display: flex;
-    flex-direction: column;
+  .ae-services__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: var(--space-m);
   }
 
-  .example-card {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    background: var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: border-color 0.25s ease;
-  }
-
-  .example-card:hover {
-    border-color: var(--auto-accent);
-  }
-
-  .example-card__before,
-  .example-card__after {
-    flex: 1;
-    padding: var(--space-m) var(--space-l);
+  .ae-card {
+    min-height: 230px;
+    padding: var(--space-m);
+    background:
+      linear-gradient(180deg, rgba(57, 211, 83, 0.07), rgba(121, 192, 255, 0.035)),
+      var(--auto-surface);
+    border: 1px solid rgba(57, 211, 83, 0.16);
+    border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--space-3xs);
+    justify-content: flex-end;
+    transition: border-color var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out);
   }
 
-  .example-card__before {
-    background: rgba(248, 81, 73, 0.04);
+  .ae-card:hover {
+    border-color: rgba(57, 211, 83, 0.42);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.28);
   }
 
-  .example-card__after {
-    background: rgba(57, 211, 83, 0.04);
+  .ae-card__num {
+    color: var(--auto-accent);
+    font-size: 0.72rem;
+    margin-bottom: auto;
+    opacity: 0.85;
   }
 
-  .example-card__before p {
+  .ae-card h4 {
+    color: var(--auto-text);
+    font-size: var(--step-0);
+    margin-bottom: var(--space-2xs);
+  }
+
+  .ae-card p {
     color: var(--auto-text-secondary);
-    font-size: var(--step--1);
-    line-height: 1.5;
-  }
-
-  .example-card__after p {
-    color: var(--auto-primary);
-    font-size: var(--step--1);
-    line-height: 1.5;
-    font-weight: 500;
-  }
-
-  .example-card__label {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #F85149;
-  }
-
-  .example-card__label--after {
-    color: var(--auto-accent);
-  }
-
-  .example-card__arrow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-inline: var(--space-s);
-    font-size: var(--step-1);
-    color: var(--auto-accent);
-    font-weight: 700;
-    flex-shrink: 0;
-    background: var(--auto-surface);
+    font-size: 0.88rem;
+    line-height: 1.58;
   }
 
   /* ── Section spacing ── */
@@ -1039,28 +908,8 @@ import { automatizacionVisualisers } from '../data/projects';
       width: 28px;
     }
 
-    .pipeline__flow {
-      flex-direction: column;
-      gap: var(--space-s);
-    }
-
-    .pipeline__connector {
-      width: 24px;
-      height: 50px;
-      transform: rotate(90deg);
-    }
-
-    .example-card {
-      flex-direction: column;
-    }
-
-    .example-card__arrow {
-      padding-block: var(--space-2xs);
-    }
-
     .terminal-strip,
-    .pipeline,
-    .examples {
+    .ae-services {
       overflow-x: clip;
     }
 
@@ -1089,49 +938,103 @@ import { automatizacionVisualisers } from '../data/projects';
 
   /* ── Hero: anclas a los dos bloques ── */
   .auto-hero__tracks {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(250px, 360px));
     justify-content: center;
-    gap: var(--space-xs);
-    margin-top: var(--space-m);
-    flex-wrap: wrap;
+    gap: var(--space-m);
+    margin-top: var(--space-l);
   }
 
   .auto-hero__track {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.9rem;
-    border: 1px solid var(--auto-border);
-    border-radius: 999px;
-    font-size: 0.72rem;
-    color: var(--auto-text-secondary);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "num title"
+      "num desc";
+    gap: 0.35rem 0.9rem;
+    min-height: 118px;
+    padding: var(--space-m);
+    border: 1px solid rgba(57, 211, 83, 0.22);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(circle at 16% 20%, rgba(57, 211, 83, 0.14), transparent 34%),
+      rgba(22, 27, 34, 0.72);
+    color: var(--auto-text);
     text-decoration: none;
-    transition: border-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+    text-align: left;
+    overflow: hidden;
+    transition: border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
   }
 
-  .auto-hero__track span {
+  .auto-hero__track::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
+    opacity: 0.65;
+  }
+
+  .auto-hero__track-num {
+    grid-area: num;
     color: var(--auto-accent);
+    font-size: var(--step-1);
+    line-height: 1;
+  }
+
+  .auto-hero__track strong {
+    grid-area: title;
+    font-size: var(--step-0);
+    line-height: 1.1;
+  }
+
+  .auto-hero__track small {
+    grid-area: desc;
+    color: var(--auto-text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.45;
   }
 
   .auto-hero__track:hover {
-    border-color: rgba(57, 211, 83, 0.45);
-    color: var(--auto-text);
+    border-color: rgba(57, 211, 83, 0.55);
+    transform: translateY(-3px);
+    box-shadow: 0 24px 70px rgba(57, 211, 83, 0.12);
   }
 
   /* ── Separadores de bloque (01 After Effects / 02 Empresas) ── */
   .track {
     position: relative;
     z-index: 1;
-    background: var(--auto-bg);
+    background:
+      linear-gradient(90deg, rgba(57, 211, 83, 0.08), transparent 36%),
+      var(--auto-bg);
     padding-block: var(--space-2xl) var(--space-l);
     scroll-margin-top: 90px;
+    overflow: hidden;
+  }
+
+  .track--business {
+    background:
+      linear-gradient(90deg, rgba(121, 192, 255, 0.09), transparent 38%),
+      linear-gradient(180deg, #0D1117 0%, #101722 100%);
+  }
+
+  .track::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57, 211, 83, 0.42), transparent);
   }
 
   .track__inner {
     display: flex;
     align-items: center;
     gap: var(--space-l);
-    border-top: 1px solid var(--auto-border);
+    border-top: 1px solid rgba(57, 211, 83, 0.24);
     padding-top: var(--space-xl);
   }
 
@@ -1176,6 +1079,10 @@ import { automatizacionVisualisers } from '../data/projects';
       flex-direction: column;
       align-items: flex-start;
       gap: var(--space-s);
+    }
+
+    .auto-hero__tracks {
+      grid-template-columns: 1fr;
     }
   }
 
@@ -1416,7 +1323,33 @@ import { automatizacionVisualisers } from '../data/projects';
     color: var(--auto-text);
   }
 
-  /* Casos de uso */
+  /* Servicios para empresas */
+  .bots__services-head {
+    max-width: 760px;
+    margin-bottom: var(--space-l);
+  }
+
+  .bots__services-kicker {
+    display: block;
+    color: var(--auto-accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .bots__services-head h3 {
+    color: var(--auto-primary);
+    font-size: var(--step-2);
+    line-height: 1.12;
+    margin-bottom: var(--space-xs);
+  }
+
+  .bots__services-head p {
+    color: var(--auto-text-secondary);
+    font-size: var(--step-0);
+    line-height: 1.62;
+  }
+
   .bots__uses {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1424,11 +1357,24 @@ import { automatizacionVisualisers } from '../data/projects';
   }
 
   .bot-use {
+    position: relative;
     background: var(--auto-surface);
     border: 1px solid var(--auto-border);
     border-radius: var(--radius-lg);
     padding: var(--space-m);
+    min-height: 220px;
+    overflow: hidden;
     transition: border-color var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out);
+  }
+
+  .bot-use::after {
+    content: '';
+    position: absolute;
+    inset: auto var(--space-m) 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
   }
 
   .bot-use:hover {
@@ -1436,9 +1382,20 @@ import { automatizacionVisualisers } from '../data/projects';
     transform: translateY(-4px);
   }
 
+  .bot-use:hover::after {
+    opacity: 0.8;
+  }
+
   .bot-use__icon {
     color: var(--auto-accent);
     margin-bottom: var(--space-xs);
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(57, 211, 83, 0.22);
+    border-radius: 12px;
+    background: rgba(57, 211, 83, 0.06);
   }
 
   .bot-use__title {
@@ -1460,8 +1417,21 @@ import { automatizacionVisualisers } from '../data/projects';
       gap: var(--space-l);
     }
 
-    .bots__uses {
+    .ae-services__header {
       grid-template-columns: 1fr;
+      gap: var(--space-s);
+    }
+
+    .ae-services__title {
+      max-width: 100%;
+    }
+
+    .ae-services__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bots__uses {
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .chat-demo__messages {
@@ -1485,10 +1455,21 @@ import { automatizacionVisualisers } from '../data/projects';
   /* Ensure content sections are above particles */
   .showcase,
   .terminal-strip,
-  .pipeline,
-  .examples,
+  .ae-services,
   .bots {
     position: relative;
     z-index: 1;
+  }
+
+  @media (max-width: 640px) {
+    .ae-services__grid,
+    .bots__uses {
+      grid-template-columns: 1fr;
+    }
+
+    .ae-card,
+    .bot-use {
+      min-height: auto;
+    }
   }
 </style>

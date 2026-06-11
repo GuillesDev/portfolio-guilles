@@ -45,9 +45,8 @@
     '/automatizacion': [
       { sel: '.auto-hero', html: 'Aquí se pone en modo máquina. Como yo, pero con café.' },
       { sel: '.showcase', html: 'Bloque 01: plantillas de After Effects que se montan solas.' },
-      { sel: '.pipeline', html: 'Su cerebro en tres pasos: problema → sistema → resultado.' },
-      { sel: '.examples', html: 'Antes y después. Sin trampa: es el mismo día.' },
-      { sel: '.bots', html: 'Un primo mío atendiendo clientes 24/7. Siguiente: <a href="/desarrollo">Desarrollo →</a>' },
+      { sel: '.ae-services', html: 'Aquí no hay magia: datos, variables y renders por lote.' },
+      { sel: '.bots', html: 'Bloque 02: bots, CRM, citas, documentos y reporting para empresas.' },
     ],
     '/desarrollo': [
       { sel: '.dev-casestudy', html: '¿Has visto a mi gemelo en el editor? Bueno, al tour: Black Gum, una web real en producción.' },
@@ -69,7 +68,7 @@
     '/grafismo': '#00D4FF',
     '/automatizacion': '#39D353',
     '/desarrollo': '#f1a93a',
-    '/fratelli-pazzi': '#D37968',
+    '/fratelli-pazzi': '#FF6B4A',
   };
   const DEFAULT_ACCENT = '#f1a93a';
   let accentHex = 0xf1a93a;
@@ -84,10 +83,27 @@
   let showingHit = false;
   let hitCount = 0;
   let api: { hop: () => void; rocket: () => void; hit: () => void } | null = null;
+  let isFratelliPage = false;
   // Per-page reveal watcher teardown (e.g. /desarrollo scroll gate)
   let revealCleanup: (() => void) | null = null;
   let entranceTimer = 0;
   let revealDelayTimer = 0;
+
+  const GLOBAL_KEY = '__portfolioRobotGuide';
+  type RobotGuideGlobal = {
+    listenerAttached?: boolean;
+    running?: boolean;
+  };
+  const globalGuide = ((window as unknown as Record<string, RobotGuideGlobal>)[GLOBAL_KEY] ??= {});
+
+  function pruneDuplicateGuides() {
+    const guides = Array.from(document.querySelectorAll<HTMLElement>('#robot-guide'));
+    if (guides.length <= 1) return;
+    const keeper = guides.find((el) => el.dataset.rgActive === '1') ?? guides[0];
+    guides.forEach((el) => {
+      if (el !== keeper) el.remove();
+    });
+  }
 
   /** Hop + terminal pop — played on every new section. */
   function celebrate() {
@@ -188,9 +204,16 @@
   }
 
   async function startGuide(): Promise<void> {
+    pruneDuplicateGuides();
     const { root, mount } = guideEls();
     if (!root || !mount) return;
     if (sessionStorage.getItem('rg-hidden')) { root.style.display = 'none'; return; }
+    if (globalGuide.running && mount.querySelector('canvas')) {
+      started = true;
+      root.style.display = '';
+      root.dataset.rgActive = '1';
+      return;
+    }
     if (started) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { root.style.display = 'none'; return; }
     if (window.innerWidth < 1025) { root.style.display = 'none'; return; }
@@ -211,7 +234,10 @@
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    mount.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
     mount.appendChild(renderer.domElement);
+    root.dataset.rgActive = '1';
+    globalGuide.running = true;
 
     scene.add(new THREE.AmbientLight(0xfff4e0, 1.1));
     const key = new THREE.DirectionalLight(0xffffff, 2.2);
@@ -278,6 +304,47 @@
     sign.scale.setScalar(0.001);
     sign.visible = false;
     rig.robot.add(sign);
+
+    // Fratelli-only prop: a tiny 3D pizza slice held by the waving hand.
+    const pizzaShape = new THREE.Shape();
+    pizzaShape.moveTo(-0.14, 0.09);
+    pizzaShape.lineTo(0.14, 0.09);
+    pizzaShape.lineTo(0, -0.23);
+    pizzaShape.closePath();
+    const pizzaGeo = new THREE.ExtrudeGeometry(pizzaShape, { depth: 0.028, bevelEnabled: true, bevelSize: 0.006, bevelThickness: 0.006, bevelSegments: 1 });
+    const crustGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.29, 12);
+    const pepperoniGeo = new THREE.CircleGeometry(0.026, 16);
+    const cheeseDropGeo = new THREE.CapsuleGeometry(0.012, 0.07, 4, 10);
+    const pizzaMat = new THREE.MeshStandardMaterial({ color: 0xf4b34e, roughness: 0.7, metalness: 0.02, transparent: true });
+    const crustMat = new THREE.MeshStandardMaterial({ color: 0xc97e35, roughness: 0.75, metalness: 0.02, transparent: true });
+    const pepperoniMat = new THREE.MeshStandardMaterial({ color: 0xb6372e, roughness: 0.6, metalness: 0.02, transparent: true });
+    const cheeseMat = new THREE.MeshBasicMaterial({ color: 0xffd870, transparent: true });
+    const pizza = new THREE.Group();
+    const pizzaBody = new THREE.Mesh(pizzaGeo, pizzaMat);
+    pizzaBody.position.z = -0.014;
+    const pizzaCrust = new THREE.Mesh(crustGeo, crustMat);
+    pizzaCrust.rotation.z = Math.PI / 2;
+    pizzaCrust.position.set(0, 0.105, 0.012);
+    pizza.add(pizzaBody, pizzaCrust);
+    [
+      [-0.055, 0.015],
+      [0.06, 0.035],
+      [0.005, -0.09],
+    ].forEach(([x, y]) => {
+      const p = new THREE.Mesh(pepperoniGeo, pepperoniMat);
+      p.position.set(x, y, 0.026);
+      pizza.add(p);
+    });
+    const cheeseDrop = new THREE.Mesh(cheeseDropGeo, cheeseMat);
+    cheeseDrop.rotation.z = 0.08;
+    cheeseDrop.position.set(0.045, -0.16, 0.028);
+    pizza.add(cheeseDrop);
+    pizza.position.set(0.02, -0.38, 0.24);
+    pizza.rotation.set(0.25, -0.25, -0.35);
+    pizza.scale.setScalar(0.001);
+    pizza.visible = false;
+    rig.armRPivot.add(pizza);
+    const pizzaMats = [pizzaMat, crustMat, pepperoniMat, cheeseMat];
 
     function resize() {
       const w = mount!.clientWidth || 1;
@@ -389,6 +456,23 @@
       const grab = smooth(1.45, 1.95, s);   // sign lifts off the back
       const bring = smooth(2.0, 2.5, s);     // swings around to the front
       const handoff = smooth(2.45, 2.95, s); // descends behind body + fades
+      const pizzaIntro = smooth(0.12, 0.34, s);
+      const pizzaHideForSign = smooth(1.0, 1.2, s) * (1 - smooth(3.0, 3.35, s));
+      const pizzaShowoff = isFratelliPage && s > 3.35 ? 0.5 + 0.5 * Math.sin(t * 1.7) : 0;
+      const pizzaHold = isFratelliPage ? pizzaIntro * (1 - pizzaHideForSign) : 0;
+
+      pizza.visible = pizzaHold > 0.01;
+      if (pizza.visible) {
+        const wobble = Math.sin(t * 8) * 0.08;
+        const playful = s > 3.35 ? Math.sin(t * 3.2) * 0.18 : 0;
+        pizza.scale.setScalar(0.78 * pizzaHold);
+        pizza.rotation.set(
+          0.25 + wobble * 0.4 + playful * 0.35,
+          -0.25 + wobble + playful,
+          -0.35 + Math.sin(t * 5) * 0.06 + playful * 0.7
+        );
+        for (const m of pizzaMats) m.opacity = pizzaHold;
+      }
 
       const signActive = hasEntered && s > 1.1 && s < 3.05;
       sign.visible = signActive;
@@ -420,13 +504,15 @@
         armTarget = -2.6; armLerp = 0.3;
       } else if (waving) {
         armTarget = -2.3 + Math.sin(t * 9) * 0.28; armLerp = 0.25;
+      } else if (pizzaHold > 0.05 && s > 3.35) {
+        armTarget = -1.45 + Math.sin(t * 3.2) * 0.22 + pizzaShowoff * -0.18; armLerp = 0.1;
       } else if (grab > 0.05 && turnY > 0.4 && handoff < 0.5) {
         armTarget = -0.25 - 2.1 * grab; armLerp = 0.3;
       }
       rig.armRPivot.rotation.z += (armTarget - rig.armRPivot.rotation.z) * armLerp;
       // Bring the waving arm forward in Z so it sweeps in FRONT of the body
       // instead of disappearing behind it.
-      const armFwd = waving ? 0.28 : 0;
+      const armFwd = waving || pizzaHold > 0.05 ? 0.28 : 0;
       rig.armRPivot.position.z += (armFwd - rig.armRPivot.position.z) * 0.18;
 
       if (t > nextBlink) {
@@ -483,9 +569,16 @@
       signStripGeo.dispose();
       signDotGeo.dispose();
       for (const m of signMats) m.dispose();
+      pizzaGeo.dispose();
+      crustGeo.dispose();
+      pepperoniGeo.dispose();
+      cheeseDropGeo.dispose();
+      for (const m of pizzaMats) m.dispose();
       rig.dispose();
       renderer.dispose();
       renderer.domElement.remove();
+      delete root.dataset.rgActive;
+      globalGuide.running = false;
     };
   }
 
@@ -494,7 +587,9 @@
     if (!root || root.style.display === 'none') return;
 
     // Tint the robot + terminal with this page's accent
-    const accent = ACCENTS[pathKey()] ?? DEFAULT_ACCENT;
+    const currentPath = pathKey();
+    isFratelliPage = currentPath === '/fratelli-pazzi';
+    const accent = ACCENTS[currentPath] ?? DEFAULT_ACCENT;
     accentHex = parseInt(accent.slice(1), 16);
     root.style.setProperty('--rg-accent', accent);
 
@@ -504,7 +599,7 @@
     revealCleanup?.();
     revealCleanup = null;
     goOffstageInstant();
-    const hero = pathKey() === '/desarrollo' ? document.querySelector('.dev-hero') : null;
+    const hero = currentPath === '/desarrollo' ? document.querySelector('.dev-hero') : null;
     if (hero) {
       const onScroll = () => {
         setOffstage(hero.getBoundingClientRect().bottom > window.innerHeight * 0.45);
@@ -518,7 +613,7 @@
     }
 
     sectionIO?.disconnect();
-    const msgs = MESSAGES[pathKey()];
+    const msgs = MESSAGES[currentPath];
     if (!msgs) {
       sectionHtml = 'Sigue explorando, yo te acompaño 🤖';
       if (!showingHit) setMessage(sectionHtml, { instant: true });
@@ -563,9 +658,13 @@
     }, { once: true });
   }
 
-  document.addEventListener('astro:page-load', () => {
-    startGuide().then(setupPage);
-  });
+  if (!globalGuide.listenerAttached) {
+    globalGuide.listenerAttached = true;
+    document.addEventListener('astro:page-load', () => {
+      pruneDuplicateGuides();
+      startGuide().then(setupPage);
+    });
+  }
 </script>
 
 <style>

@@ -40,8 +40,8 @@ export const experience: Experience[] = [
     role: 'Fundador / Director de Marca',
     period: '2022 – Actualidad',
     description:
-      'Creación integral del negocio: identidad de marca, plataforma digital con pedidos online, programa de fidelización, y gestión operativa. Pizzería napolitana real en Las Rozas (Madrid).',
-    tags: ['Emprendimiento', 'Branding', 'Desarrollo Web', 'Negocio'],
+      'Creación integral del negocio: identidad de marca, carta, cartelería, contenido para redes, piezas para el local y gestión operativa. Pizzería napolitana real en Las Rozas (Madrid).',
+    tags: ['Emprendimiento', 'Branding', 'Negocio'],
     logo: '/media/companies/fratelli.png',
   },
   {
