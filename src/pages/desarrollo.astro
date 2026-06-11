@@ -683,13 +683,19 @@ const marqueeItems = [
       headGroup.rotation.x += (gazeY * 0.3 + hitRot * 0.8 - headGroup.rotation.x) * 0.07;
 
       // Arms: flail when hurt, greeting wave at start, rest otherwise
+      let armForward = 0;
       if (hurt) {
         armRPivot.rotation.z += (-2.6 - armRPivot.rotation.z) * 0.3;
+        armForward = 0.22;
       } else if (t < 2.4) {
         armRPivot.rotation.z = -2.3 + Math.sin(t * 9) * 0.28;
+        armForward = 0.28;
       } else {
         armRPivot.rotation.z += (-0.25 - armRPivot.rotation.z) * 0.06;
       }
+      // Keep the waving arm in front of the robot body. The whole bot canvas
+      // stays behind the editor window; this only fixes 3D self-occlusion.
+      armRPivot.position.z += (armForward - armRPivot.position.z) * 0.18;
 
       // Eyes: pained squint + ember flash while hurt, regular blink otherwise
       if (t > nextBlink) {
