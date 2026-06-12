@@ -289,8 +289,16 @@
     camera.position.set(0, 0.62, 3.4);
     camera.lookAt(0, 0.55, 0);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    let rendererPixelRatio = 0;
+    function applyRendererPixelRatio() {
+      const targetPixelRatio = isGrafismoSetup
+        ? Math.min(window.devicePixelRatio || 1, 1.35)
+        : Math.min(window.devicePixelRatio || 1, 2);
+      if (Math.abs(rendererPixelRatio - targetPixelRatio) < 0.01) return;
+      rendererPixelRatio = targetPixelRatio;
+      renderer.setPixelRatio(targetPixelRatio);
+    }
     mount.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
     mount.appendChild(renderer.domElement);
     root.dataset.rgActive = '1';
@@ -455,6 +463,18 @@
       opacity: 0.92,
     })));
     let automationVideosPlaying = false;
+    function playAutomationVideos() {
+      if (automationVideosPlaying) return;
+      automationVideosPlaying = true;
+      automationVideos.forEach((video) => {
+        video.play().catch(() => undefined);
+      });
+    }
+    function pauseAutomationVideos() {
+      if (!automationVideosPlaying) return;
+      automationVideos.forEach((video) => video.pause());
+      automationVideosPlaying = false;
+    }
 
     const addHoloScreen = (
       width: number,
@@ -660,6 +680,7 @@
     });
 
     function resize() {
+      applyRendererPixelRatio();
       const w = mount!.clientWidth || 1;
       const h = mount!.clientHeight || 1;
       renderer.setSize(w, h);
@@ -805,6 +826,7 @@
         return p * p * (3 - 2 * p);
       };
       const s = t - rocketStart - FLIGHT;
+      applyRendererPixelRatio();
       if (isGrafismoSetup && grafismoWorkPhase === 1 && t - grafismoWorkStartedAt > 3.05) {
         grafismoWorkPhase = 2;
         grafismoWorkReturnAt = t;
@@ -864,15 +886,13 @@
           panel.position.y = panel.userData.baseY + Math.sin(t * 1.4 + index * 1.7) * 0.018;
           panel.rotation.y = panel.userData.baseRotY + Math.sin(t * 0.95 + index) * 0.018;
         });
-        if (!automationVideosPlaying) {
-          automationVideosPlaying = true;
-          automationVideos.forEach((video) => {
-            video.play().catch(() => undefined);
-          });
+        if (!document.hidden && !root.classList.contains('rg--offstage')) {
+          playAutomationVideos();
+        } else {
+          pauseAutomationVideos();
         }
-      } else if (automationVideosPlaying) {
-        automationVideos.forEach((video) => video.pause());
-        automationVideosPlaying = false;
+      } else {
+        pauseAutomationVideos();
       }
 
       const signActive = !isGrafismoSetup && hasEntered && s > 1.1 && s < 3.05;
@@ -989,8 +1009,14 @@
     }
 
     function onVisibility() {
-      if (document.hidden) { running = false; cancelAnimationFrame(raf); }
-      else if (!running) { running = true; tick(); }
+      if (document.hidden) {
+        pauseAutomationVideos();
+        running = false;
+        cancelAnimationFrame(raf);
+      } else if (!running) {
+        running = true;
+        tick();
+      }
     }
     document.addEventListener('visibilitychange', onVisibility);
 
@@ -1021,8 +1047,8 @@
       signStripGeo.dispose();
       signDotGeo.dispose();
       for (const m of signMats) m.dispose();
+      pauseAutomationVideos();
       automationVideos.forEach((video) => {
-        video.pause();
         video.removeAttribute('src');
         video.load();
       });
