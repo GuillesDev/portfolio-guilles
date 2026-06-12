@@ -12,6 +12,7 @@ export interface RobotRig {
   eyeR: any;
   eyesMat: any;
   chestMat: any;
+  armLPivot: any;
   armRPivot: any;
   antennaTip: any;
   dispose: () => void;
@@ -80,10 +81,13 @@ export function buildRobotRig(THREE: any, RoundedBoxGeometry: any): RobotRig {
 
   // Arms — right one in a pivot for waving/flailing
   const armGeo = track(new THREE.CapsuleGeometry(0.07, 0.26, 4, 12));
+  const armLPivot = new THREE.Group();
+  armLPivot.position.set(-0.4, 0.16, 0);
+  robot.add(armLPivot);
   const armL = new THREE.Mesh(armGeo, bone);
-  armL.position.set(-0.42, 0, 0);
-  armL.rotation.z = 0.25;
-  robot.add(armL);
+  armL.position.y = -0.16;
+  armLPivot.rotation.z = 0.25;
+  armLPivot.add(armL);
 
   const armRPivot = new THREE.Group();
   armRPivot.position.set(0.4, 0.16, 0);
@@ -101,5 +105,5 @@ export function buildRobotRig(THREE: any, RoundedBoxGeometry: any): RobotRig {
     eyesMat.dispose();
   }
 
-  return { robot, headGroup, eyeL, eyeR, eyesMat, chestMat: amber, armRPivot, antennaTip, dispose };
+  return { robot, headGroup, eyeL, eyeR, eyesMat, chestMat: amber, armLPivot, armRPivot, antennaTip, dispose };
 }

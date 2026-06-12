@@ -12,57 +12,6 @@ const stack = [
   { name: 'GSAP', bg: '#88ce02', fg: '#1f2d00' },
 ];
 
-const features = [
-  {
-    num: '01',
-    title: 'Panel de administración a medida',
-    desc: 'Sin WordPress, sin CMS de terceros. Portfolio, alquileres y contenidos se gestionan desde un panel propio con drag & drop entre secciones, edición inline y subida de archivos.',
-    tag: 'Producto',
-    accent: '#5B7B9A',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
-  },
-  {
-    num: '02',
-    title: 'Subida de vídeo por chunks',
-    desc: 'Los vídeos pesados se trocean en el navegador y se suben pieza a pieza con barra de progreso real, esquivando los límites del hosting. Hasta 2 GB por archivo, directo al servidor.',
-    tag: 'Ingeniería',
-    accent: '#c7422e',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 9l5-5 5 5M12 4v12"/></svg>',
-  },
-  {
-    num: '03',
-    title: 'Seguridad endurecida',
-    desc: 'Sesiones firmadas, rate limiting en el login, validación de archivos por magic bytes, cabeceras HSTS y CSP, protección contra path traversal. Auditoría de seguridad completa aplicada.',
-    tag: 'Seguridad',
-    accent: '#2f9e62',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
-  },
-  {
-    num: '04',
-    title: 'Rendimiento sin sacrificios',
-    desc: 'Páginas estáticas con revalidación instantánea: lo que se guarda en el admin aparece al momento en la web pública. Las imágenes se comprimen en el navegador antes de subir.',
-    tag: 'Rendimiento',
-    accent: '#f1a93a',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
-  },
-  {
-    num: '05',
-    title: 'Accesibilidad de serie',
-    desc: 'Focus traps en modales, navegación por teclado, soporte de prefers-reduced-motion y error boundaries. La web funciona para todos, no solo para quien usa ratón.',
-    tag: 'A11y',
-    accent: '#7c6bd6',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M4 9h16M12 9v6m0 0l-3 6m3-6l3 6"/></svg>',
-  },
-  {
-    num: '06',
-    title: 'Deploy y mantenimiento',
-    desc: 'Git push y la web se despliega sola. Deploy keys de solo lectura, secretos fuera del repositorio y base de datos en producción. Mejoras semanales sin romper nada.',
-    tag: 'DevOps',
-    accent: '#3b82f6',
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>',
-  },
-];
-
 const reasons = [
   {
     num: '01',
@@ -72,7 +21,7 @@ const reasons = [
   {
     num: '02',
     title: 'Entrego producto, no maquetas',
-    desc: 'Black Gum no es un concepto de portfolio: es una plataforma en producción que una empresa real usa cada día para vender.',
+    desc: 'Black Gum no es una maqueta para enseñar: es una web real para una productora real, pensada para que puedan mostrar su trabajo y gestionar el contenido sin depender de nadie.',
   },
   {
     num: '03',
@@ -88,7 +37,7 @@ const reasons = [
 
 const marqueeItems = [
   'Full-stack', 'Next.js 14', 'Panel admin propio', 'Prisma', 'Chunked uploads',
-  'Seguridad auditada', 'TypeScript estricto', 'Deploy automático', 'Cero CMS',
+  'Seguridad auditada', 'Deploy automático', 'Web a medida',
 ];
 ---
 
@@ -118,7 +67,7 @@ const marqueeItems = [
         <p class="dev-hero__subtitle" data-animate="fade-up">
           Vengo del diseño visual y pienso como diseñador, pero entrego
           como desarrollador. Webs, plataformas y sistemas que funcionan
-          en producción.
+          en el día a día.
         </p>
 
         <div class="dev-hero__stack" data-animate="stagger">
@@ -143,7 +92,7 @@ const marqueeItems = [
         <div class="editor__footer mono">
           <span>TypeScript</span>
           <span>·</span>
-          <span>en producción — blackgumgroup.com</span>
+          <span>blackgumgroup.com</span>
         </div>
       </div>
       </div>
@@ -164,36 +113,18 @@ const marqueeItems = [
 
           <img src="/media/blackgum/logo-white.png" alt="Black Gum Studio" class="casestudy-logo" loading="lazy" />
 
-          <div class="casestudy-status">
-            <span class="casestudy-pulse"></span>
-            <span class="casestudy-status__text mono">En producción</span>
-          </div>
-
           <p class="casestudy-desc">
-            Plataforma full-stack para una productora audiovisual en Madrid.
-            Web pública, panel de administración propio y gestión completa
-            de contenidos — todo el stack, del diseño al deploy.
+            Black Gum necesitaba una web que estuviera a la altura de su trabajo:
+            visual, cuidada y fácil de actualizar. Por eso construí tanto la
+            parte pública como un panel privado desde el que el equipo puede
+            gestionar sus contenidos sin complicaciones.
           </p>
 
           <p class="casestudy-insight">
-            "Next.js 14 con App Router y Prisma. Panel admin propio — sin
-            WordPress, sin Strapi. Control total."
+            La idea no era montar otra web más, sino crear una herramienta propia:
+            con personalidad, flexible y sin depender de una plantilla o un CMS
+            que no encajara con lo que necesitaban.
           </p>
-
-          <div class="casestudy-stats" data-animate="stagger">
-            <div class="casestudy-stat">
-              <span class="casestudy-stat__value mono">40+</span>
-              <span class="casestudy-stat__label">páginas generadas</span>
-            </div>
-            <div class="casestudy-stat">
-              <span class="casestudy-stat__value mono">100%</span>
-              <span class="casestudy-stat__label">TypeScript estricto</span>
-            </div>
-            <div class="casestudy-stat">
-              <span class="casestudy-stat__value mono">0</span>
-              <span class="casestudy-stat__label">CMS de terceros</span>
-            </div>
-          </div>
 
           <a href="https://blackgumgroup.com/" target="_blank" rel="noopener noreferrer" class="casestudy-cta__link mono">
             Ver blackgumgroup.com →
@@ -212,37 +143,6 @@ const marqueeItems = [
             </span>
           ))}
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Qué hay debajo del capó -->
-  <section class="dev-features section">
-    <div class="container">
-      <div class="dev-features__head" data-animate="fade-up">
-        <span class="dev-label mono" data-scramble>debajo del capó</span>
-        <h2 class="dev-features__title">
-          Lo que hace de Black Gum<br />una web bien construida
-        </h2>
-        <p class="dev-features__subtitle">
-          Una web bonita es la mitad del trabajo. La otra mitad no se ve:
-          es lo que hace que sea rápida, segura y fácil de mantener.
-        </p>
-      </div>
-
-      <div class="dev-features__grid" data-animate="stagger">
-        {features.map((f) => (
-          <article class="feature-card" style={`--card-accent: ${f.accent};`}>
-            <span class="feature-card__ghost mono" aria-hidden="true">{f.num}</span>
-            <div class="feature-card__top">
-              <span class="feature-card__icon" aria-hidden="true"><Fragment set:html={f.icon} /></span>
-              <span class="feature-card__tag mono">{f.tag}</span>
-            </div>
-            <h3 class="feature-card__title">{f.title}</h3>
-            <p class="feature-card__desc">{f.desc}</p>
-            <span class="feature-card__line" aria-hidden="true"></span>
-          </article>
-        ))}
       </div>
     </div>
   </section>
@@ -1252,35 +1152,6 @@ const marqueeItems = [
     filter: drop-shadow(0 0 30px rgba(199,66,46,0.2));
   }
 
-  .casestudy-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6em;
-    padding: 0.35em 1em;
-    border: 1px solid rgba(108,184,126,0.4);
-    border-radius: 999px;
-  }
-
-  .casestudy-pulse {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #6cb87e;
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  .casestudy-status__text {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: #6cb87e;
-  }
-
   .casestudy-desc {
     font-size: var(--step-0);
     line-height: 1.7;
@@ -1298,34 +1169,6 @@ const marqueeItems = [
     opacity: 0.85;
     align-self: center;
     max-width: 460px;
-  }
-
-  .casestudy-stats {
-    display: flex;
-    gap: var(--space-xl);
-    margin-top: var(--space-xs);
-  }
-
-  .casestudy-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35em;
-  }
-
-  .casestudy-stat__value {
-    font-size: var(--step-2);
-    font-weight: 700;
-    color: #f5f0e8;
-    letter-spacing: -0.02em;
-  }
-
-  .casestudy-stat__label {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #d7d1c5;
-    opacity: 0.5;
   }
 
   .casestudy-cta__link {
@@ -1395,7 +1238,7 @@ const marqueeItems = [
     .dev-hero__scroll { animation: none; }
   }
 
-  /* ════ Features grid ════ */
+  /* ════ Section labels ════ */
   .dev-label {
     display: inline-block;
     font-size: var(--step--2);
@@ -1403,140 +1246,6 @@ const marqueeItems = [
     letter-spacing: 0.18em;
     color: var(--dev-accent);
     margin-bottom: var(--space-m);
-  }
-
-  .dev-features__head {
-    text-align: center;
-    max-width: 640px;
-    margin-inline: auto;
-    margin-bottom: var(--space-2xl);
-  }
-
-  .dev-features__title {
-    font-size: var(--step-3);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--dev-primary);
-    margin-bottom: var(--space-s);
-  }
-
-  .dev-features__subtitle {
-    font-size: var(--step-0);
-    line-height: 1.6;
-    color: var(--dev-text-secondary);
-  }
-
-  .dev-features__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-m);
-  }
-
-  .feature-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-    padding: var(--space-l);
-    background: var(--dev-surface);
-    border: 1px solid var(--dev-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: transform var(--duration-base) var(--ease-out),
-                box-shadow var(--duration-base) var(--ease-out),
-                border-color var(--duration-base) var(--ease-out);
-  }
-
-  .feature-card:hover {
-    transform: translateY(-5px);
-    border-color: color-mix(in srgb, var(--card-accent) 45%, transparent);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
-  }
-
-  .feature-card__line {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--card-accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.45s var(--ease-out);
-  }
-
-  .feature-card:hover .feature-card__line {
-    transform: scaleX(1);
-  }
-
-  .feature-card__ghost {
-    position: absolute;
-    bottom: -0.35em;
-    right: 0.05em;
-    font-size: 5.5rem;
-    font-weight: 700;
-    line-height: 1;
-    color: var(--card-accent);
-    opacity: 0.07;
-    pointer-events: none;
-    user-select: none;
-    transition: opacity var(--duration-base) var(--ease-out);
-  }
-
-  .feature-card:hover .feature-card__ghost {
-    opacity: 0.13;
-  }
-
-  .feature-card__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2xs);
-  }
-
-  .feature-card__icon {
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    color: var(--card-accent);
-    background: color-mix(in srgb, var(--card-accent) 11%, transparent);
-    transition: transform var(--duration-base) var(--ease-out);
-  }
-
-  .feature-card:hover .feature-card__icon {
-    transform: scale(1.08) rotate(-3deg);
-  }
-
-  .feature-card__icon :global(svg) {
-    width: 22px;
-    height: 22px;
-  }
-
-  .feature-card__tag {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--card-accent);
-    border: 1px solid color-mix(in srgb, var(--card-accent) 50%, transparent);
-    border-radius: 999px;
-    padding: 0.25em 0.8em;
-  }
-
-  .feature-card__title {
-    font-size: var(--step-0);
-    font-weight: 700;
-    color: var(--dev-primary);
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-  }
-
-  .feature-card__desc {
-    font-size: var(--step--1);
-    line-height: 1.65;
-    color: var(--dev-text-secondary);
   }
 
   /* ════ Por qué desarrollador ════ */
@@ -1710,12 +1419,6 @@ const marqueeItems = [
     }
   }
 
-  @media (max-width: 968px) {
-    .dev-features__grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
   @media (max-width: 768px) {
     .dev-hero__title {
       font-size: clamp(2.4rem, 1.4rem + 6vw, 4.2rem);
@@ -1730,16 +1433,8 @@ const marqueeItems = [
       max-width: 100%;
     }
 
-    .casestudy-stats {
-      gap: var(--space-l);
-    }
-
     .casestudy-inner {
       padding: var(--space-2xl) var(--space-m) var(--space-xl);
-    }
-
-    .dev-features__grid {
-      grid-template-columns: 1fr;
     }
 
     .why-row {

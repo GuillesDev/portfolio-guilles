@@ -16,6 +16,7 @@
 
 <div class="rg rg--offstage" id="robot-guide" transition:persist="robot-guide" aria-hidden="true">
   <div class="rg__mount" id="rg-mount" title="Soy el bot de Guille"></div>
+  <div class="rg__work-pop" id="rg-work-pop">No me molestes, estoy trabajando.</div>
   <div class="rg__bubble rg__bubble--hidden" id="rg-bubble">
     <div class="rg__bar">
       <span class="rg__dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -45,22 +46,25 @@
     '/automatizacion': [
       { sel: '.auto-hero', html: 'Aquí se pone en modo máquina. Como yo, pero con café.' },
       { sel: '.showcase', html: 'Bloque 01: plantillas de After Effects que se montan solas.' },
-      { sel: '.ae-services', html: 'Aquí no hay magia: datos, variables y renders por lote.' },
       { sel: '.bots', html: 'Bloque 02: bots, CRM, citas, documentos y reporting para empresas.' },
     ],
     '/desarrollo': [
-      { sel: '.dev-casestudy', html: '¿Has visto a mi gemelo en el editor? Bueno, al tour: Black Gum, una web real en producción.' },
-      { sel: '.dev-features', html: 'Lo que no se ve: seguridad, rendimiento, accesibilidad.' },
+      { sel: '.dev-casestudy', html: '¿Has visto a mi gemelo en el editor? Bueno, al tour: Black Gum, una web hecha a medida.' },
       { sel: '.dev-why', html: '¿Grafista Y desarrollador? Existe. Lo estás viendo.' },
       { sel: '.dev-cta', html: 'Última parada del tour: <a href="/fratelli-pazzi">una pizzería 🍕 →</a>' },
     ],
     '/fratelli-pazzi': [
-      { sel: '.fratelli-hero', html: 'Esto no es solo una web: es una pizzería DE VERDAD que cofundó.' },
+      { sel: '.fratelli-hero', html: 'Esto no es solo una web: es una pizzería DE VERDAD que fundó.' },
       { sel: '.fratelli-cta', html: 'Fin del tour 🤖 ¿Hablamos? <a href="/#contacto">Contacto →</a>' },
     ],
   };
 
   const HIT_LINES = ['¡Ay! ⚡ ¿Eso por qué?', '¡Oye! Que soy el guía…', 'Vale, vale. Me lo merecía.', '⚡ Reiniciando dignidad…'];
+  const WORK_LINES = [
+    'No me molestes, estoy trabajando.',
+    'Estoy con renders. Prioridades, por favor.',
+    'Vale. Me voy. Ya si eso terminas tú.',
+  ];
 
   // Page accent (eyes, chest light, terminal prompt) — mirrors tokens.css
   const ACCENTS: Record<string, string> = {
@@ -72,6 +76,12 @@
   };
   const DEFAULT_ACCENT = '#f1a93a';
   let accentHex = 0xf1a93a;
+  const PAGE_PROPS: Record<string, string> = {
+    '/grafismo': 'grafismo',
+    '/automatizacion': 'automatizacion',
+    '/desarrollo': 'desarrollo',
+    '/fratelli-pazzi': 'fratelli',
+  };
 
   let started = false;
   let stopLoop: (() => void) | null = null;
@@ -83,11 +93,20 @@
   let showingHit = false;
   let hitCount = 0;
   let api: { hop: () => void; rocket: () => void; hit: () => void } | null = null;
-  let isFratelliPage = false;
+  let robotPropKey = '';
+  let isGrafismoSetup = false;
+  let grafismoAnnoyCount = 0;
+  let grafismoWorkPhase = 0;
+  let grafismoWorkStartedAt = -10;
+  let grafismoWorkReturnAt = -10;
   // Per-page reveal watcher teardown (e.g. /desarrollo scroll gate)
   let revealCleanup: (() => void) | null = null;
+  let grafismoSetupCleanup: (() => void) | null = null;
   let entranceTimer = 0;
   let revealDelayTimer = 0;
+  let workPopTimer = 0;
+  let workPopDelayTimer = 0;
+  let cuteAudioCtx: AudioContext | null = null;
 
   const GLOBAL_KEY = '__portfolioRobotGuide';
   type RobotGuideGlobal = {
@@ -156,6 +175,10 @@
     if (!root) return;
     clearTimeout(entranceTimer);
     clearTimeout(revealDelayTimer);
+    clearTimeout(workPopTimer);
+    clearTimeout(workPopDelayTimer);
+    root.classList.remove('rg--work-speaking');
+    document.getElementById('rg-work-pop')?.classList.remove('rg__work-pop--visible');
     root.style.transition = 'none';
     root.classList.add('rg--offstage');
     bubble?.classList.add('rg__bubble--hidden');
@@ -167,10 +190,44 @@
     return {
       root: document.getElementById('robot-guide'),
       mount: document.getElementById('rg-mount'),
+      workPop: document.getElementById('rg-work-pop'),
       bubble: document.getElementById('rg-bubble'),
       text: document.getElementById('rg-text'),
       close: document.getElementById('rg-close'),
     };
+  }
+
+  function playCuteWorkSound() {
+    try {
+      const AudioCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) return;
+      cuteAudioCtx ??= new AudioCtor();
+      if (cuteAudioCtx.state === 'suspended') cuteAudioCtx.resume();
+      const now = cuteAudioCtx.currentTime;
+      const out = cuteAudioCtx.createGain();
+      out.gain.setValueAtTime(0.0001, now);
+      out.gain.exponentialRampToValueAtTime(0.045, now + 0.018);
+      out.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+      out.connect(cuteAudioCtx.destination);
+
+      [740, 940].forEach((freq, index) => {
+        const osc = cuteAudioCtx!.createOscillator();
+        const chirp = cuteAudioCtx!.createGain();
+        const start = now + index * 0.105;
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.12, start + 0.08);
+        chirp.gain.setValueAtTime(0.0001, start);
+        chirp.gain.exponentialRampToValueAtTime(0.65, start + 0.012);
+        chirp.gain.exponentialRampToValueAtTime(0.0001, start + 0.15);
+        osc.connect(chirp);
+        chirp.connect(out);
+        osc.start(start);
+        osc.stop(start + 0.17);
+      });
+    } catch {
+      // Audio is decorative; ignore browsers that block or fail it.
+    }
   }
 
   function pathKey(): string {
@@ -232,7 +289,7 @@
     camera.position.set(0, 0.62, 3.4);
     camera.lookAt(0, 0.55, 0);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.querySelectorAll('canvas').forEach((canvas) => canvas.remove());
     mount.appendChild(renderer.domElement);
@@ -305,20 +362,269 @@
     sign.visible = false;
     rig.robot.add(sign);
 
-    // Fratelli-only prop: a tiny 3D pizza slice held by the waving hand.
+    // Per-section hand props: a small visual cue for each portfolio area.
+    const propGeos: { dispose(): void }[] = [];
+    const propMats: { dispose(): void; opacity?: number }[] = [];
+    const trackPropGeo = <T extends { dispose(): void }>(g: T): T => { propGeos.push(g); return g; };
+    const trackPropMat = <T extends { dispose(): void; opacity?: number }>(m: T): T => { propMats.push(m); return m; };
+    const standardPropMat = (color: number, roughness = 0.65) => trackPropMat(new THREE.MeshStandardMaterial({
+      color,
+      roughness,
+      metalness: 0.03,
+      transparent: true,
+    }));
+    const basicPropMat = (color: number) => trackPropMat(new THREE.MeshBasicMaterial({ color, transparent: true }));
+    const robotProps: Record<string, {
+      group: any;
+      mats: { opacity?: number }[];
+      animate: (hold: number, t: number, s: number, showoff: number) => void;
+    }> = {};
+
+    function registerProp(
+      key: string,
+      group: any,
+      mats: { opacity?: number }[],
+      animate: (hold: number, t: number, s: number, showoff: number) => void,
+    ) {
+      group.position.set(0.02, -0.38, 0.24);
+      group.scale.setScalar(0.001);
+      group.visible = false;
+      rig.armRPivot.add(group);
+      robotProps[key] = { group, mats, animate };
+    }
+
+    function setPropOpacity(mats: { opacity?: number }[], opacity: number) {
+      for (const m of mats) m.opacity = opacity;
+    }
+
+    const stylusMat = standardPropMat(0x101820, 0.38);
+    const stylusTipMat = basicPropMat(0x8be8ff);
+    const stylus = new THREE.Group();
+    const stylusBody = new THREE.Mesh(trackPropGeo(new THREE.CylinderGeometry(0.01, 0.01, 0.28, 10)), stylusMat);
+    stylusBody.rotation.z = 0.18;
+    const stylusTip = new THREE.Mesh(trackPropGeo(new THREE.ConeGeometry(0.018, 0.055, 10)), stylusTipMat);
+    stylusTip.position.set(0.025, -0.15, 0);
+    stylusTip.rotation.z = -0.18;
+    stylus.add(stylusBody, stylusTip);
+    stylus.position.set(0.03, -0.34, 0.11);
+    stylus.rotation.set(0.15, 0.2, -0.35);
+    stylus.scale.setScalar(0.001);
+    stylus.visible = false;
+    rig.armRPivot.add(stylus);
+
+    // Grafismo setup: desk, floating holographic screens and gaming chair.
+    // The robot sits working and only turns around when the visitor clicks it.
+    const grafismoSetup = new THREE.Group();
+    grafismoSetup.visible = false;
+    scene.add(grafismoSetup);
+
+    const setupDarkMat = standardPropMat(0x07111f, 0.48);
+    const setupDeskMat = standardPropMat(0x122034, 0.55);
+    const setupAccentMat = basicPropMat(0x00d4ff);
+
+    const deskTop = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(1.18, 0.08, 0.38, 4, 0.025)), setupDeskMat);
+    deskTop.position.set(0.26, -0.42, -0.18);
+    const deskLegGeo = trackPropGeo(new THREE.CylinderGeometry(0.018, 0.018, 0.46, 8));
+    [-0.2, 0.72].forEach((x) => {
+      const leg = new THREE.Mesh(deskLegGeo, setupDeskMat);
+      leg.position.set(x, -0.66, -0.06);
+      grafismoSetup.add(leg);
+    });
+
+    const holoRig = new THREE.Group();
+    const holoPanels: any[] = [];
+    const holoLineMat = basicPropMat(0x8be8ff);
+    holoLineMat.opacity = 0.72;
+    const automationVideos = ['cartelas-si.mp4', 'comodines-si.mp4', 'quesitos-si.mp4'].map((file) => {
+      const video = document.createElement('video');
+      video.src = `/media/automatizacion/${file}`;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = 'auto';
+      return video;
+    });
+    const automationVideoTextures = automationVideos.map((video) => {
+      const texture = new THREE.VideoTexture(video);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    });
+    const automationVideoMats = automationVideoTextures.map((texture) => trackPropMat(new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      opacity: 0.92,
+    })));
+    let automationVideosPlaying = false;
+
+    const addHoloScreen = (
+      width: number,
+      height: number,
+      x: number,
+      y: number,
+      z: number,
+      rotationY: number,
+      material: any,
+    ) => {
+      const group = new THREE.Group();
+      group.position.set(x, y, z);
+      group.rotation.y = rotationY;
+      group.userData.baseY = y;
+      group.userData.baseRotY = rotationY;
+
+      const video = new THREE.Mesh(trackPropGeo(new THREE.PlaneGeometry(width, height)), material);
+      video.position.z = 0.008;
+      group.add(video);
+
+      const top = new THREE.Mesh(trackPropGeo(new THREE.PlaneGeometry(width + 0.04, 0.01)), holoLineMat);
+      top.position.set(0, height / 2 + 0.025, 0.018);
+      const bottom = top.clone();
+      bottom.position.y = -height / 2 - 0.025;
+      const left = new THREE.Mesh(trackPropGeo(new THREE.PlaneGeometry(0.01, height + 0.04)), holoLineMat);
+      left.position.set(-width / 2 - 0.025, 0, 0.018);
+      const right = left.clone();
+      right.position.x = width / 2 + 0.025;
+      group.add(top, bottom, left, right);
+
+      holoRig.add(group);
+      holoPanels.push(group);
+      return group;
+    };
+
+    addHoloScreen(0.68, 0.38, -0.24, 0.5, -0.52, 0.02, automationVideoMats[0]);
+    addHoloScreen(0.36, 0.22, -0.72, 0.62, -0.42, 0.28, automationVideoMats[1]);
+    addHoloScreen(0.34, 0.2, 0.48, 0.58, -0.43, -0.24, automationVideoMats[2]);
+    holoRig.position.set(0, 0, 0);
+
+    const chairRig = new THREE.Group();
+    chairRig.position.set(0.25, 0, 0.16);
+    const chairSeat = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.66, 0.145, 0.5, 4, 0.065)), setupDarkMat);
+    chairSeat.position.set(0, -0.45, 0);
+    const chairBack = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.68, 0.52, 0.11, 4, 0.085)), setupDarkMat);
+    chairBack.position.set(0, -0.16, 0.17);
+    const chairWingGeo = trackPropGeo(new RoundedBoxGeometry(0.085, 0.42, 0.075, 3, 0.038));
+    [-0.32, 0.32].forEach((x) => {
+      const wing = new THREE.Mesh(chairWingGeo, setupAccentMat);
+      wing.position.set(x, -0.17, 0.19);
+      wing.rotation.z = x < 0 ? 0.11 : -0.11;
+      chairRig.add(wing);
+    });
+    chairRig.add(chairSeat, chairBack);
+
+    grafismoSetup.add(
+      deskTop,
+      holoRig,
+      chairRig,
+    );
+
+    // Grafismo: a tiny broadcast clapperboard.
+    const slate = new THREE.Group();
+    const slateBodyMat = standardPropMat(0x141416, 0.45);
+    const slateTopMat = standardPropMat(0x222a34, 0.5);
+    const slateStripeMat = basicPropMat(0xffffff);
+    const slateCyanMat = basicPropMat(0x00d4ff);
+    const slateRedMat = basicPropMat(0xff3b30);
+    const slateBody = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.31, 0.21, 0.04, 3, 0.025)), slateBodyMat);
+    const slateTop = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.35, 0.065, 0.045, 3, 0.012)), slateTopMat);
+    slateTop.position.y = 0.135;
+    slateTop.rotation.z = -0.1;
+    slate.add(slateBody, slateTop);
+    const stripeGeo = trackPropGeo(new THREE.PlaneGeometry(0.052, 0.028));
+    [-0.12, -0.04, 0.04, 0.12].forEach((x, i) => {
+      const stripe = new THREE.Mesh(stripeGeo, slateStripeMat);
+      stripe.position.set(x, 0.137, 0.027);
+      stripe.rotation.z = i % 2 === 0 ? -0.48 : 0.48;
+      slate.add(stripe);
+    });
+    const recDot = new THREE.Mesh(trackPropGeo(new THREE.CircleGeometry(0.018, 16)), slateRedMat);
+    recDot.position.set(-0.105, 0.018, 0.027);
+    const slateLine = new THREE.Mesh(trackPropGeo(new THREE.PlaneGeometry(0.13, 0.015)), slateCyanMat);
+    slateLine.position.set(0.045, 0.02, 0.027);
+    slate.add(recDot, slateLine);
+    const slateMats = [slateBodyMat, slateTopMat, slateStripeMat, slateCyanMat, slateRedMat];
+    registerProp('grafismo', slate, slateMats, (hold, t, s, showoff) => {
+      const clap = s > 3.35 ? Math.max(0, Math.sin(t * 5.5)) * 0.18 : 0;
+      slate.position.set(0.02, -0.36, 0.3);
+      slate.scale.setScalar(0.78 * hold);
+      slate.rotation.set(0.18 + Math.sin(t * 4) * 0.03, -0.34 + showoff * 0.28, -0.25 + clap);
+      slateTop.rotation.z = -0.1 - clap * 1.8;
+      setPropOpacity(slateMats, hold);
+    });
+
+    // Automatizacion: a neon bolt with circuit nodes.
+    const bolt = new THREE.Group();
+    const boltShape = new THREE.Shape();
+    boltShape.moveTo(-0.03, 0.16);
+    boltShape.lineTo(0.12, 0.0);
+    boltShape.lineTo(0.035, 0.005);
+    boltShape.lineTo(0.09, -0.17);
+    boltShape.lineTo(-0.12, 0.045);
+    boltShape.lineTo(-0.035, 0.038);
+    boltShape.closePath();
+    const boltMat = standardPropMat(0x39d353, 0.4);
+    const boltGlowMat = basicPropMat(0xa8f0b0);
+    const boltMesh = new THREE.Mesh(trackPropGeo(new THREE.ExtrudeGeometry(boltShape, { depth: 0.035, bevelEnabled: true, bevelSize: 0.005, bevelThickness: 0.005, bevelSegments: 1 })), boltMat);
+    boltMesh.position.z = -0.018;
+    bolt.add(boltMesh);
+    const nodeGeo = trackPropGeo(new THREE.SphereGeometry(0.018, 12, 12));
+    [
+      [-0.13, 0.06],
+      [0.12, 0.045],
+      [0.0, -0.18],
+    ].forEach(([x, y]) => {
+      const node = new THREE.Mesh(nodeGeo, boltGlowMat);
+      node.position.set(x, y, 0.04);
+      bolt.add(node);
+    });
+    const boltMats = [boltMat, boltGlowMat];
+    registerProp('automatizacion', bolt, boltMats, (hold, t, _s, showoff) => {
+      const pulse = 1 + Math.sin(t * 7.5) * 0.08;
+      bolt.position.set(0.04, -0.33, 0.36);
+      bolt.scale.setScalar(1.08 * hold * pulse);
+      bolt.rotation.set(0.12, -0.18 + showoff * 0.34, -0.18 + Math.sin(t * 6) * 0.08);
+      setPropOpacity(boltMats, hold);
+    });
+
+    // Desarrollo: a mini laptop with code lines.
+    const laptop = new THREE.Group();
+    const laptopShellMat = standardPropMat(0xe8e2d6, 0.5);
+    const laptopScreenMat = basicPropMat(0x10151f);
+    const laptopCodeMat = basicPropMat(0xf1a93a);
+    const laptopBase = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.36, 0.045, 0.18, 3, 0.018)), laptopShellMat);
+    laptopBase.position.set(0, -0.11, -0.01);
+    const laptopScreen = new THREE.Mesh(trackPropGeo(new RoundedBoxGeometry(0.34, 0.23, 0.035, 3, 0.025)), laptopShellMat);
+    laptopScreen.position.set(0, 0.035, -0.03);
+    const laptopDisplay = new THREE.Mesh(trackPropGeo(new THREE.PlaneGeometry(0.27, 0.16)), laptopScreenMat);
+    laptopDisplay.position.set(0, 0.035, -0.008);
+    const codeLineGeo = trackPropGeo(new THREE.PlaneGeometry(0.12, 0.012));
+    [-0.01, -0.045, -0.08].forEach((y, i) => {
+      const line = new THREE.Mesh(codeLineGeo, laptopCodeMat);
+      line.position.set(-0.035 + i * 0.018, y + 0.065, 0.012);
+      line.scale.x = i === 1 ? 0.72 : 1;
+      laptop.add(line);
+    });
+    laptop.add(laptopBase, laptopScreen, laptopDisplay);
+    const laptopMats = [laptopShellMat, laptopScreenMat, laptopCodeMat];
+    registerProp('desarrollo', laptop, laptopMats, (hold, t, _s, showoff) => {
+      laptop.position.set(0.03, -0.34, 0.33);
+      laptop.scale.setScalar(0.92 * hold);
+      laptop.rotation.set(0.34 + Math.sin(t * 3) * 0.035, -0.34 + showoff * 0.28, -0.16 + Math.sin(t * 2.5) * 0.04);
+      setPropOpacity(laptopMats, hold);
+    });
+
+    // Fratelli: the existing tiny pizza slice.
     const pizzaShape = new THREE.Shape();
     pizzaShape.moveTo(-0.14, 0.09);
     pizzaShape.lineTo(0.14, 0.09);
     pizzaShape.lineTo(0, -0.23);
     pizzaShape.closePath();
-    const pizzaGeo = new THREE.ExtrudeGeometry(pizzaShape, { depth: 0.028, bevelEnabled: true, bevelSize: 0.006, bevelThickness: 0.006, bevelSegments: 1 });
-    const crustGeo = new THREE.CylinderGeometry(0.024, 0.024, 0.29, 12);
-    const pepperoniGeo = new THREE.CircleGeometry(0.026, 16);
-    const cheeseDropGeo = new THREE.CapsuleGeometry(0.012, 0.07, 4, 10);
-    const pizzaMat = new THREE.MeshStandardMaterial({ color: 0xf4b34e, roughness: 0.7, metalness: 0.02, transparent: true });
-    const crustMat = new THREE.MeshStandardMaterial({ color: 0xc97e35, roughness: 0.75, metalness: 0.02, transparent: true });
-    const pepperoniMat = new THREE.MeshStandardMaterial({ color: 0xb6372e, roughness: 0.6, metalness: 0.02, transparent: true });
-    const cheeseMat = new THREE.MeshBasicMaterial({ color: 0xffd870, transparent: true });
+    const pizzaGeo = trackPropGeo(new THREE.ExtrudeGeometry(pizzaShape, { depth: 0.028, bevelEnabled: true, bevelSize: 0.006, bevelThickness: 0.006, bevelSegments: 1 }));
+    const crustGeo = trackPropGeo(new THREE.CylinderGeometry(0.024, 0.024, 0.29, 12));
+    const pepperoniGeo = trackPropGeo(new THREE.CircleGeometry(0.026, 16));
+    const cheeseDropGeo = trackPropGeo(new THREE.CapsuleGeometry(0.012, 0.07, 4, 10));
+    const pizzaMat = standardPropMat(0xf4b34e, 0.7);
+    const crustMat = standardPropMat(0xc97e35, 0.75);
+    const pepperoniMat = standardPropMat(0xb6372e, 0.6);
+    const cheeseMat = basicPropMat(0xffd870);
     const pizza = new THREE.Group();
     const pizzaBody = new THREE.Mesh(pizzaGeo, pizzaMat);
     pizzaBody.position.z = -0.014;
@@ -339,12 +645,19 @@
     cheeseDrop.rotation.z = 0.08;
     cheeseDrop.position.set(0.045, -0.16, 0.028);
     pizza.add(cheeseDrop);
-    pizza.position.set(0.02, -0.38, 0.24);
-    pizza.rotation.set(0.25, -0.25, -0.35);
-    pizza.scale.setScalar(0.001);
-    pizza.visible = false;
-    rig.armRPivot.add(pizza);
     const pizzaMats = [pizzaMat, crustMat, pepperoniMat, cheeseMat];
+    registerProp('fratelli', pizza, pizzaMats, (hold, t, s, showoff) => {
+      const wobble = Math.sin(t * 8) * 0.08;
+      const playful = s > 3.35 ? Math.sin(t * 3.2) * 0.18 : 0;
+      pizza.position.set(0.02, -0.37, 0.3);
+      pizza.scale.setScalar(0.78 * hold);
+      pizza.rotation.set(
+        0.25 + wobble * 0.4 + playful * 0.35,
+        -0.25 + wobble + playful + showoff * 0.15,
+        -0.35 + Math.sin(t * 5) * 0.06 + playful * 0.7,
+      );
+      setPropOpacity(pizzaMats, hold);
+    });
 
     function resize() {
       const w = mount!.clientWidth || 1;
@@ -378,7 +691,21 @@
     let hasEntered = false;
 
     function onMountClick() { pendingHit = true; }
+    function onDocumentClick(e: MouseEvent) {
+      if (!isGrafismoSetup) return;
+      const rect = mount!.getBoundingClientRect();
+      if (
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom
+      ) {
+        pendingHit = true;
+      }
+    }
     mount.addEventListener('click', onMountClick);
+    renderer.domElement.addEventListener('click', onMountClick);
+    document.addEventListener('click', onDocumentClick, true);
 
     // Scratch color for lerping eyes/chest toward the page accent
     const tint = new THREE.Color(accentHex);
@@ -394,20 +721,50 @@
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
 
+      if (!hasEntered && root.style.display !== 'none' && !root.classList.contains('rg--offstage') && t > 0.25) {
+        pendingRocket = true;
+      }
+
       if (pendingHit) {
         pendingHit = false;
         // Debounce: ignore hits landing within the recoil of the previous one
         if (t - lastHit > 0.6) {
-          lastHit = t;
-          hitVel = -7;
-          hitCount++;
-          showingHit = true;
-          clearTimeout(restoreTimer);
-          setMessage(HIT_LINES[(hitCount - 1) % HIT_LINES.length], { instant: true });
-          restoreTimer = window.setTimeout(() => {
-            showingHit = false;
-            setMessage(sectionHtml, { instant: true });
-          }, 2200);
+          if (isGrafismoSetup) {
+            if (grafismoWorkPhase === 0) {
+              lastHit = t;
+              grafismoAnnoyCount += 1;
+              const workLine = WORK_LINES[Math.min(grafismoAnnoyCount - 1, WORK_LINES.length - 1)];
+              grafismoWorkPhase = grafismoAnnoyCount >= 3 ? 3 : 1;
+              grafismoWorkStartedAt = t;
+              grafismoWorkReturnAt = -10;
+              rig.headGroup.visible = true;
+              rig.headGroup.rotation.set(0, 0, 0);
+              const workPop = document.getElementById('rg-work-pop');
+              if (workPop) workPop.textContent = workLine;
+              clearTimeout(workPopDelayTimer);
+              clearTimeout(workPopTimer);
+              workPopDelayTimer = window.setTimeout(() => {
+                playCuteWorkSound();
+                root.classList.add('rg--work-speaking');
+                workPop?.classList.add('rg__work-pop--visible');
+                workPopTimer = window.setTimeout(() => {
+                  root.classList.remove('rg--work-speaking');
+                  workPop?.classList.remove('rg__work-pop--visible');
+                }, 2200);
+              }, 850);
+            }
+          } else {
+            lastHit = t;
+            hitVel = -7;
+            hitCount++;
+            showingHit = true;
+            clearTimeout(restoreTimer);
+            setMessage(HIT_LINES[(hitCount - 1) % HIT_LINES.length], { instant: true });
+            restoreTimer = window.setTimeout(() => {
+              showingHit = false;
+              setMessage(sectionHtml, { instant: true });
+            }, 2200);
+          }
         }
       }
 
@@ -448,33 +805,77 @@
         return p * p * (3 - 2 * p);
       };
       const s = t - rocketStart - FLIGHT;
+      if (isGrafismoSetup && grafismoWorkPhase === 1 && t - grafismoWorkStartedAt > 3.05) {
+        grafismoWorkPhase = 2;
+        grafismoWorkReturnAt = t;
+      }
+      if (isGrafismoSetup && grafismoWorkPhase === 2 && t - grafismoWorkReturnAt > 1.55) {
+        grafismoWorkPhase = 0;
+        grafismoWorkStartedAt = -10;
+        grafismoWorkReturnAt = -10;
+      }
+      if (isGrafismoSetup && grafismoWorkPhase === 3 && t - grafismoWorkStartedAt > 4.3) {
+        grafismoWorkPhase = 4;
+        root.classList.remove('rg--work-speaking');
+        document.getElementById('rg-work-pop')?.classList.remove('rg__work-pop--visible');
+      }
+      const workElapsed = t - grafismoWorkStartedAt;
+      const returnElapsed = t - grafismoWorkReturnAt;
+      const standingTurn = smooth(0, 0.65, workElapsed);
+      const standingRise = smooth(0.25, 0.9, workElapsed);
+      const returningRise = 1 - smooth(0, 0.78, returnElapsed);
+      const returningTurn = 1 - smooth(0.86, 1.45, returnElapsed);
+      const exitTurn = smooth(0, 0.65, workElapsed);
+      const exitRise = smooth(0.2, 0.85, workElapsed);
+      const exitLeave = grafismoWorkPhase === 3 ? smooth(2.65, 4.05, workElapsed) : (grafismoWorkPhase === 4 ? 1 : 0);
+      const exitProfile = grafismoWorkPhase === 3 ? smooth(2.2, 2.78, workElapsed) : (grafismoWorkPhase === 4 ? 1 : 0);
+      const exitRight = exitLeave;
+      const exitChairTurn = grafismoWorkPhase === 3 ? exitTurn : (grafismoWorkPhase === 4 ? 1 : 0);
+      const chairTurn = grafismoWorkPhase === 1 ? standingTurn : (grafismoWorkPhase === 2 ? returningTurn : (grafismoWorkPhase === 3 || grafismoWorkPhase === 4 ? exitChairTurn : 0));
+      const riseLook = grafismoWorkPhase === 1 ? standingRise : (grafismoWorkPhase === 2 ? returningRise : (grafismoWorkPhase === 3 ? exitRise : 0));
+      const workLook = Math.max(chairTurn, riseLook);
 
       // 1) wave hello  2) turn around  3) lift sign off back
       // 4) turn back presenting it  5) lower it behind body (HTML takes over)
-      const waving = hasEntered && s > 0.2 && s < 1.15;
+      const waving = !isGrafismoSetup && hasEntered && s > 0.2 && s < 1.15;
       const turnY = Math.PI * (smooth(1.2, 1.55, s) - smooth(2.0, 2.5, s));
       const grab = smooth(1.45, 1.95, s);   // sign lifts off the back
       const bring = smooth(2.0, 2.5, s);     // swings around to the front
       const handoff = smooth(2.45, 2.95, s); // descends behind body + fades
-      const pizzaIntro = smooth(0.12, 0.34, s);
-      const pizzaHideForSign = smooth(1.0, 1.2, s) * (1 - smooth(3.0, 3.35, s));
-      const pizzaShowoff = isFratelliPage && s > 3.35 ? 0.5 + 0.5 * Math.sin(t * 1.7) : 0;
-      const pizzaHold = isFratelliPage ? pizzaIntro * (1 - pizzaHideForSign) : 0;
+      const propIntro = smooth(0.12, 0.34, s);
+      const propHideForSign = smooth(1.0, 1.2, s) * (1 - smooth(3.0, 3.35, s));
+      const propShowoff = robotPropKey && s > 3.35 ? 0.5 + 0.5 * Math.sin(t * 1.7) : 0;
+      const propHold = robotPropKey ? propIntro * (1 - propHideForSign) : 0;
 
-      pizza.visible = pizzaHold > 0.01;
-      if (pizza.visible) {
-        const wobble = Math.sin(t * 8) * 0.08;
-        const playful = s > 3.35 ? Math.sin(t * 3.2) * 0.18 : 0;
-        pizza.scale.setScalar(0.78 * pizzaHold);
-        pizza.rotation.set(
-          0.25 + wobble * 0.4 + playful * 0.35,
-          -0.25 + wobble + playful,
-          -0.35 + Math.sin(t * 5) * 0.06 + playful * 0.7
-        );
-        for (const m of pizzaMats) m.opacity = pizzaHold;
+      Object.entries(robotProps).forEach(([key, prop]) => {
+        const hold = key === robotPropKey ? propHold : 0;
+        prop.group.visible = hold > 0.01;
+        if (prop.group.visible) prop.animate(hold, t, s, propShowoff);
+      });
+      grafismoSetup.visible = isGrafismoSetup;
+      if (isGrafismoSetup) {
+        const setupFloatY = Math.sin(t * 1.15) * 0.022;
+        const setupFloatRot = Math.sin(t * 0.82) * 0.006;
+        grafismoSetup.position.y = setupFloatY;
+        grafismoSetup.rotation.z = setupFloatRot;
+        chairRig.rotation.y = -Math.PI * chairTurn;
+        holoRig.rotation.y = setupFloatRot * -1.2;
+        holoPanels.forEach((panel, index) => {
+          panel.position.y = panel.userData.baseY + Math.sin(t * 1.4 + index * 1.7) * 0.018;
+          panel.rotation.y = panel.userData.baseRotY + Math.sin(t * 0.95 + index) * 0.018;
+        });
+        if (!automationVideosPlaying) {
+          automationVideosPlaying = true;
+          automationVideos.forEach((video) => {
+            video.play().catch(() => undefined);
+          });
+        }
+      } else if (automationVideosPlaying) {
+        automationVideos.forEach((video) => video.pause());
+        automationVideosPlaying = false;
       }
 
-      const signActive = hasEntered && s > 1.1 && s < 3.05;
+      const signActive = !isGrafismoSetup && hasEntered && s > 1.1 && s < 3.05;
       sign.visible = signActive;
       if (signActive) {
         sign.position.set(0, 0.12 + grab * 0.12 + bring * 0.14 - handoff * 0.66, -0.26 + bring * 0.56);
@@ -486,34 +887,80 @@
         for (const m of signMats) m.opacity = op;
       }
 
-      rig.robot.position.y = Math.sin(t * 1.4) * 0.04 + hopY + entryY;
-      rig.robot.position.z = hitRot * 0.4;
-      rig.robot.rotation.x = hitRot;
-      rig.robot.rotation.y = Math.sin(t * 0.55) * 0.06 + turnY;
-      rig.robot.rotation.z = Math.sin(t * 10) * 0.08 * thrust;
+      if (isGrafismoSetup) {
+        const idleLean = Math.sin(t * 1.5) * 0.018;
+        const setupFloatY = Math.sin(t * 1.15) * 0.022;
+        rig.robot.scale.setScalar(0.68 + riseLook * 0.22);
+        rig.robot.position.set(
+          0.25 + exitRight * 2.8,
+          -0.14 + riseLook * 0.4 + idleLean + hopY + entryY + setupFloatY,
+          0.12,
+        );
+        rig.robot.rotation.x = hitRot * 0.25 - riseLook * 0.08;
+        rig.robot.rotation.y = Math.PI - Math.PI * chairTurn + (Math.PI * 0.5 * exitProfile) + Math.sin(t * 0.55) * 0.025;
+        rig.robot.rotation.z = Math.sin(t * 0.82) * 0.006 + Math.sin(t * 10) * 0.025 * thrust + chairTurn * 0.08;
+      } else {
+        rig.robot.scale.setScalar(1);
+        rig.robot.position.set(
+          0,
+          Math.sin(t * 1.4) * 0.04 + hopY + entryY,
+          hitRot * 0.4,
+        );
+        rig.robot.rotation.x = hitRot;
+        rig.robot.rotation.y = Math.sin(t * 0.55) * 0.06 + turnY;
+        rig.robot.rotation.z = Math.sin(t * 10) * 0.08 * thrust;
+      }
 
       // Gaze follows the cursor, but not while flying or turned around
-      const gazeDamp = (1 - turnY / Math.PI) * (1 - thrust);
+      const gazeDamp = isGrafismoSetup ? workLook * (1 - thrust) : (1 - turnY / Math.PI) * (1 - thrust);
       rig.headGroup.rotation.y += (gazeX * 0.55 * gazeDamp - rig.headGroup.rotation.y) * 0.07;
       rig.headGroup.rotation.x += (gazeY * 0.35 * gazeDamp + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
+      const angryActivePhase = grafismoWorkPhase === 1 || grafismoWorkPhase === 3;
+      const angryPose = isGrafismoSetup && angryActivePhase && chairTurn > 0.88 && riseLook > 0.6;
+      const angryFace = isGrafismoSetup && angryActivePhase && chairTurn > 0.97 && riseLook > 0.86;
+      const angryArmBlend = isGrafismoSetup ? smooth(0.58, 0.99, Math.min(chairTurn, riseLook)) : 0;
 
       // Right arm: flail when hit > wave hello > reach back for the sign > rest
       let armTarget = -0.25;
       let armLerp = 0.06;
-      if (hurt) {
+      if (isGrafismoSetup && workLook > 0.05) {
+        const rightPrep = -1.35 - riseLook * 0.45;
+        const rightAngry = -1.72 + Math.sin(t * 8.4) * 0.34 + Math.sin(t * 13) * 0.12;
+        armTarget = rightPrep + (rightAngry - rightPrep) * angryArmBlend;
+        armLerp = 0.11 + angryArmBlend * 0.07;
+      } else if (hurt) {
         armTarget = -2.6; armLerp = 0.3;
       } else if (waving) {
         armTarget = -2.3 + Math.sin(t * 9) * 0.28; armLerp = 0.25;
-      } else if (pizzaHold > 0.05 && s > 3.35) {
-        armTarget = -1.45 + Math.sin(t * 3.2) * 0.22 + pizzaShowoff * -0.18; armLerp = 0.1;
+      } else if (propHold > 0.05 && s > 3.35) {
+        armTarget = -1.45 + Math.sin(t * 3.2) * 0.22 + propShowoff * -0.18; armLerp = 0.1;
       } else if (grab > 0.05 && turnY > 0.4 && handoff < 0.5) {
         armTarget = -0.25 - 2.1 * grab; armLerp = 0.3;
       }
       rig.armRPivot.rotation.z += (armTarget - rig.armRPivot.rotation.z) * armLerp;
+      const armXTarget = (0.18 + Math.sin(t * 9.6) * 0.12) * angryArmBlend;
+      const armYTarget = (-0.12 + Math.sin(t * 7.2) * 0.16) * angryArmBlend;
+      rig.armRPivot.rotation.x += (armXTarget - rig.armRPivot.rotation.x) * (0.08 + angryArmBlend * 0.08);
+      rig.armRPivot.rotation.y += (armYTarget - rig.armRPivot.rotation.y) * (0.08 + angryArmBlend * 0.08);
+
+      const leftRest = 0.25;
+      const leftAngry = 1.32 + Math.sin(t * 7.7 + 1.4) * 0.28 + Math.sin(t * 12.2) * 0.1;
+      const leftArmTarget = leftRest + (leftAngry - leftRest) * angryArmBlend;
+      const leftArmXTarget = (-0.12 + Math.sin(t * 8.8 + 0.8) * 0.12) * angryArmBlend;
+      const leftArmYTarget = (0.14 + Math.sin(t * 6.3 + 1.1) * 0.14) * angryArmBlend;
+      const leftArmLerp = 0.07 + angryArmBlend * 0.08;
+      rig.armLPivot.rotation.z += (leftArmTarget - rig.armLPivot.rotation.z) * leftArmLerp;
+      rig.armLPivot.rotation.x += (leftArmXTarget - rig.armLPivot.rotation.x) * leftArmLerp;
+      rig.armLPivot.rotation.y += (leftArmYTarget - rig.armLPivot.rotation.y) * leftArmLerp;
+      const stylusShow = isGrafismoSetup && workLook > 0.28;
+      stylus.visible = stylusShow;
+      stylus.scale.setScalar(stylusShow ? 1 : 0.001);
       // Bring the waving arm forward in Z so it sweeps in FRONT of the body
       // instead of disappearing behind it.
-      const armFwd = waving || pizzaHold > 0.05 ? 0.28 : 0;
-      rig.armRPivot.position.z += (armFwd - rig.armRPivot.position.z) * 0.18;
+      const armFwd = waving || propHold > 0.05 || (isGrafismoSetup && workLook > 0.05) ? 0.42 : 0;
+      rig.armRPivot.position.z += (armFwd - rig.armRPivot.position.z) * 0.24;
+      const leftArmFwd = 0.3 * angryArmBlend;
+      rig.armLPivot.position.z += (leftArmFwd - rig.armLPivot.position.z) * 0.1;
 
       if (t > nextBlink) {
         blinkUntil = t + 0.13;
@@ -522,17 +969,20 @@
       const blinking = t < blinkUntil;
       // Eyes & chest light glide toward the current page accent (red while hurt)
       tint.setHex(accentHex);
-      if (hurt) {
+      const angry = angryFace;
+      const showHurtFace = !isGrafismoSetup && hurt;
+      if (showHurtFace || angry) {
         rig.eyesMat.color.setHex(0xc7422e);
       } else {
         rig.eyesMat.color.lerp(tint, 0.06);
       }
       rig.chestMat.color.lerp(tint, 0.06);
       signStripMat.color.lerp(tint, 0.06);
-      rig.eyeL.scale.y = rig.eyeR.scale.y = hurt ? 0.25 : (blinking ? 0.12 : 1);
+      rig.eyeL.scale.y = rig.eyeR.scale.y = angry ? 0.42 : (showHurtFace ? 0.25 : (blinking ? 0.12 : 1));
+      rig.eyeL.scale.x = rig.eyeR.scale.x = angry ? 1.45 : 1;
 
       const recent = t - lastHit < 1.4;
-      rig.antennaTip.scale.setScalar(1 + Math.sin(t * (recent ? 16 : 3)) * (recent ? 0.22 : 0.12));
+      rig.antennaTip.scale.setScalar(1 + Math.sin(t * ((recent && !isGrafismoSetup) || angry ? 16 : 3)) * ((recent && !isGrafismoSetup) || angry ? 0.22 : 0.12));
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
@@ -558,6 +1008,8 @@
       ro.disconnect();
       window.removeEventListener('pointermove', onPointer);
       mount.removeEventListener('click', onMountClick);
+      renderer.domElement.removeEventListener('click', onMountClick);
+      document.removeEventListener('click', onDocumentClick, true);
       document.removeEventListener('visibilitychange', onVisibility);
       flameGeoIn.dispose();
       flameGeoOut.dispose();
@@ -569,11 +1021,14 @@
       signStripGeo.dispose();
       signDotGeo.dispose();
       for (const m of signMats) m.dispose();
-      pizzaGeo.dispose();
-      crustGeo.dispose();
-      pepperoniGeo.dispose();
-      cheeseDropGeo.dispose();
-      for (const m of pizzaMats) m.dispose();
+      automationVideos.forEach((video) => {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      });
+      automationVideoTextures.forEach((texture) => texture.dispose());
+      propGeos.forEach((g) => g.dispose());
+      propMats.forEach((m) => m.dispose());
       rig.dispose();
       renderer.dispose();
       renderer.domElement.remove();
@@ -588,16 +1043,25 @@
 
     // Tint the robot + terminal with this page's accent
     const currentPath = pathKey();
-    isFratelliPage = currentPath === '/fratelli-pazzi';
+    isGrafismoSetup = currentPath === '/grafismo';
+    robotPropKey = isGrafismoSetup ? '' : PAGE_PROPS[currentPath] ?? '';
+    grafismoAnnoyCount = 0;
+    grafismoWorkPhase = 0;
+    grafismoWorkStartedAt = -10;
+    grafismoWorkReturnAt = -10;
     const accent = ACCENTS[currentPath] ?? DEFAULT_ACCENT;
     accentHex = parseInt(accent.slice(1), 16);
     root.style.setProperty('--rg-accent', accent);
+    root.classList.toggle('rg--grafismo-setup', isGrafismoSetup);
+    root.classList.remove('rg--work-speaking');
 
     // The rocket entrance replays on every page: hard-hide first, then reveal.
     // On /desarrollo the big editor twin owns the hero, so we hold the guide
     // offstage until the hero is mostly scrolled away before launching.
     revealCleanup?.();
     revealCleanup = null;
+    grafismoSetupCleanup?.();
+    grafismoSetupCleanup = null;
     goOffstageInstant();
     const hero = currentPath === '/desarrollo' ? document.querySelector('.dev-hero') : null;
     if (hero) {
@@ -614,6 +1078,12 @@
 
     sectionIO?.disconnect();
     const msgs = MESSAGES[currentPath];
+    if (isGrafismoSetup) {
+      root.dataset.screenMode = 'holo';
+      sectionHtml = '';
+      currentHtml = '';
+      return;
+    }
     if (!msgs) {
       sectionHtml = 'Sigue explorando, yo te acompaño 🤖';
       if (!showingHit) setMessage(sectionHtml, { instant: true });
@@ -680,6 +1150,11 @@
     transition: opacity 0.35s ease;
   }
 
+  .rg--grafismo-setup {
+    width: clamp(290px, 27vw, 400px);
+    height: clamp(205px, 20vw, 285px);
+  }
+
   /* Offstage: quick fade — the rocket entrance provides the motion */
   .rg--offstage {
     opacity: 0;
@@ -706,6 +1181,13 @@
     cursor: pointer;
   }
 
+  .rg--grafismo-setup .rg__mount {
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+
   .rg--robot-front .rg__mount {
     z-index: 2;
   }
@@ -714,6 +1196,66 @@
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  .rg__work-pop {
+    position: absolute;
+    right: clamp(1rem, 2vw, 1.5rem);
+    top: clamp(0.25rem, 1vw, 0.65rem);
+    z-index: 3;
+    max-width: 210px;
+    padding: 0.62rem 0.78rem;
+    border-radius: 14px 14px 4px 14px;
+    background: rgba(10, 14, 20, 0.92);
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    color: #f5f7fb;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transform-origin: 85% 100%;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .rg__work-pop::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    bottom: -7px;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-right: inherit;
+    border-bottom: inherit;
+    transform: rotate(45deg);
+  }
+
+  .rg__work-pop--visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .rg--grafismo-setup .rg__work-pop {
+    right: auto;
+    left: clamp(-2.4rem, -3vw, -1.25rem);
+    top: clamp(3.45rem, 5.4vw, 4.75rem);
+    max-width: 178px;
+    border-radius: 14px 14px 4px 14px;
+    transform-origin: 100% 70%;
+  }
+
+  .rg--grafismo-setup .rg__work-pop::after {
+    right: -7px;
+    bottom: 22px;
+    border-right: inherit;
+    border-bottom: 0;
+    border-top: inherit;
+  }
+
+  .rg--grafismo-setup .rg__bubble {
+    display: none;
   }
 
   /* Terminal window */

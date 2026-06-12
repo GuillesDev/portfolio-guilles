@@ -76,7 +76,7 @@ export const desarrolloProjects: Project[] = [
   {
     title: 'Black Gum Studio',
     description:
-      'Plataforma full-stack para productora audiovisual en Madrid: web pública, panel de administración con auth, sistema de pagos con Stripe y gestión de contenidos. En producción.',
+      'Web a medida para una productora audiovisual en Madrid: parte pública, panel privado de administración, pagos con Stripe y gestión de contenidos.',
     tags: ['Next.js 14', 'TypeScript', 'Prisma', 'Stripe', 'Full-Stack'],
     link: 'https://blackgumgroup.com/',
     featured: true,
