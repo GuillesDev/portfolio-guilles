@@ -10,7 +10,9 @@
  * from below with a thruster flame, lands, turns around, pulls its terminal
  * sign off its back, and waves hello. On /desarrollo it stays offstage until
  * you scroll past the hero (its big twin lives there).
- * Desktop-only; respects prefers-reduced-motion; Three.js loads lazily.
+ * Runs everywhere ≥380px: compact + lighter rendering (no MSAA, capped DPR)
+ * under 1025px, where the grafismo chair setup also falls back to the normal
+ * tour bubble. Respects prefers-reduced-motion; Three.js loads lazily.
  */
 ---
 
@@ -273,11 +275,13 @@
     }
     if (started) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { root.style.display = 'none'; return; }
-    if (window.innerWidth < 1025) { root.style.display = 'none'; return; }
+    if (window.innerWidth < 380) { root.style.display = 'none'; return; }
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) { root.style.display = 'none'; return; }
     started = true;
     root.style.display = ''; // clear any earlier hide (e.g. loaded narrow, then widened)
+    // Compact mode (phones/tablets): lighter rendering — no MSAA, capped DPR
+    const compact = window.innerWidth < 1025;
 
     const THREE = await import('three');
     const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
@@ -289,10 +293,10 @@
     camera.position.set(0, 0.62, 3.4);
     camera.lookAt(0, 0.55, 0);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !compact });
     let rendererPixelRatio = 0;
     function applyRendererPixelRatio() {
-      const targetPixelRatio = isGrafismoSetup
+      const targetPixelRatio = isGrafismoSetup || compact
         ? Math.min(window.devicePixelRatio || 1, 1.35)
         : Math.min(window.devicePixelRatio || 1, 2);
       if (Math.abs(rendererPixelRatio - targetPixelRatio) < 0.01) return;
@@ -443,13 +447,15 @@
     const holoPanels: any[] = [];
     const holoLineMat = basicPropMat(0x8be8ff);
     holoLineMat.opacity = 0.72;
-    const automationVideos = ['cartelas-si.mp4', 'comodines-si.mp4', 'quesitos-si.mp4'].map((file) => {
+    // Holo screens use tiny 480p re-encodes (the panels render at ~150px) and
+    // load lazily: no bytes are fetched until the grafismo setup actually plays.
+    const automationVideos = ['cartelas-si-holo.mp4', 'comodines-si-holo.mp4', 'quesitos-si-holo.mp4'].map((file) => {
       const video = document.createElement('video');
-      video.src = `/media/automatizacion/${file}`;
+      video.dataset.src = `/media/automatizacion/${file}`;
       video.muted = true;
       video.loop = true;
       video.playsInline = true;
-      video.preload = 'auto';
+      video.preload = 'none';
       return video;
     });
     const automationVideoTextures = automationVideos.map((video) => {
@@ -467,6 +473,7 @@
       if (automationVideosPlaying) return;
       automationVideosPlaying = true;
       automationVideos.forEach((video) => {
+        if (!video.src && video.dataset.src) video.src = video.dataset.src; // lazy first load
         video.play().catch(() => undefined);
       });
     }
@@ -692,6 +699,7 @@
     ro.observe(mount);
 
     let gazeX = 0, gazeY = 0;
+    let lastPointerMs = 0;
     function onPointer(e: PointerEvent) {
       // Gaze relative to the robot's own corner position
       const rect = mount!.getBoundingClientRect();
@@ -699,6 +707,7 @@
       const cy = rect.top + rect.height / 2;
       gazeX = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth * 0.5)));
       gazeY = Math.max(-1, Math.min(1, (e.clientY - cy) / (window.innerHeight * 0.5)));
+      lastPointerMs = performance.now();
     }
     window.addEventListener('pointermove', onPointer, { passive: true });
 
@@ -736,6 +745,14 @@
     let nextBlink = 2.2;
     let blinkUntil = 0;
     const clock = new THREE.Clock();
+
+    // Hoisted out of tick(): avoid re-allocating these 60×/s
+    // smoothstep, used as building block for every phase ramp
+    const smooth = (a: number, b: number, x: number) => {
+      const p = Math.min(1, Math.max(0, (x - a) / (b - a)));
+      return p * p * (3 - 2 * p);
+    };
+    const robotPropList = Object.entries(robotProps);
 
     function tick() {
       if (!running) return;
@@ -820,11 +837,6 @@
       }
 
       // ── Entrance choreography (seconds since landing) ──
-      // smoothstep, used as building block for every phase ramp
-      const smooth = (a: number, b: number, x: number) => {
-        const p = Math.min(1, Math.max(0, (x - a) / (b - a)));
-        return p * p * (3 - 2 * p);
-      };
       const s = t - rocketStart - FLIGHT;
       applyRendererPixelRatio();
       if (isGrafismoSetup && grafismoWorkPhase === 1 && t - grafismoWorkStartedAt > 3.05) {
@@ -869,11 +881,11 @@
       const propShowoff = robotPropKey && s > 3.35 ? 0.5 + 0.5 * Math.sin(t * 1.7) : 0;
       const propHold = robotPropKey ? propIntro * (1 - propHideForSign) : 0;
 
-      Object.entries(robotProps).forEach(([key, prop]) => {
+      for (const [key, prop] of robotPropList) {
         const hold = key === robotPropKey ? propHold : 0;
         prop.group.visible = hold > 0.01;
         if (prop.group.visible) prop.animate(hold, t, s, propShowoff);
-      });
+      }
       grafismoSetup.visible = isGrafismoSetup;
       if (isGrafismoSetup) {
         const setupFloatY = Math.sin(t * 1.15) * 0.022;
@@ -933,8 +945,13 @@
 
       // Gaze follows the cursor, but not while flying or turned around
       const gazeDamp = isGrafismoSetup ? workLook * (1 - thrust) : (1 - turnY / Math.PI) * (1 - thrust);
-      rig.headGroup.rotation.y += (gazeX * 0.55 * gazeDamp - rig.headGroup.rotation.y) * 0.07;
-      rig.headGroup.rotation.x += (gazeY * 0.35 * gazeDamp + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
+      // No cursor activity (touch devices, or idle mouse): wander the gaze
+      // slowly so the robot still feels alive instead of staring straight.
+      const idleGaze = performance.now() - lastPointerMs > 4000;
+      const gx = idleGaze ? Math.sin(t * 0.5) * 0.45 : gazeX;
+      const gy = idleGaze ? Math.sin(t * 0.33 + 1) * 0.18 : gazeY;
+      rig.headGroup.rotation.y += (gx * 0.55 * gazeDamp - rig.headGroup.rotation.y) * 0.07;
+      rig.headGroup.rotation.x += (gy * 0.35 * gazeDamp + hitRot * 0.8 - rig.headGroup.rotation.x) * 0.07;
       const angryActivePhase = grafismoWorkPhase === 1 || grafismoWorkPhase === 3;
       const angryPose = isGrafismoSetup && angryActivePhase && chairTurn > 0.88 && riseLook > 0.6;
       const angryFace = isGrafismoSetup && angryActivePhase && chairTurn > 0.97 && riseLook > 0.86;
@@ -1069,7 +1086,9 @@
 
     // Tint the robot + terminal with this page's accent
     const currentPath = pathKey();
-    isGrafismoSetup = currentPath === '/grafismo';
+    // The gaming-chair setup is wide and heavy: desktop only. On smaller
+    // screens /grafismo falls back to the normal robot + tour bubble.
+    isGrafismoSetup = currentPath === '/grafismo' && window.innerWidth >= 1025;
     robotPropKey = isGrafismoSetup ? '' : PAGE_PROPS[currentPath] ?? '';
     grafismoAnnoyCount = 0;
     grafismoWorkPhase = 0;
@@ -1412,7 +1431,41 @@
     color: #f5f0e8;
   }
 
-  @media (max-width: 1024px), (prefers-reduced-motion: reduce) {
+  /* ── Compact (phones/tablets): smaller widget, same behaviour ── */
+  @media (max-width: 1024px) {
+    .rg {
+      width: 212px;
+      right: 0.75rem;
+      bottom: 0.75rem;
+    }
+
+    /* Scaled ~0.78: keep the same head-peeking-over-the-terminal framing */
+    .rg__mount {
+      bottom: calc(100% - 92px);
+      width: 140px;
+      height: 148px;
+    }
+
+    .rg__bubble {
+      margin-top: 56px;
+    }
+
+    .rg__text {
+      font-size: 0.64rem;
+    }
+
+    .rg__title {
+      font-size: 0.55rem;
+    }
+
+    /* Bigger touch target for the close button */
+    .rg__close {
+      width: 26px;
+      height: 26px;
+    }
+  }
+
+  @media (max-width: 379px), (prefers-reduced-motion: reduce) {
     .rg {
       display: none;
     }

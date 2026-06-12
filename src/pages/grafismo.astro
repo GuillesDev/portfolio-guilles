@@ -1405,19 +1405,29 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     const { signal } = grafismoAbort;
 
     /* ── Timecode ── */
+    // 25fps PAL clock: tick from elapsed time (not once per rAF) so the DOM
+    // only updates 25×/s, and stop the loop when navigating away (the old
+    // version leaked one infinite rAF loop per visit).
     const tcEl = document.getElementById('timecode');
     if (tcEl) {
-      let frame = 0;
-      (function updateTC() {
-        const t = Math.floor(frame / 25);
-        const h = String(Math.floor(t / 3600)).padStart(2, '0');
-        const m = String(Math.floor((t % 3600) / 60)).padStart(2, '0');
-        const s = String(t % 60).padStart(2, '0');
-        const f = String(frame % 25).padStart(2, '0');
-        tcEl.textContent = `${h}:${m}:${s}:${f}`;
-        frame++;
-        requestAnimationFrame(updateTC);
-      })();
+      let tcRaf = 0;
+      let lastFrame = -1;
+      const tcStart = performance.now();
+      const updateTC = () => {
+        const frame = Math.floor((performance.now() - tcStart) / 40); // 1000/25
+        if (frame !== lastFrame) {
+          lastFrame = frame;
+          const t = Math.floor(frame / 25);
+          const h = String(Math.floor(t / 3600)).padStart(2, '0');
+          const m = String(Math.floor((t % 3600) / 60)).padStart(2, '0');
+          const s = String(t % 60).padStart(2, '0');
+          const f = String(frame % 25).padStart(2, '0');
+          tcEl.textContent = `${h}:${m}:${s}:${f}`;
+        }
+        tcRaf = requestAnimationFrame(updateTC);
+      };
+      updateTC();
+      signal.addEventListener('abort', () => cancelAnimationFrame(tcRaf));
     }
 
     /* ── Channel switch ── */
@@ -1513,8 +1523,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       }, { signal });
 
       card.addEventListener('mouseleave', () => {
+        // pause + rewind only — load() would discard the buffer and refetch
+        // the video on every hover out
         vid.pause();
-        vid.load();
+        vid.currentTime = 0;
         vid.muted = true;
         card.classList.remove('is-playing');
       }, { signal });
@@ -1587,6 +1599,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   document.addEventListener('astro:page-load', initGrafismo);
 
   /* ── Particle system ── */
+  let particlesAbort: AbortController | null = null;
+
   function initParticles() {
     // Respect reduced-motion: skip the continuous particle animation entirely
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1594,6 +1608,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    // Stop any loop/listeners from a previous visit (they used to stack)
+    if (particlesAbort) particlesAbort.abort();
+    particlesAbort = new AbortController();
+    const { signal } = particlesAbort;
 
     let w = 0, h = 0;
     let particles: { x: number; y: number; vx: number; vy: number; r: number; a: number; pulse: number; speed: number }[] = [];
@@ -1622,6 +1640,19 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       }
     }
 
+    // Connection lines bucketed by alpha: one stroke per bucket instead of
+    // one stroke (and one style string) per line — same look, ~100× fewer
+    // canvas state changes. Squared distances skip the sqrt for most pairs.
+    const LINK_DIST = 100;
+    const LINK_DIST_SQ = LINK_DIST * LINK_DIST;
+    const LINE_BUCKETS = 5;
+    const lineBuckets: Path2D[] = new Array(LINE_BUCKETS);
+    const lineBucketStyles: string[] = [];
+    for (let b = 0; b < LINE_BUCKETS; b++) {
+      const alpha = ((b + 0.5) / LINE_BUCKETS) * 0.08;
+      lineBucketStyles.push(`rgba(0, 212, 255, ${alpha.toFixed(3)})`);
+    }
+
     function draw() {
       ctx!.clearRect(0, 0, w, h);
 
@@ -1637,11 +1668,12 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         if (p.y < -10) p.y = h + 10;
         if (p.y > h + 10) p.y = -10;
 
-        // Mouse repulsion
+        // Mouse repulsion (sqrt only when actually inside the radius)
         const dx = p.x - mouse.x;
         const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 120 * 120 && distSq > 0.0001) {
+          const dist = Math.sqrt(distSq);
           const force = (120 - dist) / 120 * 0.8;
           p.x += (dx / dist) * force;
           p.y += (dy / dist) * force;
@@ -1665,22 +1697,29 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         }
       }
 
-      // Draw connection lines between nearby particles
+      // Connection lines between nearby particles, batched per alpha bucket
+      for (let b = 0; b < LINE_BUCKETS; b++) lineBuckets[b] = new Path2D();
       for (let i = 0; i < particles.length; i++) {
+        const pi = particles[i];
         for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            const lineAlpha = (1 - dist / 100) * 0.08;
-            ctx!.beginPath();
-            ctx!.moveTo(particles[i].x, particles[i].y);
-            ctx!.lineTo(particles[j].x, particles[j].y);
-            ctx!.strokeStyle = `rgba(0, 212, 255, ${lineAlpha})`;
-            ctx!.lineWidth = 0.5;
-            ctx!.stroke();
+          const pj = particles[j];
+          const dx = pi.x - pj.x;
+          if (dx > LINK_DIST || dx < -LINK_DIST) continue; // cheap reject
+          const dy = pi.y - pj.y;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < LINK_DIST_SQ) {
+            const closeness = 1 - Math.sqrt(distSq) / LINK_DIST;
+            let bucket = Math.floor(closeness * LINE_BUCKETS);
+            if (bucket >= LINE_BUCKETS) bucket = LINE_BUCKETS - 1;
+            lineBuckets[bucket].moveTo(pi.x, pi.y);
+            lineBuckets[bucket].lineTo(pj.x, pj.y);
           }
         }
+      }
+      ctx!.lineWidth = 0.5;
+      for (let b = 0; b < LINE_BUCKETS; b++) {
+        ctx!.strokeStyle = lineBucketStyles[b];
+        ctx!.stroke(lineBuckets[b]);
       }
 
       raf = requestAnimationFrame(draw);
@@ -1693,21 +1732,23 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     window.addEventListener('resize', () => {
       resize();
       createParticles();
-    });
+    }, { signal });
 
     document.addEventListener('mousemove', (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-    });
+    }, { passive: true, signal });
 
     document.addEventListener('mouseleave', () => {
       mouse.x = -9999;
       mouse.y = -9999;
-    });
+    }, { signal });
 
     // Cleanup on page transition
+    signal.addEventListener('abort', () => cancelAnimationFrame(raf));
     document.addEventListener('astro:before-preparation', () => {
-      cancelAnimationFrame(raf);
+      particlesAbort?.abort();
+      particlesAbort = null;
     }, { once: true });
   }
 
