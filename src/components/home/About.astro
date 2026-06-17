@@ -1,5 +1,5 @@
 ---
-import { experience, skills } from '../../data/experience';
+import { experience } from '../../data/experience';
 ---
 
 <section class="about section" id="sobre-mi">
@@ -59,22 +59,6 @@ import { experience, skills } from '../../data/experience';
           </div>
         </div>
 
-        <!-- Skills -->
-        <div class="about__skills">
-          <h4 class="about__subtitle mono">Competencias</h4>
-          <div class="about__skill-groups">
-            {Object.entries(skills).map(([category, items]) => (
-              <div class="skill-group">
-                <span class="skill-group__label mono">{category}</span>
-                <div class="skill-group__tags">
-                  {items.map((skill) => (
-                    <span class="skill-tag">{skill}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -215,50 +199,6 @@ import { experience, skills } from '../../data/experience';
   .timeline__role {
     font-size: var(--step--1);
     color: var(--color-text-secondary);
-  }
-
-  /* Skills */
-  .about__skill-groups {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-m);
-  }
-
-  .skill-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-xs);
-  }
-
-  .skill-group__label {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-text-secondary);
-  }
-
-  .skill-group__tags {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-3xs);
-  }
-
-  .skill-tag {
-    display: inline-block;
-    padding: 0.25em 0.75em;
-    font-size: var(--step--2);
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--color-text-secondary);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    transition: all var(--duration-fast) var(--ease-out);
-  }
-
-  .skill-tag:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
   }
 
   @media (max-width: 768px) {

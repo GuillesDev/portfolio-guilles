@@ -275,7 +275,7 @@
     }
     if (started) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { root.style.display = 'none'; return; }
-    if (window.innerWidth < 380) { root.style.display = 'none'; return; }
+    if (window.innerWidth < 360) { root.style.display = 'none'; return; }
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) { root.style.display = 'none'; return; }
     started = true;
@@ -1086,9 +1086,10 @@
 
     // Tint the robot + terminal with this page's accent
     const currentPath = pathKey();
-    // The gaming-chair setup is wide and heavy: desktop only. On smaller
-    // screens /grafismo falls back to the normal robot + tour bubble.
-    isGrafismoSetup = currentPath === '/grafismo' && window.innerWidth >= 1025;
+    // Grafismo always shows the gaming-chair setup. On phones/tablets the
+    // compact renderer (no MSAA, capped DPR) + lazy 480p holo videos keep it
+    // light; the widget itself widens via .rg--grafismo-setup.
+    isGrafismoSetup = currentPath === '/grafismo';
     robotPropKey = isGrafismoSetup ? '' : PAGE_PROPS[currentPath] ?? '';
     grafismoAnnoyCount = 0;
     grafismoWorkPhase = 0;
@@ -1463,9 +1464,18 @@
       width: 26px;
       height: 26px;
     }
+
+    /* Grafismo gaming setup: a bit wider than the plain widget so the chair
+       and holo screens stay legible, but not so wide it dominates the screen. */
+    .rg--grafismo-setup {
+      width: clamp(240px, 66vw, 300px);
+      height: clamp(178px, 48vw, 215px);
+      right: 0.5rem;
+      bottom: 0.5rem;
+    }
   }
 
-  @media (max-width: 379px), (prefers-reduced-motion: reduce) {
+  @media (max-width: 359px), (prefers-reduced-motion: reduce) {
     .rg {
       display: none;
     }

@@ -127,7 +127,7 @@ const marqueeItems = [
           </p>
 
           <a href="https://blackgumgroup.com/" target="_blank" rel="noopener noreferrer" class="casestudy-cta__link mono">
-            Ver blackgumgroup.com →
+            Ver blackgumgroup.com
           </a>
         </div>
       </div>
@@ -1173,14 +1173,17 @@ const marqueeItems = [
 
   .casestudy-cta__link {
     display: inline-block;
+    margin-top: var(--space-2xs);
     font-size: var(--step--1);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: #0b0b0b;
     background: linear-gradient(135deg, #c7422e, #f1a93a);
-    padding: 0.75em 2.2em;
+    padding: 0.85em 2.4em;
     border-radius: var(--radius-sm);
     font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
     transition: all var(--duration-fast) var(--ease-out);
     box-shadow: 0 4px 20px rgba(199,66,46,0.3);
   }
@@ -1444,6 +1447,23 @@ const marqueeItems = [
 
     .why-row__arrow {
       display: none;
+    }
+
+    /* Code lines were touching/overflowing the right edge: shrink the font
+       and tighten the line-number gutter so the longest line keeps a margin. */
+    .editor__body {
+      font-size: 0.58rem;
+      padding: 0.9rem 0.9rem 1rem 0.3rem;
+      line-height: 1.7;
+    }
+
+    .ln {
+      width: 1.5em;
+      margin-right: 0.6em;
+    }
+
+    .editor__footer {
+      font-size: 0.56rem;
     }
   }
 </style>
