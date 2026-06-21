@@ -1053,10 +1053,27 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     border: 1px solid var(--grafismo-border);
     border-radius: var(--radius-md);
     overflow: hidden;
-    background: var(--grafismo-surface);
+    background-color: var(--grafismo-surface);
     cursor: pointer;
     transition: border-color var(--duration-fast) var(--ease-out),
                 transform var(--duration-fast) var(--ease-out);
+  }
+
+  /* Poster layer over the video area only (--poster set per card in JS).
+     Sits behind the <video>, which is hidden until it plays, so the poster
+     always shows and the real (often black) first frame never flashes. */
+  .gvideo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    aspect-ratio: 16 / 9;
+    background-image: var(--poster);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
   }
 
   .gvideo-card:hover {
@@ -1066,13 +1083,25 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
   .gvideo-card video {
     display: block;
+    position: relative;
+    z-index: 1;
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    background: #000;
+    background: transparent;
+    /* Hidden until it plays so the poster (::before) shows through and we
+       never flash the (often black) real first frame. */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .gvideo-card.is-playing video {
+    opacity: 1;
   }
 
   .gvideo-card figcaption {
+    position: relative;
+    z-index: 1;
     padding: 0.75rem 1rem;
     font-size: var(--step--2);
     text-transform: uppercase;
@@ -1515,6 +1544,13 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     document.querySelectorAll('.gvideo-card').forEach(card => {
       const vid = card.querySelector('video');
       if (!vid) return;
+
+      // Expose the poster to the ::before layer. Browsers buffer these clips
+      // to readyState 4, so the <video> would otherwise show its real first
+      // frame (black on fade-in clips) instead of the poster. The video is
+      // hidden until it actually plays, so the poster always shows.
+      const poster = vid.getAttribute('poster');
+      if (poster) (card as HTMLElement).style.setProperty('--poster', `url("${poster}")`);
 
       card.addEventListener('mouseenter', () => {
         vid.muted = true;
