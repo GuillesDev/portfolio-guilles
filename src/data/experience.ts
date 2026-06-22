@@ -64,7 +64,7 @@ export const experience: Experience[] = [
   },
   {
     company: 'Mediaset España',
-    role: 'Colaboraciones — Fiesta de Mediaset',
+    role: 'Colaboraciones en Fiesta de Mediaset',
     period: 'Puntual',
     description:
       'Trabajos puntuales de grafismo para especiales y eventos de Mediaset.',

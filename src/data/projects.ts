@@ -30,14 +30,14 @@ export const grafismoProjects: Project[] = [
     featured: true,
   },
   {
-    title: 'Especial Ana Obregón — Telecinco',
+    title: 'Especial Ana Obregón en Telecinco',
     description:
       'Diseño y producción de la gráfica completa para el especial en prime time de Telecinco. Identidad visual del programa, cabecera, transiciones y motion graphics.',
     tags: ['Prime Time', 'Telecinco', 'Mediaset', 'Motion Graphics'],
     featured: true,
   },
   {
-    title: 'Infinity — Cabecera Podcast',
+    title: 'Cabecera del podcast Infinity',
     description:
       'Cabecera audiovisual para el podcast de la plataforma de contenido de Mediaset. Concepto visual, animación y producción completa del opening.',
     tags: ['Podcast', 'Mediaset', 'Branding', 'Motion'],
