@@ -16,7 +16,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- Hero -->
     <section class="fratelli-hero">
       <div class="fratelli-hero__content container">
-        <span class="fratelli-label mono hero-anim hero-anim--1">Historia real · Marca · Producto</span>
+        <span class="fratelli-label mono hero-anim hero-anim--1"><span class="fratelli-label__index">( 04 )</span> Una historia real</span>
 
         <h1 class="fratelli-hero__title hero-anim hero-anim--2">
           Fratelli<br />
@@ -34,10 +34,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- Chapter 01 — Logo -->
     <section class="fratelli-chapter section">
       <div class="container">
-        <div class="chapter-header" data-animate="fade-up">
-          <span class="chapter-step mono">01</span>
-          <span class="fratelli-section-label mono">Identidad</span>
-          <h2 class="fratelli-section-title">Las versiones del logo</h2>
+        <div class="chapter-header">
+          <span class="fratelli-section-label mono" data-animate="fade-up"><span class="chapter-step">( 01 )</span> Identidad</span>
+          <h2 class="fratelli-section-title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">Las versiones del logo</span></span>
+          </h2>
         </div>
 
         <p class="chapter-text" data-animate="fade-up">
@@ -62,10 +63,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- Chapter 02 — Cartel de entrada -->
     <section class="fratelli-chapter section">
       <div class="container">
-        <div class="chapter-header" data-animate="fade-up">
-          <span class="chapter-step mono">02</span>
-          <span class="fratelli-section-label mono">Cartelería</span>
-          <h2 class="fratelli-section-title">El cartel de entrada</h2>
+        <div class="chapter-header">
+          <span class="fratelli-section-label mono" data-animate="fade-up"><span class="chapter-step">( 02 )</span> Cartelería</span>
+          <h2 class="fratelli-section-title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">El cartel de entrada</span></span>
+          </h2>
         </div>
 
         <p class="chapter-text" data-animate="fade-up">
@@ -85,10 +87,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- Chapter 03 — Carta, flyers y marca en sala -->
     <section class="fratelli-chapter section">
       <div class="container">
-        <div class="chapter-header" data-animate="fade-up">
-          <span class="chapter-step mono">03</span>
-          <span class="fratelli-section-label mono">Experiencia</span>
-          <h2 class="fratelli-section-title">Carta, flyers y marca en sala</h2>
+        <div class="chapter-header">
+          <span class="fratelli-section-label mono" data-animate="fade-up"><span class="chapter-step">( 03 )</span> Experiencia</span>
+          <h2 class="fratelli-section-title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">Carta, flyers y marca en sala</span></span>
+          </h2>
         </div>
 
         <p class="chapter-text" data-animate="fade-up">
@@ -121,10 +124,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- Chapter 04 — Vídeos para redes -->
     <section class="fratelli-chapter section">
       <div class="container">
-        <div class="chapter-header" data-animate="fade-up">
-          <span class="chapter-step mono">04</span>
-          <span class="fratelli-section-label mono">Contenido</span>
-          <h2 class="fratelli-section-title">Vídeos para redes</h2>
+        <div class="chapter-header">
+          <span class="fratelli-section-label mono" data-animate="fade-up"><span class="chapter-step">( 04 )</span> Contenido</span>
+          <h2 class="fratelli-section-title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">Vídeos para redes</span></span>
+          </h2>
         </div>
 
         <p class="chapter-text" data-animate="fade-up">
@@ -188,9 +192,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <section class="fratelli-chapter section">
       <div class="container">
         <div class="chapter-header">
-          <span class="chapter-step mono">05</span>
-          <span class="fratelli-section-label mono">En sala</span>
-          <h2 class="fratelli-section-title">Promos para las pantallas del local</h2>
+          <span class="fratelli-section-label mono" data-animate="fade-up"><span class="chapter-step">( 05 )</span> En sala</span>
+          <h2 class="fratelli-section-title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">Promos para las pantallas del local</span></span>
+          </h2>
         </div>
 
         <p class="chapter-text">
@@ -219,13 +224,15 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     <!-- CTA -->
     <section class="fratelli-cta section">
       <div class="container">
-        <div class="fratelli-cta__inner" data-animate="fade-up">
-          <h2 class="fratelli-cta__title">¿Quieres ver una marca así?</h2>
-          <p class="fratelli-cta__text">
+        <div class="fratelli-cta__inner">
+          <h2 class="fratelli-cta__title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">¿Quieres ver una marca así?</span></span>
+          </h2>
+          <p class="fratelli-cta__text" data-animate="fade-up">
             De una idea en una servilleta a una marca que vive en el logo, la
             carta, la fachada, las redes y hasta las teles del local.
           </p>
-          <a href="/#contacto" class="fratelli-cta__btn mono">
+          <a href="/#contacto" class="fratelli-cta__btn mono" data-animate="fade-up">
             Hablemos de tu marca →
           </a>
         </div>
@@ -562,8 +569,14 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     font-size: var(--step--2);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--fratelli-primary);
+    color: var(--fratelli-text);
+    opacity: 0.7;
     margin-bottom: var(--space-l);
+  }
+
+  .fratelli-label__index {
+    color: var(--fratelli-primary);
+    margin-right: 0.5em;
   }
 
   .fratelli-hero__title {
@@ -596,13 +609,15 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     font-size: var(--step--1);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--fratelli-primary);
+    color: var(--fratelli-text);
+    opacity: 0.7;
     margin-bottom: var(--space-xs);
     text-align: center;
   }
 
   .fratelli-section-title {
-    font-size: var(--step-3);
+    font-size: var(--step-4);
+    letter-spacing: -0.03em;
     color: var(--fratelli-text);
     margin-bottom: var(--space-s);
     text-align: center;
@@ -623,18 +638,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   }
 
   .chapter-step {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 3rem;
-    height: 3rem;
-    border-radius: 999px;
-    border: 1px solid var(--fratelli-border);
     color: var(--fratelli-primary);
-    font-size: var(--step-0);
-    letter-spacing: 0.08em;
-    flex-shrink: 0;
-    margin-top: 0.2em;
+    margin-right: 0.5em;
   }
 
   .chapter-text {
@@ -919,7 +924,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   }
 
   .fratelli-cta__title {
-    font-size: var(--step-3);
+    font-size: var(--step-4);
+    letter-spacing: -0.03em;
     color: var(--fratelli-highlight);
     margin-bottom: var(--space-s);
   }

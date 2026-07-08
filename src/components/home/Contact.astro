@@ -5,19 +5,19 @@ import { social } from '../../data/site';
 
 <section class="contact section" id="contacto">
   <div class="container">
-    <div class="contact__inner" data-animate="fade-up">
-      <span class="contact__label mono">Contacto</span>
+    <div class="contact__inner">
+      <span class="contact__label mono" data-animate="fade-up"><span class="contact__label-index">( 03 )</span> Contacto</span>
 
-      <h2 class="contact__title">
-        ¿Hablamos?
+      <h2 class="contact__title" data-animate="title-reveal">
+        <span class="title-line"><span class="title-line__inner">¿Hablamos?</span></span>
       </h2>
 
-      <p class="contact__text">
+      <p class="contact__text" data-animate="fade-up">
         Si te ha gustado lo que has visto, o simplemente te pica la curiosidad,
         escríbeme. Sin compromiso, sin formalidades.
       </p>
 
-      <div class="contact__actions">
+      <div class="contact__actions" data-animate="fade-up">
         <Button href={`mailto:${social.email}`} variant="primary" size="lg">
           Escribir email
         </Button>
@@ -29,7 +29,7 @@ import { social } from '../../data/site';
         </Button>
       </div>
 
-      <div class="contact__email mono">
+      <div class="contact__email mono" data-animate="fade-up">
         {social.email}
       </div>
     </div>
@@ -66,8 +66,13 @@ import { social } from '../../data/site';
     font-size: var(--step--1);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--color-accent);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-m);
+  }
+
+  .contact__label-index {
+    color: var(--color-accent);
+    margin-right: 0.5em;
   }
 
   .contact__title {

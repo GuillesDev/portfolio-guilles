@@ -96,3 +96,28 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' 
     color: var(--color-primary);
   }
 </style>
+
+<script>
+  function initMagneticButtons() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    document.querySelectorAll<HTMLElement>('.btn').forEach((btn) => {
+      if (btn.dataset.magnetic) return;
+      btn.dataset.magnetic = '1';
+
+      btn.addEventListener('mousemove', (event) => {
+        const rect = btn.getBoundingClientRect();
+        const x = event.clientX - rect.left - rect.width / 2;
+        const y = event.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.12}px, ${y * 0.3}px)`;
+      });
+
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initMagneticButtons);
+</script>

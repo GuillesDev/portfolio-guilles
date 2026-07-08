@@ -81,12 +81,26 @@ import { experience } from '../../data/experience';
     gap: var(--space-m);
   }
 
+  .about__photo {
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
   .about__photo-img {
+    display: block;
     width: 100%;
     aspect-ratio: 3/4;
     object-fit: cover;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    filter: grayscale(1);
+    transition: filter var(--duration-slow) var(--ease-out),
+                transform 1.2s var(--ease-out);
+  }
+
+  .about__photo:hover .about__photo-img {
+    filter: grayscale(0);
+    transform: scale(1.04);
   }
 
   .about__name {

@@ -77,10 +77,12 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   <!-- Channel toggle + Video showcase -->
   <section class="grafismo-showcase section">
     <div class="container">
-      <div class="grafismo-showcase__header" data-animate="fade-up">
-        <span class="mono grafismo-section-label">Trabajos en emisión</span>
-        <h2 class="grafismo-section-title">Lo que sale en pantalla</h2>
-        <p class="grafismo-section-desc">
+      <div class="grafismo-showcase__header">
+        <span class="mono grafismo-section-label" data-animate="fade-up"><span class="grafismo-section-label__index">( 01 )</span> Trabajos en emisión</span>
+        <h2 class="grafismo-section-title" data-animate="title-reveal">
+          <span class="title-line"><span class="title-line__inner">Lo que sale en pantalla</span></span>
+        </h2>
+        <p class="grafismo-section-desc" data-animate="fade-up">
           Esto es lo que acaba en antena, casi todo hecho a contrarreloj y en directo.
           Pasa el ratón por cualquier vídeo y se reproduce.
         </p>
@@ -91,11 +93,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         <div class="channel-switch__track">
           <button class="channel-switch__btn channel-switch__btn--active" data-channel="sin-ia" type="button">
             <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">Sin IA</span>
+            <span class="channel-switch__label">Grafismos</span>
           </button>
           <button class="channel-switch__btn" data-channel="ia" type="button">
             <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">Con IA</span>
+            <span class="channel-switch__label">IA Generativa</span>
           </button>
           <button class="channel-switch__btn" data-channel="cabeceras" type="button">
             <span class="channel-switch__signal"></span>
@@ -338,9 +340,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   <!-- Tools -->
   <section class="grafismo-tools section">
     <div class="container">
-      <div class="grafismo-tools__header" data-animate="fade-up">
-        <span class="mono grafismo-section-label">Herramientas</span>
-        <h2 class="grafismo-section-title">Stack técnico</h2>
+      <div class="grafismo-tools__header">
+        <span class="mono grafismo-section-label" data-animate="fade-up"><span class="grafismo-section-label__index">( 02 )</span> Herramientas</span>
+        <h2 class="grafismo-section-title" data-animate="title-reveal">
+          <span class="title-line"><span class="title-line__inner">Stack técnico</span></span>
+        </h2>
       </div>
 
       <div class="grafismo-tools__grid" data-animate="stagger">
@@ -569,13 +573,20 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     font-size: var(--step--1);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--grafismo-primary);
+    color: var(--grafismo-text);
+    opacity: 0.7;
     margin-bottom: var(--space-xs);
     text-align: center;
   }
 
+  .grafismo-section-label__index {
+    color: var(--grafismo-primary);
+    margin-right: 0.5em;
+  }
+
   .grafismo-section-title {
-    font-size: var(--step-3);
+    font-size: var(--step-4);
+    letter-spacing: -0.03em;
     color: var(--grafismo-text);
     margin-bottom: var(--space-s);
     text-align: center;

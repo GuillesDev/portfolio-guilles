@@ -4,51 +4,42 @@ import SectionHeading from '../global/SectionHeading.astro';
 
 <section class="value section" id="propuesta">
   <div class="container">
-    <SectionHeading label="Propuesta de valor" title="¿Por qué yo?" />
+    <SectionHeading index="01" label="Propuesta de valor" title="¿Por qué yo?" />
 
-    <div class="value__grid">
-      <div class="value__text" data-animate="slide-left">
-        <p class="value__lead">
-          No encajo en una sola casilla. Y eso es lo bueno.
-        </p>
-        <p>
-          Sé lo que es trabajar para emisión en directo, con tiempos reales y sin margen para fallar.
-          También sé lo que es montar un negocio desde cero, diseñar su marca,
-          programar su web y pelearse con los proveedores. Cada cosa que hago
-          alimenta a las demás, y eso se nota en el resultado.
-        </p>
+    <div class="value__text" data-animate="fade-up">
+      <p class="value__lead">
+        No encajo en una sola casilla. Y eso es lo bueno.
+      </p>
+      <p>
+        Sé lo que es trabajar para emisión en directo, con tiempos reales y sin margen para fallar.
+        También sé lo que es montar un negocio desde cero, diseñar su marca,
+        programar su web y pelearse con los proveedores. Cada cosa que hago
+        alimenta a las demás, y eso se nota en el resultado.
+      </p>
+    </div>
+
+    <div class="value__stats" data-animate="fade-up">
+      <div class="value__stat">
+        <span class="value__number"><span data-counter="5">5</span><span class="value__number-accent">+</span></span>
+        <span class="value__label mono">Años en TV</span>
       </div>
-
-      <aside class="value__highlights" data-animate="slide-right">
-        <div class="value__highlight">
-          <span class="value__number">5+</span>
-          <span class="value__label mono">Años en TV</span>
-        </div>
-        <div class="value__highlight">
-          <span class="value__number">3</span>
-          <span class="value__label mono">Cadenas nacionales</span>
-        </div>
-        <div class="value__highlight">
-          <span class="value__number">4</span>
-          <span class="value__label mono">Disciplinas</span>
-        </div>
-        <div class="value__highlight">
-          <span class="value__number">1</span>
-          <span class="value__label mono">Negocio propio</span>
-        </div>
-      </aside>
+      <div class="value__stat">
+        <span class="value__number" data-counter="3">3</span>
+        <span class="value__label mono">Cadenas nacionales</span>
+      </div>
+      <div class="value__stat">
+        <span class="value__number" data-counter="4">4</span>
+        <span class="value__label mono">Disciplinas</span>
+      </div>
+      <div class="value__stat">
+        <span class="value__number" data-counter="1">1</span>
+        <span class="value__label mono">Negocio propio</span>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .value__grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: var(--space-2xl);
-    align-items: start;
-  }
-
   .value__text {
     display: flex;
     flex-direction: column;
@@ -71,39 +62,36 @@ import SectionHeading from '../global/SectionHeading.astro';
     max-width: 60ch;
   }
 
-  .value__highlights {
+  .value__stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-m);
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: var(--space-2xl);
   }
 
-  .value__highlight {
-    padding: var(--space-m);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+  .value__stat {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: var(--space-3xs);
-    transition: border-color var(--duration-fast) var(--ease-out),
-                box-shadow var(--duration-fast) var(--ease-out),
-                background var(--duration-fast) var(--ease-out);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.03) 0%, transparent 100%);
+    gap: var(--space-2xs);
+    padding: var(--space-s) var(--space-xs);
   }
 
-  .value__highlight:hover {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.08), inset 0 0 30px rgba(59, 130, 246, 0.04);
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, transparent 100%);
+  .value__stat + .value__stat {
+    border-left: 1px solid var(--color-border);
   }
 
   .value__number {
     font-family: 'Syne Variable', 'Syne', sans-serif;
-    font-size: var(--step-3);
+    font-size: var(--step-4);
     font-weight: 800;
-    color: var(--color-accent);
+    color: var(--color-primary);
     line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .value__number-accent {
+    color: var(--color-accent);
   }
 
   .value__label {
@@ -114,19 +102,66 @@ import SectionHeading from '../global/SectionHeading.astro';
   }
 
   @media (max-width: 768px) {
-    .value__grid {
-      grid-template-columns: 1fr;
-      gap: var(--space-xl);
-    }
-
-    .value__highlights {
+    .value__stats {
       grid-template-columns: 1fr 1fr;
+      margin-top: var(--space-xl);
     }
-  }
 
-  @media (max-width: 480px) {
-    .value__highlights {
-      grid-template-columns: 1fr;
+    .value__stat {
+      padding: var(--space-m) var(--space-xs);
+    }
+
+    /* 2x2: hairline only between the two columns and between the two rows */
+    .value__stat + .value__stat {
+      border-left: 0;
+    }
+
+    .value__stat:nth-child(even) {
+      border-left: 1px solid var(--color-border);
+    }
+
+    .value__stat:nth-child(n + 3) {
+      border-top: 1px solid var(--color-border);
     }
   }
 </style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initStatCounters() {
+    const counters = document.querySelectorAll<HTMLElement>('[data-counter]');
+    if (!counters.length) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    counters.forEach((el) => {
+      const target = parseInt(el.dataset.counter || '0', 10);
+      if (reduced || !Number.isFinite(target)) {
+        el.textContent = String(target);
+        return;
+      }
+
+      const state = { value: 0 };
+      el.textContent = '0';
+      gsap.to(state, {
+        value: target,
+        duration: 1.4,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          once: true,
+        },
+        onUpdate: () => {
+          el.textContent = String(Math.round(state.value));
+        },
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initStatCounters);
+</script>

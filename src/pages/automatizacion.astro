@@ -14,6 +14,7 @@ import { automatizacionVisualisers } from '../data/projects';
   <!-- Hero título -->
   <section class="auto-hero">
     <div class="auto-hero__content container">
+      <span class="auto-hero__kicker mono"><span class="auto-hero__kicker-index">( 02 )</span> Sistemas</span>
       <h1 class="auto-hero__title">
         <span class="auto-hero__title--full">Automatización</span>
         <span class="auto-hero__title--short">Automatizar</span>
@@ -36,12 +37,14 @@ import { automatizacionVisualisers } from '../data/projects';
 
   <!-- ━━ Bloque 01 · After Effects ━━ -->
   <div class="track" id="after-effects">
-    <div class="container track__inner" data-animate="fade-up">
-      <span class="track__num" aria-hidden="true">01</span>
+    <div class="container track__inner">
+      <span class="track__num" aria-hidden="true" data-animate="fade-up">01</span>
       <div class="track__text">
-        <span class="track__kicker mono">// after effects</span>
-        <h2 class="track__title">Grafismo que se monta solo</h2>
-        <p class="track__sub">Plantillas, expresiones y scripts que convierten horas de rotulación en un click.</p>
+        <span class="track__kicker mono" data-animate="fade-up">// after effects</span>
+        <h2 class="track__title" data-animate="title-reveal">
+          <span class="title-line"><span class="title-line__inner">Grafismo que se monta solo</span></span>
+        </h2>
+        <p class="track__sub" data-animate="fade-up">Plantillas, expresiones y scripts que convierten horas de rotulación en un click.</p>
       </div>
     </div>
   </div>
@@ -102,12 +105,14 @@ import { automatizacionVisualisers } from '../data/projects';
 
   <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
   <div class="track track--business" id="empresas">
-    <div class="container track__inner" data-animate="fade-up">
-      <span class="track__num" aria-hidden="true">02</span>
+    <div class="container track__inner">
+      <span class="track__num" aria-hidden="true" data-animate="fade-up">02</span>
       <div class="track__text">
-        <span class="track__kicker mono">// soluciones para empresas</span>
-        <h2 class="track__title">Automatizaciones que quitan trabajo real</h2>
-        <p class="track__sub">
+        <span class="track__kicker mono" data-animate="fade-up">// soluciones para empresas</span>
+        <h2 class="track__title" data-animate="title-reveal">
+          <span class="title-line"><span class="title-line__inner">Automatizaciones que quitan trabajo real</span></span>
+        </h2>
+        <p class="track__sub" data-animate="fade-up">
           Chatbots, formularios inteligentes, CRM, agendas, documentos y reportes conectados.
           La idea no es tener mas software: es que las tareas repetidas ocurran solas y queden registradas.
         </p>
@@ -426,6 +431,20 @@ import { automatizacionVisualisers } from '../data/projects';
 
   .auto-hero__content {
     text-align: center;
+  }
+
+  .auto-hero__kicker {
+    display: inline-block;
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--auto-text-secondary);
+    margin-bottom: var(--space-m);
+  }
+
+  .auto-hero__kicker-index {
+    color: var(--auto-accent);
+    margin-right: 0.5em;
   }
 
   .auto-hero__title {

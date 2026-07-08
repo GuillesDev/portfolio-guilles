@@ -3,16 +3,22 @@ interface Props {
   label: string;
   title: string;
   align?: 'left' | 'center';
+  index?: string;
 }
 
-const { label, title, align = 'center' } = Astro.props;
+const { label, title, align = 'center', index } = Astro.props;
 ---
 
-<div class:list={['section-heading', `section-heading--${align}`]} data-animate="fade-up">
-  <span class="section-heading__label mono">{label}</span>
-  <h2 class="section-heading__title">{title}</h2>
+<div class:list={['section-heading', `section-heading--${align}`]}>
+  <span class="section-heading__label mono" data-animate="fade-up">
+    {index && <span class="section-heading__index">( {index} )</span>}
+    {label}
+  </span>
+  <h2 class="section-heading__title" data-animate="title-reveal">
+    <span class="title-line"><span class="title-line__inner">{title}</span></span>
+  </h2>
   {Astro.slots.has('default') && (
-    <div class="section-heading__desc">
+    <div class="section-heading__desc" data-animate="fade-up">
       <slot />
     </div>
   )}
@@ -36,12 +42,18 @@ const { label, title, align = 'center' } = Astro.props;
     font-size: var(--step--1);
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: var(--color-accent);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-xs);
   }
 
+  .section-heading__index {
+    color: var(--color-accent);
+    margin-right: 0.5em;
+  }
+
   .section-heading__title {
-    font-size: var(--step-3);
+    font-size: var(--step-4);
+    letter-spacing: -0.03em;
     color: var(--color-primary);
     margin-bottom: var(--space-s);
   }

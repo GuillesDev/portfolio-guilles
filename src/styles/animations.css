@@ -108,6 +108,30 @@
   opacity: 1;
 }
 
+/* Masked line reveal for section titles: GSAP animates the inner spans */
+[data-animate="title-reveal"] {
+  opacity: 1;
+}
+
+.title-line {
+  display: block;
+  overflow: hidden;
+  /* Room for descenders so they don't get clipped by the mask */
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.title-line__inner {
+  display: inline-block;
+  transform: translateY(112%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title-line__inner {
+    transform: none;
+  }
+}
+
 /* ── Accessibility: respect reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
   *,

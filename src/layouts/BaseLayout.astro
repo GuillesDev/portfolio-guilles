@@ -165,6 +165,29 @@ const personSchema = {
           );
         });
 
+        // Masked line reveal for section titles (pre-wrapped in .title-line spans)
+        gsap.utils.toArray<HTMLElement>('[data-animate="title-reveal"]').forEach((el) => {
+          const inners = el.querySelectorAll('.title-line__inner');
+          if (!inners.length) return;
+          // The CSS hidden state is translateY(112%); reset the parsed px `y`
+          // and animate yPercent so the tween lands exactly at 0.
+          gsap.fromTo(
+            inners,
+            { y: 0, yPercent: 112 },
+            {
+              yPercent: 0,
+              duration: 1,
+              ease: 'power4.out',
+              stagger: 0.1,
+              scrollTrigger: {
+                trigger: el,
+                start: 'top 88%',
+                once: true,
+              },
+            }
+          );
+        });
+
         // Scale in
         gsap.utils.toArray<HTMLElement>('[data-animate="scale-in"]').forEach((el) => {
           gsap.fromTo(

@@ -5,9 +5,11 @@ interface Props {
   href: string;
   theme: 'grafismo' | 'automatizacion' | 'desarrollo' | 'fratelli';
   label: string;
+  image?: string;
+  video?: string;
 }
 
-const { title, description, href, theme, label } = Astro.props;
+const { title, description, href, theme, label, image, video } = Astro.props;
 
 const themeColors: Record<string, { gradient: string; accent: string; glow: string }> = {
   grafismo: {
@@ -45,6 +47,15 @@ const isLight = theme === 'desarrollo';
     --card-glow: ${colors.glow};
   `}
 >
+  {image && (
+    <div class="area-card__media" aria-hidden="true">
+      <img class="area-card__poster" src={image} alt="" loading="lazy" decoding="async" />
+      {video && (
+        <video class="area-card__video" muted playsinline loop preload="none" data-src={video}></video>
+      )}
+      <div class="area-card__scrim"></div>
+    </div>
+  )}
   <div class="area-card__content">
     <span class="area-card__label mono">{label}</span>
     <h3 class="area-card__title">{title}</h3>
@@ -82,6 +93,69 @@ const isLight = theme === 'desarrollo';
     border-color: var(--card-accent);
   }
 
+  /* Media layer (real work behind the copy) */
+  .area-card__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .area-card__poster,
+  .area-card__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .area-card__poster {
+    filter: grayscale(1);
+    opacity: 0.35;
+    transform: scale(1.02);
+    transition: filter var(--duration-slow) var(--ease-out),
+                opacity var(--duration-slow) var(--ease-out),
+                transform 1.2s var(--ease-out);
+  }
+
+  .area-card:hover .area-card__poster {
+    filter: grayscale(0);
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+
+  .area-card__video {
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .area-card__video.is-playing {
+    opacity: 1;
+  }
+
+  .area-card__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(4, 4, 12, 0) 0%, rgba(4, 4, 12, 0.55) 55%, rgba(4, 4, 12, 0.92) 100%);
+  }
+
+  /* The light card (desarrollo) flips dark on hover instead of showing dim media */
+  .area-card--light .area-card__media {
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+    background: #060606;
+  }
+
+  .area-card--light:hover .area-card__media {
+    opacity: 1;
+  }
+
+  .area-card--light .area-card__poster {
+    filter: grayscale(0);
+    opacity: 0.9;
+  }
+
   .area-card__content {
     position: relative;
     z-index: 1;
@@ -106,6 +180,11 @@ const isLight = theme === 'desarrollo';
 
   .area-card--light .area-card__title {
     color: #1A1A2E;
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .area-card--light:hover .area-card__title {
+    color: #FAFAFA;
   }
 
   .area-card__desc {
@@ -117,6 +196,11 @@ const isLight = theme === 'desarrollo';
 
   .area-card--light .area-card__desc {
     color: rgba(0, 0, 0, 0.55);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .area-card--light:hover .area-card__desc {
+    color: rgba(255, 255, 255, 0.65);
   }
 
   .area-card__cta {
@@ -151,3 +235,30 @@ const isLight = theme === 'desarrollo';
     opacity: 1;
   }
 </style>
+
+<script>
+  function initAreaCardVideos() {
+    // Hover-only surface: skip on touch devices and for reduced-motion users
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    document.querySelectorAll<HTMLAnchorElement>('.area-card').forEach((card) => {
+      const video = card.querySelector<HTMLVideoElement>('.area-card__video');
+      if (!video) return;
+
+      card.addEventListener('mouseenter', () => {
+        // Lazy src: the clip only downloads on first hover
+        if (!video.src && video.dataset.src) video.src = video.dataset.src;
+        video.play().then(() => video.classList.add('is-playing')).catch(() => {});
+      });
+
+      card.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+        video.classList.remove('is-playing');
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initAreaCardVideos);
+</script>

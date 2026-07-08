@@ -35,10 +35,6 @@ const reasons = [
   },
 ];
 
-const marqueeItems = [
-  'Full-stack', 'Next.js 14', 'Panel admin propio', 'Prisma', 'Chunked uploads',
-  'Seguridad auditada', 'Deploy automático', 'Web a medida',
-];
 ---
 
 <SectionLayout
@@ -55,8 +51,8 @@ const marqueeItems = [
     <div class="dev-hero__content container">
       <div class="dev-hero__text">
         <span class="dev-kicker mono" data-animate="fade-up">
-          <span class="dev-kicker__prompt">~/guillermo $</span>
-          <span data-scramble>producto digital · diseño · código</span>
+          <span class="dev-kicker__prompt">( 03 )</span>
+          <span data-scramble>desarrollo web</span>
         </span>
 
         <h1 class="dev-hero__title" data-animate="fade-up">
@@ -98,7 +94,6 @@ const marqueeItems = [
       </div>
     </div>
 
-    <div class="dev-hero__scroll mono" aria-hidden="true">scroll ↓</div>
   </section>
 
   <!-- Case study — Black Gum (panel oscuro redondeado) -->
@@ -132,18 +127,6 @@ const marqueeItems = [
         </div>
       </div>
 
-      <!-- Marquee -->
-      <div class="casestudy-marquee" aria-hidden="true">
-        <div class="casestudy-marquee__track">
-          {[0, 1].map(() => (
-            <span class="casestudy-marquee__group">
-              {marqueeItems.map((item) => (
-                <span class="casestudy-marquee__item mono">{item}<span class="casestudy-marquee__sep">✦</span></span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </div>
     </div>
   </section>
 
@@ -151,10 +134,11 @@ const marqueeItems = [
   <section class="dev-why section">
     <div class="container">
       <div class="dev-why__inner">
-        <div class="dev-why__head" data-animate="fade-up">
-          <span class="dev-label mono" data-scramble>el perfil</span>
-          <h2 class="dev-why__title">
-            Por qué un grafista<br />puede ser tu desarrollador
+        <div class="dev-why__head">
+          <span class="dev-label mono" data-animate="fade-up" data-scramble>el perfil</span>
+          <h2 class="dev-why__title" data-animate="title-reveal">
+            <span class="title-line"><span class="title-line__inner">Por qué un grafista</span></span>
+            <span class="title-line"><span class="title-line__inner">puede ser tu desarrollador</span></span>
           </h2>
         </div>
 
@@ -858,24 +842,6 @@ const marqueeItems = [
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
   }
 
-  .dev-hero__scroll {
-    position: absolute;
-    bottom: var(--space-m);
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: var(--step--2);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--dev-text-secondary);
-    opacity: 0.45;
-    animation: scroll-hint 2.4s ease-in-out infinite;
-  }
-
-  @keyframes scroll-hint {
-    0%, 100% { transform: translate(-50%, 0); opacity: 0.45; }
-    50% { transform: translate(-50%, 6px); opacity: 0.2; }
-  }
-
   /* ════ Editor window ════ */
   .editor-tilt {
     position: relative;
@@ -1193,54 +1159,6 @@ const marqueeItems = [
     box-shadow: 0 8px 30px rgba(199,66,46,0.45);
   }
 
-  /* Marquee */
-  .casestudy-marquee {
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-    border-top: 1px solid rgba(241, 169, 58, 0.14);
-    padding-block: 0.85rem;
-    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-  }
-
-  .casestudy-marquee__track {
-    display: flex;
-    width: max-content;
-    animation: marquee-scroll 28s linear infinite;
-  }
-
-  .casestudy-marquee__group {
-    display: flex;
-    flex-shrink: 0;
-  }
-
-  .casestudy-marquee__item {
-    display: inline-flex;
-    align-items: center;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: rgba(215, 209, 197, 0.55);
-    white-space: nowrap;
-  }
-
-  .casestudy-marquee__sep {
-    color: rgba(241, 169, 58, 0.5);
-    margin-inline: 1.4em;
-    font-size: 0.7em;
-  }
-
-  @keyframes marquee-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .casestudy-marquee__track { animation: none; }
-    .dev-hero__scroll { animation: none; }
-  }
-
   /* ════ Section labels ════ */
   .dev-label {
     display: inline-block;
@@ -1425,10 +1343,6 @@ const marqueeItems = [
   @media (max-width: 768px) {
     .dev-hero__title {
       font-size: clamp(2.4rem, 1.4rem + 6vw, 4.2rem);
-    }
-
-    .dev-hero__scroll {
-      display: none;
     }
 
     .casestudy-insight {
