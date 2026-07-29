@@ -1,14 +1,11 @@
 ---
 /**
  * RobotGuide — persistent robot mascot that guides visitors through the
- * portfolio. Lives fixed at the bottom-right corner on every page, comments
- * on each section as you scroll, suggests the next stop, follows the cursor
- * with its gaze, and complains if you click (hit) it. Its eyes, chest light
- * and terminal accent tint themselves with each page's palette so it blends
- * into every section. On each new section it celebrates with a hop and a
- * terminal pop. When it first appears it makes a rocket entrance: flies in
- * from below with a thruster flame, lands, turns around, pulls its terminal
- * sign off its back, and waves hello. On /desarrollo it stays offstage until
+ * portfolio. Lives fixed at the bottom-right corner on every page, follows
+ * the cursor with its gaze, celebrates as you scroll and complains if you
+ * click (hit) it. Its eyes and chest light tint themselves with each page's
+ * palette so it blends into every section. When it first appears it makes a
+ * rocket entrance and waves hello. On /desarrollo it stays offstage until
  * you scroll past the hero (its big twin lives there).
  * Runs everywhere ≥380px: compact + lighter rendering (no MSAA, capped DPR)
  * under 1025px, where the grafismo chair setup also falls back to the normal
@@ -16,20 +13,57 @@
  */
 ---
 
-<div class="rg rg--offstage" id="robot-guide" transition:persist="robot-guide" aria-hidden="true">
-  <div class="rg__mount" id="rg-mount" title="Soy el bot de Guille"></div>
+<div class="rg rg--offstage" id="robot-guide" transition:persist="robot-guide">
+  <div
+    class="rg__mount"
+    id="rg-mount"
+    title="Pregúntame sobre Guille"
+    role="button"
+    tabindex="0"
+    aria-label="Abrir el asistente de Guillermo"
+    aria-controls="rg-chat"
+    aria-expanded="false"
+  ></div>
   <div class="rg__work-pop" id="rg-work-pop">No me molestes, estoy trabajando.</div>
-  <div class="rg__bubble rg__bubble--hidden" id="rg-bubble">
-    <div class="rg__bar">
-      <span class="rg__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="rg__title">bot-guía: tour</span>
-      <button class="rg__close" id="rg-close" type="button" aria-label="Ocultar guía">×</button>
+  <section class="rg__chat" id="rg-chat" aria-label="Asistente de Guillermo" hidden>
+    <header class="rg__chat-head">
+      <div>
+        <span class="rg__chat-status" aria-hidden="true"></span>
+        <strong>Pregúntame</strong>
+      </div>
+      <button class="rg__chat-close" id="rg-chat-close" type="button" aria-label="Cerrar asistente">×</button>
+    </header>
+
+    <div class="rg__chat-messages" id="rg-chat-messages" aria-live="polite">
+      <div class="rg__chat-message rg__chat-message--bot">
+        Hola, soy el bot de Guille. Pregúntame por su trabajo, experiencia o cómo contactar con él.
+      </div>
     </div>
-    <p class="rg__text" id="rg-text"></p>
-  </div>
+
+    <div class="rg__chat-prompts" id="rg-chat-prompts" aria-label="Preguntas sugeridas">
+      <button type="button" data-rg-question="¿Qué hace Guille?">Qué hace</button>
+      <button type="button" data-rg-question="¿Qué experiencia tiene?">Experiencia</button>
+      <button type="button" data-rg-question="¿Cómo contacto con él?">Contacto</button>
+    </div>
+
+    <form class="rg__chat-form" id="rg-chat-form">
+      <label class="rg__sr-only" for="rg-chat-input">Haz una pregunta sobre Guillermo</label>
+      <input
+        id="rg-chat-input"
+        name="question"
+        type="text"
+        maxlength="180"
+        autocomplete="off"
+        placeholder="Escribe una pregunta…"
+      />
+      <button type="submit" aria-label="Enviar pregunta">→</button>
+    </form>
+  </section>
 </div>
 
 <script>
+  import { navigate } from 'astro:transitions/client';
+
   // ── Robot guide singleton (survives View Transitions via transition:persist) ──
   const MESSAGES: Record<string, { sel: string; html: string }[]> = {
     '/': [
@@ -74,7 +108,7 @@
     '/grafismo': '#00D4FF',
     '/automatizacion': '#39D353',
     '/desarrollo': '#f1a93a',
-    '/fratelli-pazzi': '#FF6B4A',
+    '/fratelli-pazzi': '#D56858',
   };
   const DEFAULT_ACCENT = '#f1a93a';
   let accentHex = 0xf1a93a;
@@ -97,6 +131,7 @@
   let api: { hop: () => void; rocket: () => void; hit: () => void } | null = null;
   let robotPropKey = '';
   let isGrafismoSetup = false;
+  let isFratelliSetup = false;
   let grafismoAnnoyCount = 0;
   let grafismoWorkPhase = 0;
   let grafismoWorkStartedAt = -10;
@@ -108,7 +143,29 @@
   let revealDelayTimer = 0;
   let workPopTimer = 0;
   let workPopDelayTimer = 0;
+  let chatCloseTimer = 0;
+  let chatBusy = false;
   let cuteAudioCtx: AudioContext | null = null;
+
+  type ChatRecord = {
+    role: 'user' | 'bot';
+    text: string;
+    href?: string;
+    action?: string;
+  };
+
+  type ChatAnswer = {
+    text: string;
+    href?: string;
+    action?: string;
+  };
+
+  const CHAT_HISTORY_KEY = 'rg-chat-history-v2';
+  const CHAT_OPEN_KEY = 'rg-chat-open';
+  const CHAT_GREETING: ChatRecord = {
+    role: 'bot',
+    text: 'Hola, soy el bot de Guille. Pregúntame por su trabajo, experiencia o cómo contactar con él.',
+  };
 
   const GLOBAL_KEY = '__portfolioRobotGuide';
   type RobotGuideGlobal = {
@@ -136,24 +193,13 @@
     bubble.classList.add('rg__bubble--pop');
   }
 
-  /** Rocket entrance: fly in, turn around, grab the sign off the back. */
+  /** Rocket entrance: fly in and wave hello. */
   function playEntrance() {
-    const { root, bubble } = guideEls();
+    const { root } = guideEls();
     api?.rocket();
-    if (!root || !bubble) return;
+    if (!root) return;
     clearTimeout(entranceTimer);
-    bubble.classList.add('rg__bubble--hidden');
-    // While he carries and presents the 3D sign, the robot (and his arm)
-    // render IN FRONT of everything.
-    root.classList.add('rg--robot-front');
-    // At the "plant" the HTML terminal unfolds and the Z order swaps back:
-    // the robot ducks BEHIND it (peek-over), so the screen stays in front of
-    // him at rest. (flight 1.0s + wave + turn + present ≈ 3.45s.)
-    entranceTimer = window.setTimeout(() => {
-      bubble.classList.remove('rg__bubble--hidden');
-      root.classList.remove('rg--robot-front');
-      if (!showingHit) setMessage(sectionHtml, { force: true });
-    }, 3450);
+    root.classList.remove('rg--robot-front');
   }
 
   /** Show/hide the whole widget. Revealing triggers the rocket entrance. */
@@ -197,6 +243,323 @@
       text: document.getElementById('rg-text'),
       close: document.getElementById('rg-close'),
     };
+  }
+
+  function normalizeQuestion(question: string): string {
+    return question
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
+  function chatAnswer(question: string): ChatAnswer {
+    const q = normalizeQuestion(question);
+
+    if (/(en boca de todos|cuatro)/.test(q)) {
+      return {
+        text: 'En Boca de Todos es uno de sus trabajos de grafismo diario para Cuatro: rótulos, cortinillas y piezas editoriales resueltas bajo la presión del directo.',
+        href: '/grafismo#trabajo-seleccionado',
+        action: 'Ver trabajo de TV',
+      };
+    }
+    if (/(ana obregon|telecinco|prime time)/.test(q)) {
+      return {
+        text: 'Para el especial de Ana Obregón en Telecinco creó la identidad visual, cabecera, transiciones y motion graphics del programa.',
+        href: '/grafismo#trabajo-seleccionado',
+        action: 'Ver producciones',
+      };
+    }
+    if (/(infinity|podcast)/.test(q)) {
+      return {
+        text: 'La cabecera de Infinity fue una producción completa para el podcast de Mediaset: concepto visual, branding, animación y opening.',
+        href: '/grafismo#trabajo-seleccionado',
+        action: 'Ver Grafismo',
+      };
+    }
+    if (/(cartela|comodin|quesito|expresion|render)/.test(q)) {
+      return {
+        text: 'En After Effects ha creado plantillas modulares de cartelas, comodines y gráficos segmentados con textos, colores, datos y tiempos automatizados.',
+        href: '/automatizacion#after-effects',
+        action: 'Ver plantillas',
+      };
+    }
+    if (/(whatsapp|reserva|agenda|formulario|documento|reporting)/.test(q)) {
+      return {
+        text: 'También construye flujos para empresas que conectan web, WhatsApp y formularios con CRM, agendas, documentos, avisos y reporting.',
+        href: '/automatizacion#empresas',
+        action: 'Ver automatizaciones',
+      };
+    }
+    if (/(black gum|blackgum|stripe|prisma|next.?js|panel privado)/.test(q)) {
+      return {
+        text: 'Black Gum Studio es una plataforma full-stack a medida: web pública, panel privado, gestión de contenidos, pagos con Stripe y tecnología Next.js, TypeScript y Prisma.',
+        href: '/desarrollo#black-gum',
+        action: 'Ver Black Gum',
+      };
+    }
+    if (/(logo|identidad visual)/.test(q) && /(fratelli|pizza|pizzeria|marca)/.test(q)) {
+      return {
+        text: 'La identidad de Fratelli Pazzi se construyó desde cero: logotipo, paleta, tipografías y un sistema visual preparado para todos sus soportes.',
+        href: '/fratelli-pazzi#identidad',
+        action: 'Ver identidad',
+      };
+    }
+    if (/(carta|flyer|instagram|redes|tiktok|contenido|pantalla del local)/.test(q)) {
+      return {
+        text: 'Para Fratelli Pazzi diseñó la carta, flyers, plantillas para redes, vídeos verticales y promociones para las pantallas del local.',
+        href: '/fratelli-pazzi#marca-en-sala',
+        action: 'Ver aplicaciones',
+      };
+    }
+    if (/(contact|email|correo|escribir|hablar|contrat|presupuesto|precio)/.test(q)) {
+      return {
+        text: 'Puedes contarle tu proyecto desde la sección de contacto o escribirle directamente por correo.',
+        href: '/#contacto',
+        action: 'Ir a Contacto',
+      };
+    }
+    if (/(grafismo|motion|tele|television|broadcast|directo|rotulo|cabecera|ia generativa)/.test(q)) {
+      return {
+        text: 'Guille trabaja en grafismo y motion para televisión: rótulos, cabeceras, piezas editoriales, producciones e IA generativa, con más de cinco años de experiencia en directo.',
+        href: '/grafismo#trabajo-seleccionado',
+        action: 'Explorar Grafismo',
+      };
+    }
+    if (/(automat|bot|crm|after effects|plantilla|flujo)/.test(q)) {
+      return {
+        text: 'Diseña dos tipos de automatización: plantillas y expresiones para After Effects, y sistemas de negocio con bots, CRM, citas, documentos y reporting.',
+        href: '/automatizacion',
+        action: 'Explorar Automatización',
+      };
+    }
+    if (/(desarroll|web|program|codigo|full.?stack|app|producto digital)/.test(q)) {
+      return {
+        text: 'También diseña y desarrolla productos digitales a medida, combinando criterio visual, experiencia de usuario y desarrollo full-stack.',
+        href: '/desarrollo',
+        action: 'Explorar Desarrollo',
+      };
+    }
+    if (/(fratelli|pizza|pizzeria|marca|branding)/.test(q)) {
+      return {
+        text: 'Fratelli Pazzi es una pizzería real que Guille fundó y convirtió en un proyecto completo de marca: identidad, local, carta, redes y contenido audiovisual.',
+        href: '/fratelli-pazzi',
+        action: 'Explorar Fratelli',
+      };
+    }
+    if (/(experiencia|trabajado|cliente|mediaset|rtve|movistar|anos)/.test(q)) {
+      return {
+        text: 'Tiene más de cinco años de experiencia en grafismo de televisión y ha trabajado para Mediaset, RTVE y Movistar+, además de desarrollar proyectos propios de automatización, web y marca.',
+        href: '/grafismo#experiencia',
+        action: 'Ver experiencia',
+      };
+    }
+    if (/(herramient|software|programa|after|photoshop|adobe)/.test(q)) {
+      return {
+        text: 'Su trabajo combina After Effects y herramientas de diseño y motion con TypeScript, Next.js, automatización y sistemas conectados.',
+        href: '/grafismo#herramientas',
+        action: 'Ver herramientas',
+      };
+    }
+    if (/(quien|que hace|servicio|trabajo|guille|guillermo)/.test(q)) {
+      return {
+        text: 'Guillermo es grafista de televisión, diseñador y desarrollador. Su portfolio reúne grafismo y motion, automatización, desarrollo web y un proyecto real de marca.',
+        href: '/#areas',
+        action: 'Ver sus áreas',
+      };
+    }
+
+    return {
+      text: 'No tengo ese dato concreto, pero sí puedo responder sobre los proyectos que aparecen en el portfolio: Grafismo, Automatización, Desarrollo, Fratelli Pazzi, experiencia y contacto.',
+    };
+  }
+
+  function readChatHistory(): ChatRecord[] {
+    try {
+      const stored = JSON.parse(sessionStorage.getItem(CHAT_HISTORY_KEY) ?? '[]');
+      if (!Array.isArray(stored)) return [CHAT_GREETING];
+      const valid = stored.filter((item): item is ChatRecord =>
+        item &&
+        (item.role === 'user' || item.role === 'bot') &&
+        typeof item.text === 'string' &&
+        (!item.href || typeof item.href === 'string') &&
+        (!item.action || typeof item.action === 'string')
+      );
+      return valid.length ? valid.slice(-30) : [CHAT_GREETING];
+    } catch {
+      return [CHAT_GREETING];
+    }
+  }
+
+  function saveChatRecord(record: ChatRecord) {
+    try {
+      const history = [...readChatHistory(), record].slice(-30);
+      sessionStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(history));
+    } catch {
+      // Session storage is an enhancement; the live conversation still works.
+    }
+  }
+
+  function appendChatMessage(record: ChatRecord, persist = true): HTMLDivElement | null {
+    const messages = document.getElementById('rg-chat-messages');
+    if (!messages) return null;
+    const message = document.createElement('div');
+    message.className = `rg__chat-message rg__chat-message--${record.role}`;
+    message.textContent = record.text;
+
+    if (record.href && record.action) {
+      const action = document.createElement('a');
+      action.className = 'rg__chat-action';
+      action.href = record.href;
+      action.dataset.rgRoute = record.href;
+      action.textContent = `${record.action} →`;
+      message.appendChild(action);
+    }
+
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+    if (persist) saveChatRecord(record);
+    return message;
+  }
+
+  function restoreChatHistory() {
+    const messages = document.getElementById('rg-chat-messages');
+    if (!messages) return;
+    const history = readChatHistory();
+    messages.replaceChildren();
+    history.forEach((record) => appendChatMessage(record, false));
+  }
+
+  function shouldNavigate(question: string): boolean {
+    const q = question
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+    return /(llevame|lleva|abre|muestrame|quiero ver|vamos a|ir a|ensename)/.test(q);
+  }
+
+  function setChatBusy(busy: boolean) {
+    chatBusy = busy;
+    const input = document.getElementById('rg-chat-input') as HTMLInputElement | null;
+    const submit = document.querySelector<HTMLButtonElement>('#rg-chat-form button[type="submit"]');
+    if (input) input.disabled = busy;
+    if (submit) submit.disabled = busy;
+  }
+
+  async function askChat(question: string) {
+    const cleanQuestion = question.trim();
+    if (!cleanQuestion || chatBusy) return;
+    appendChatMessage({ role: 'user', text: cleanQuestion });
+    setChatBusy(true);
+
+    const typing = appendChatMessage({ role: 'bot', text: 'Pensando…' }, false);
+    typing?.classList.add('rg__chat-message--typing');
+    let answer = chatAnswer(cleanQuestion);
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 15_000);
+    try {
+      const response = await fetch('/api/robot-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: cleanQuestion,
+          history: readChatHistory().map(({ role, text }) => ({ role, text })),
+        }),
+        signal: controller.signal,
+      });
+      if (!response.ok) throw new Error('AI unavailable');
+      const data = await response.json();
+      if (typeof data.answer !== 'string' || !data.answer.trim()) throw new Error('Invalid AI answer');
+      answer = {
+        text: data.answer.trim(),
+        href: typeof data.destination === 'string' && data.destination.startsWith('/')
+          ? data.destination
+          : undefined,
+        action: typeof data.action === 'string' && data.action.trim()
+          ? data.action.trim()
+          : undefined,
+      };
+    } catch {
+      // The deterministic portfolio knowledge base is the instant fallback.
+    } finally {
+      window.clearTimeout(timeout);
+      typing?.remove();
+      appendChatMessage({ role: 'bot', ...answer });
+      setChatBusy(false);
+    }
+
+    if (answer.href && shouldNavigate(cleanQuestion)) {
+      window.setTimeout(() => navigate(answer.href!), 650);
+    }
+  }
+
+  function openChat() {
+    const root = document.getElementById('robot-guide');
+    const mount = document.getElementById('rg-mount');
+    const panel = document.getElementById('rg-chat');
+    const input = document.getElementById('rg-chat-input') as HTMLInputElement | null;
+    if (!root || !panel) return;
+    clearTimeout(chatCloseTimer);
+    panel.hidden = false;
+    requestAnimationFrame(() => root.classList.add('rg--chat-open'));
+    mount?.setAttribute('aria-expanded', 'true');
+    sessionStorage.setItem(CHAT_OPEN_KEY, '1');
+    window.setTimeout(() => input?.focus(), 180);
+  }
+
+  function closeChat() {
+    const root = document.getElementById('robot-guide');
+    const mount = document.getElementById('rg-mount');
+    const panel = document.getElementById('rg-chat');
+    if (!root || !panel) return;
+    root.classList.remove('rg--chat-open');
+    mount?.setAttribute('aria-expanded', 'false');
+    sessionStorage.removeItem(CHAT_OPEN_KEY);
+    clearTimeout(chatCloseTimer);
+    chatCloseTimer = window.setTimeout(() => {
+      if (!root.classList.contains('rg--chat-open')) panel.hidden = true;
+    }, 180);
+    mount?.focus();
+  }
+
+  function setupChat() {
+    const mount = document.getElementById('rg-mount');
+    const form = document.getElementById('rg-chat-form') as HTMLFormElement | null;
+    const input = document.getElementById('rg-chat-input') as HTMLInputElement | null;
+    const close = document.getElementById('rg-chat-close');
+    const prompts = document.getElementById('rg-chat-prompts');
+    const messages = document.getElementById('rg-chat-messages');
+    if (!mount || !form || !input || mount.dataset.rgChatBound === '1') return;
+    mount.dataset.rgChatBound = '1';
+    restoreChatHistory();
+
+    mount.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openChat();
+    });
+    close?.addEventListener('click', closeChat);
+    messages?.addEventListener('click', (event) => {
+      const action = (event.target as HTMLElement).closest<HTMLAnchorElement>('[data-rg-route]');
+      if (!action?.dataset.rgRoute) return;
+      event.preventDefault();
+      navigate(action.dataset.rgRoute);
+    });
+    prompts?.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-rg-question]');
+      if (!button) return;
+      askChat(button.dataset.rgQuestion ?? '');
+      input.focus();
+    });
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const question = input.value;
+      input.value = '';
+      askChat(question);
+      input.focus();
+    });
+
+    if (sessionStorage.getItem(CHAT_OPEN_KEY) === '1') openChat();
   }
 
   function playCuteWorkSound() {
@@ -676,8 +1039,8 @@
     registerProp('fratelli', pizza, pizzaMats, (hold, t, s, showoff) => {
       const wobble = Math.sin(t * 8) * 0.08;
       const playful = s > 3.35 ? Math.sin(t * 3.2) * 0.18 : 0;
-      pizza.position.set(0.02, -0.37, 0.3);
-      pizza.scale.setScalar(0.78 * hold);
+      pizza.position.set(0.02, -0.21, 0.34);
+      pizza.scale.setScalar(0.74 * hold);
       pizza.rotation.set(
         0.25 + wobble * 0.4 + playful * 0.35,
         -0.25 + wobble + playful + showoff * 0.15,
@@ -685,6 +1048,68 @@
       );
       setPropOpacity(pizzaMats, hold);
     });
+
+    // Fratelli outfit: a pizzaiolo toque and apron. They belong to the robot
+    // rather than the hand prop, so they follow its normal body/head motion.
+    const chefWhiteMat = standardPropMat(0xf5efd5, 0.78);
+    const chefRedMat = standardPropMat(0xd56858, 0.7);
+
+    const chefHat = new THREE.Group();
+    chefHat.visible = false;
+    chefHat.position.y = 0.01;
+    const hatBand = new THREE.Mesh(
+      trackPropGeo(new RoundedBoxGeometry(0.56, 0.14, 0.44, 4, 0.045)),
+      chefWhiteMat,
+    );
+    hatBand.position.y = 0.37;
+    chefHat.add(hatBand);
+
+    const hatPuffGeo = trackPropGeo(new THREE.SphereGeometry(0.17, 18, 14));
+    [
+      [-0.17, 0.49, 0.0, 0.95],
+      [0, 0.55, 0.0, 1.08],
+      [0.17, 0.49, 0.0, 0.95],
+    ].forEach(([x, y, z, scale]) => {
+      const puff = new THREE.Mesh(hatPuffGeo, chefWhiteMat);
+      puff.position.set(x, y, z);
+      puff.scale.set(scale, scale * 0.92, scale);
+      chefHat.add(puff);
+    });
+    rig.headGroup.add(chefHat);
+
+    const chefApron = new THREE.Group();
+    chefApron.visible = false;
+    const apronShape = new THREE.Shape();
+    apronShape.moveTo(-0.17, 0.17);
+    apronShape.lineTo(0.17, 0.17);
+    apronShape.lineTo(0.27, -0.27);
+    apronShape.lineTo(-0.27, -0.27);
+    apronShape.closePath();
+    const apron = new THREE.Mesh(
+      trackPropGeo(new THREE.ExtrudeGeometry(apronShape, {
+        depth: 0.025,
+        bevelEnabled: true,
+        bevelSize: 0.008,
+        bevelThickness: 0.006,
+        bevelSegments: 1,
+      })),
+      chefWhiteMat,
+    );
+    apron.position.set(0, 0, 0.213);
+
+    const apronBelt = new THREE.Mesh(
+      trackPropGeo(new RoundedBoxGeometry(0.58, 0.055, 0.035, 3, 0.014)),
+      chefRedMat,
+    );
+    apronBelt.position.set(0, -0.01, 0.238);
+
+    const apronPocket = new THREE.Mesh(
+      trackPropGeo(new RoundedBoxGeometry(0.18, 0.11, 0.025, 3, 0.018)),
+      chefRedMat,
+    );
+    apronPocket.position.set(0.08, -0.14, 0.244);
+    chefApron.add(apron, apronBelt, apronPocket);
+    rig.robot.add(chefApron);
 
     function resize() {
       applyRendererPixelRatio();
@@ -720,22 +1145,11 @@
     let rocketStart = -10;
     let hasEntered = false;
 
-    function onMountClick() { pendingHit = true; }
-    function onDocumentClick(e: MouseEvent) {
-      if (!isGrafismoSetup) return;
-      const rect = mount!.getBoundingClientRect();
-      if (
-        e.clientX >= rect.left &&
-        e.clientX <= rect.right &&
-        e.clientY >= rect.top &&
-        e.clientY <= rect.bottom
-      ) {
-        pendingHit = true;
-      }
+    function onMountClick() {
+      pendingHit = true;
+      openChat();
     }
     mount.addEventListener('click', onMountClick);
-    renderer.domElement.addEventListener('click', onMountClick);
-    document.addEventListener('click', onDocumentClick, true);
 
     // Scratch color for lerping eyes/chest toward the page accent
     const tint = new THREE.Color(accentHex);
@@ -825,7 +1239,9 @@
       if (hasEntered && rp < 1) {
         const k = 1.70158;
         const ease = 1 + (k + 1) * Math.pow(rp - 1, 3) + k * Math.pow(rp - 1, 2);
-        entryY = -2.4 * (1 - ease);
+        // Keep the landing bounce, but cap its upward overshoot so tall page
+        // props (notably Fratelli's chef hat) never cross the canvas edge.
+        entryY = Math.min(0.055, -2.4 * (1 - ease));
       }
       const thrust = hasEntered && rp >= 0 && rp < 0.9 ? 1 - rp / 0.9 : 0;
       flame.visible = thrust > 0;
@@ -869,17 +1285,27 @@
       const riseLook = grafismoWorkPhase === 1 ? standingRise : (grafismoWorkPhase === 2 ? returningRise : (grafismoWorkPhase === 3 ? exitRise : 0));
       const workLook = Math.max(chairTurn, riseLook);
 
-      // 1) wave hello  2) turn around  3) lift sign off back
-      // 4) turn back presenting it  5) lower it behind body (HTML takes over)
+      // The robot now stays front-facing on every page: no terminal/sign tour.
+      const showSignSequence = false;
       const waving = !isGrafismoSetup && hasEntered && s > 0.2 && s < 1.15;
-      const turnY = Math.PI * (smooth(1.2, 1.55, s) - smooth(2.0, 2.5, s));
-      const grab = smooth(1.45, 1.95, s);   // sign lifts off the back
-      const bring = smooth(2.0, 2.5, s);     // swings around to the front
-      const handoff = smooth(2.45, 2.95, s); // descends behind body + fades
+      const turnY = showSignSequence ? Math.PI * (smooth(1.2, 1.55, s) - smooth(2.0, 2.5, s)) : 0;
+      const grab = showSignSequence ? smooth(1.45, 1.95, s) : 0;
+      const bring = showSignSequence ? smooth(2.0, 2.5, s) : 0;
+      const handoff = showSignSequence ? smooth(2.45, 2.95, s) : 0;
       const propIntro = smooth(0.12, 0.34, s);
-      const propHideForSign = smooth(1.0, 1.2, s) * (1 - smooth(3.0, 3.35, s));
+      const propHideForSign = showSignSequence
+        ? smooth(1.0, 1.2, s) * (1 - smooth(3.0, 3.35, s))
+        : 0;
       const propShowoff = robotPropKey && s > 3.35 ? 0.5 + 0.5 * Math.sin(t * 1.7) : 0;
       const propHold = robotPropKey ? propIntro * (1 - propHideForSign) : 0;
+
+      const chefMode = robotPropKey === 'fratelli' && !isGrafismoSetup;
+      chefHat.visible = chefMode;
+      chefApron.visible = chefMode;
+      if (chefMode) {
+        chefHat.rotation.z = Math.sin(t * 0.85) * 0.012;
+        chefApron.rotation.z = Math.sin(t * 0.7) * 0.006;
+      }
 
       for (const [key, prop] of robotPropList) {
         const hold = key === robotPropKey ? propHold : 0;
@@ -907,7 +1333,7 @@
         pauseAutomationVideos();
       }
 
-      const signActive = !isGrafismoSetup && hasEntered && s > 1.1 && s < 3.05;
+      const signActive = showSignSequence && hasEntered && s > 1.1 && s < 3.05;
       sign.visible = signActive;
       if (signActive) {
         sign.position.set(0, 0.12 + grab * 0.12 + bring * 0.14 - handoff * 0.66, -0.26 + bring * 0.56);
@@ -935,7 +1361,7 @@
         rig.robot.scale.setScalar(1);
         rig.robot.position.set(
           0,
-          Math.sin(t * 1.4) * 0.04 + hopY + entryY,
+          -0.08 + Math.sin(t * 1.4) * 0.04 + hopY + entryY,
           hitRot * 0.4,
         );
         rig.robot.rotation.x = hitRot;
@@ -1051,8 +1477,6 @@
       ro.disconnect();
       window.removeEventListener('pointermove', onPointer);
       mount.removeEventListener('click', onMountClick);
-      renderer.domElement.removeEventListener('click', onMountClick);
-      document.removeEventListener('click', onDocumentClick, true);
       document.removeEventListener('visibilitychange', onVisibility);
       flameGeoIn.dispose();
       flameGeoOut.dispose();
@@ -1081,7 +1505,7 @@
   }
 
   function setupPage() {
-    const { root, close } = guideEls();
+    const { root, bubble, close } = guideEls();
     if (!root || root.style.display === 'none') return;
 
     // Tint the robot + terminal with this page's accent
@@ -1090,6 +1514,7 @@
     // compact renderer (no MSAA, capped DPR) + lazy 480p holo videos keep it
     // light; the widget itself widens via .rg--grafismo-setup.
     isGrafismoSetup = currentPath === '/grafismo';
+    isFratelliSetup = currentPath === '/fratelli-pazzi';
     robotPropKey = isGrafismoSetup ? '' : PAGE_PROPS[currentPath] ?? '';
     grafismoAnnoyCount = 0;
     grafismoWorkPhase = 0;
@@ -1100,32 +1525,51 @@
     root.style.setProperty('--rg-accent', accent);
     root.classList.toggle('rg--grafismo-setup', isGrafismoSetup);
     root.classList.remove('rg--work-speaking');
+    setupChat();
 
     // The rocket entrance replays on every page: hard-hide first, then reveal.
-    // On /desarrollo the big editor twin owns the hero, so we hold the guide
-    // offstage until the hero is mostly scrolled away before launching.
+    // Let each strongly branded hero own its first viewport before the guide
+    // enters the page.
     revealCleanup?.();
     revealCleanup = null;
     grafismoSetupCleanup?.();
     grafismoSetupCleanup = null;
-    goOffstageInstant();
-    const hero = currentPath === '/desarrollo' ? document.querySelector('.dev-hero') : null;
-    if (hero) {
-      const onScroll = () => {
-        setOffstage(hero.getBoundingClientRect().bottom > window.innerHeight * 0.45);
-      };
-      onScroll();
-      window.addEventListener('scroll', onScroll, { passive: true });
-      revealCleanup = () => window.removeEventListener('scroll', onScroll);
+    const preservingConversation = sessionStorage.getItem(CHAT_OPEN_KEY) === '1';
+    if (preservingConversation) {
+      // A route opened from the conversation keeps the panel and robot visible;
+      // setupPage still swaps the accent, prop and page-specific robot scene.
+      clearTimeout(revealDelayTimer);
+      root.classList.remove('rg--offstage');
     } else {
-      // Let the new page settle, then launch in
-      revealDelayTimer = window.setTimeout(() => setOffstage(false), 450);
+      goOffstageInstant();
+      const hero = currentPath === '/desarrollo'
+        ? document.querySelector('.dev-hero')
+        : currentPath === '/fratelli-pazzi'
+          ? document.querySelector('.fratelli-hero')
+          : null;
+      if (hero) {
+        const onScroll = () => {
+          setOffstage(hero.getBoundingClientRect().bottom > window.innerHeight * 0.45);
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        revealCleanup = () => window.removeEventListener('scroll', onScroll);
+      } else {
+        // Let the new page settle, then launch in
+        revealDelayTimer = window.setTimeout(() => setOffstage(false), 450);
+      }
     }
 
     sectionIO?.disconnect();
     const msgs = MESSAGES[currentPath];
     if (isGrafismoSetup) {
       root.dataset.screenMode = 'holo';
+      sectionHtml = '';
+      currentHtml = '';
+      return;
+    }
+    if (isFratelliSetup) {
+      bubble?.classList.add('rg__bubble--hidden');
       sectionHtml = '';
       currentHtml = '';
       return;
@@ -1184,14 +1628,14 @@
 </script>
 
 <style>
-  /* Mini terminal window with the robot peeking over its top edge —
-     same composition as the /desarrollo editor mascot, in miniature. */
+  /* Standalone robot anchored to the bottom-right of the viewport. */
   .rg {
     position: fixed;
     right: clamp(0.8rem, 2vw, 1.6rem);
     bottom: clamp(0.8rem, 2vw, 1.6rem);
     z-index: 11000;
-    width: 272px;
+    width: 180px;
+    height: 190px;
     pointer-events: none;
     transition: opacity 0.35s ease;
   }
@@ -1211,13 +1655,10 @@
     pointer-events: none;
   }
 
-  /* Robot canvas: peeks over the terminal's top edge at rest (behind it).
-     During the entrance the robot is bumped IN FRONT (.rg--robot-front) so he
-     and his arm render over everything while he presents the sign; at the
-     "plant" the class is dropped and he ducks back behind the terminal. */
+  /* Robot canvas fills its own fixed frame now that there is no tour panel. */
   .rg__mount {
     position: absolute;
-    bottom: calc(100% - 118px);
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 180px;
@@ -1242,6 +1683,272 @@
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  .rg__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .rg__chat {
+    position: absolute;
+    right: calc(100% - 16px);
+    bottom: 28px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    width: min(320px, calc(100vw - 2rem));
+    max-height: min(440px, calc(100vh - 1.5rem));
+    overflow: hidden;
+    color: #f7f3e9;
+    background:
+      linear-gradient(145deg, rgba(32, 34, 35, 0.98), rgba(15, 17, 18, 0.98));
+    border: 1px solid color-mix(in srgb, var(--rg-accent, #f1a93a) 42%, transparent);
+    border-radius: 18px 18px 5px 18px;
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, 0.48),
+      0 0 32px color-mix(in srgb, var(--rg-accent, #f1a93a) 9%, transparent);
+    opacity: 0;
+    transform: translate(12px, 10px) scale(0.96);
+    transform-origin: 100% 100%;
+    pointer-events: auto;
+    transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .rg__chat[hidden] {
+    display: none;
+  }
+
+  .rg--chat-open .rg__chat {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  .rg__chat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.78rem 0.85rem 0.68rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+  }
+
+  .rg__chat-head > div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .rg__chat-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rg-accent, #f1a93a);
+    box-shadow: 0 0 12px var(--rg-accent, #f1a93a);
+  }
+
+  .rg__chat-close {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.62);
+    background: rgba(255, 255, 255, 0.06);
+    border: 0;
+    border-radius: 50%;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .rg__chat-close:hover,
+  .rg__chat-close:focus-visible {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    outline: none;
+  }
+
+  .rg__chat-messages {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 190px;
+    gap: 0.55rem;
+    min-height: 0;
+    max-height: 240px;
+    padding: 0.8rem 0.72rem 0.95rem 0.8rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+
+  /* Messages created from JavaScript need global class selectors so every
+     reply keeps exactly the same conversational bubble treatment. */
+  .rg__chat :global(.rg__chat-message) {
+    width: fit-content;
+    max-width: 88%;
+    padding: 0.62rem 0.72rem;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+
+  .rg__chat :global(.rg__chat-message--bot) {
+    align-self: flex-start;
+    color: #e7e1d5;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 4px 12px 12px 12px;
+  }
+
+  .rg__chat :global(.rg__chat-message--user) {
+    align-self: flex-end;
+    color: #fff;
+    background: color-mix(in srgb, var(--rg-accent, #f1a93a) 74%, #17191b);
+    border-radius: 12px 4px 12px 12px;
+  }
+
+  .rg__chat :global(.rg__chat-message--typing) {
+    animation: rg-chat-thinking 0.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes rg-chat-thinking {
+    to { opacity: 0.48; }
+  }
+
+  .rg__chat :global(.rg__chat-message a) {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .rg__chat :global(.rg__chat-action) {
+    display: block;
+    width: fit-content;
+    margin-top: 0.5rem;
+    padding: 0.32rem 0.48rem;
+    color: var(--rg-accent, #f1a93a);
+    background: color-mix(in srgb, var(--rg-accent, #f1a93a) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--rg-accent, #f1a93a) 34%, transparent);
+    border-radius: 7px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .rg__chat :global(.rg__chat-action:hover),
+  .rg__chat :global(.rg__chat-action:focus-visible) {
+    color: #fff;
+    border-color: var(--rg-accent, #f1a93a);
+    outline: none;
+  }
+
+  .rg__chat-prompts {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.38rem;
+    padding: 0.62rem 0.8rem 0.68rem;
+    overflow-x: auto;
+    background: rgba(17, 19, 20, 0.98);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    scrollbar-width: none;
+  }
+
+  .rg__chat-prompts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rg__chat-prompts button {
+    flex: 0 0 auto;
+    padding: 0.38rem 0.52rem;
+    color: rgba(255, 255, 255, 0.72);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem;
+    cursor: pointer;
+  }
+
+  .rg__chat-prompts button:hover,
+  .rg__chat-prompts button:focus-visible {
+    color: #fff;
+    border-color: var(--rg-accent, #f1a93a);
+    outline: none;
+  }
+
+  .rg__chat-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem;
+    padding: 0.65rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .rg__chat-form input {
+    min-width: 0;
+    height: 38px;
+    padding: 0 0.7rem;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+  }
+
+  .rg__chat-form input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  .rg__chat-form input:focus {
+    border-color: var(--rg-accent, #f1a93a);
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--rg-accent, #f1a93a) 14%, transparent);
+  }
+
+  .rg__chat-form input:disabled {
+    opacity: 0.58;
+  }
+
+  .rg__chat-form button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    color: #fff;
+    background: var(--rg-accent, #f1a93a);
+    border: 0;
+    border-radius: 9px;
+    font-size: 1.05rem;
+    cursor: pointer;
+  }
+
+  .rg__chat-form button:hover,
+  .rg__chat-form button:focus-visible {
+    filter: brightness(1.12);
+    outline: none;
+  }
+
+  .rg__chat-form button:disabled {
+    cursor: wait;
+    filter: grayscale(0.35);
+    opacity: 0.58;
   }
 
   .rg__work-pop {
@@ -1435,14 +2142,15 @@
   /* ── Compact (phones/tablets): smaller widget, same behaviour ── */
   @media (max-width: 1024px) {
     .rg {
-      width: 212px;
+      width: 140px;
+      height: 148px;
       right: 0.75rem;
       bottom: 0.75rem;
     }
 
-    /* Scaled ~0.78: keep the same head-peeking-over-the-terminal framing */
+    /* Scaled ~0.78 for phones and tablets. */
     .rg__mount {
-      bottom: calc(100% - 92px);
+      bottom: 0;
       width: 140px;
       height: 148px;
     }

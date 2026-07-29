@@ -1,5 +1,34 @@
 ---
 import SectionLayout from '../layouts/SectionLayout.astro';
+import ProjectCTA from '../components/global/ProjectCTA.astro';
+
+const broadcastPieces = [
+  { title: 'Cartela informativa', slug: 'cartela-1' },
+  { title: 'Discotecas', slug: 'discotecas' },
+  { title: 'Elecciones EE. UU.', slug: 'elecciones-eeuu' },
+  { title: 'Eurocopa', slug: 'eurocopa' },
+  { title: 'Grafismo editorial', slug: 'graf-1' },
+  { title: 'Narcolanchas', slug: 'narcolanchas' },
+  { title: 'Aquí la Tierra', slug: 'aqui-la-tierra' },
+  { title: 'Aquí la Tierra · pieza 02', slug: 'aqui-la-tierra-2' },
+];
+
+const generativePieces = [
+  { title: 'Che Iglesias', slug: 'che-iglesias' },
+  { title: 'Abascal Wars', slug: 'abascal-wars' },
+  { title: 'Aforama', slug: 'aforama' },
+  { title: 'Begoña desafiante', slug: 'begona-desafiante' },
+  { title: 'Hulk Sánchez', slug: 'hulk-sanchez' },
+  { title: 'Los Panceta', slug: 'los-panceta' },
+  { title: 'Paganos', slug: 'paganos' },
+  { title: 'Sánchez en barco', slug: 'sanchez-barco' },
+  { title: 'Sánchez esquiador', slug: 'sanchez-esqui' },
+  { title: 'Sánchez Lightyear', slug: 'sanchez-lightyear' },
+  { title: 'Trileros', slug: 'trileros-sanchez-trump' },
+  { title: 'Vox is coming', slug: 'vox-is-coming' },
+  { title: 'Yolanda en los Óscar', slug: 'yolanda-oscars' },
+  { title: 'Exploración IA 03', slug: 'ia-3' },
+];
 ---
 
 <SectionLayout
@@ -48,7 +77,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   </section>
 
   <!-- Experience bar -->
-  <section class="grafismo-exp section">
+  <section class="grafismo-exp section" id="experiencia">
     <div class="container">
       <div class="grafismo-exp__bar" data-animate="fade-up">
         <div class="grafismo-exp__item">
@@ -75,10 +104,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   </section>
 
   <!-- Channel toggle + Video showcase -->
-  <section class="grafismo-showcase section">
+  <section class="grafismo-showcase section" id="trabajo-seleccionado">
     <div class="container">
       <div class="grafismo-showcase__header">
-        <span class="mono grafismo-section-label" data-animate="fade-up"><span class="grafismo-section-label__index">( 01 )</span> Trabajos en emisión</span>
+        <span class="mono grafismo-section-label" data-animate="fade-up">Trabajo seleccionado</span>
         <h2 class="grafismo-section-title" data-animate="title-reveal">
           <span class="title-line"><span class="title-line__inner">Lo que sale en pantalla</span></span>
         </h2>
@@ -86,6 +115,21 @@ import SectionLayout from '../layouts/SectionLayout.astro';
           Esto es lo que acaba en antena, casi todo hecho a contrarreloj y en directo.
           Pasa el ratón por cualquier vídeo y se reproduce.
         </p>
+
+        <dl class="grafismo-case-facts" data-animate="fade-up">
+          <div>
+            <dt class="mono">Mi papel</dt>
+            <dd>Grafismo y motion</dd>
+          </div>
+          <div>
+            <dt class="mono">Contexto</dt>
+            <dd>Directo y piezas editoriales</dd>
+          </div>
+          <div>
+            <dt class="mono">Experiencia</dt>
+            <dd>Mediaset · RTVE · Movistar+</dd>
+          </div>
+        </dl>
       </div>
 
       <!-- Channel selector -->
@@ -123,120 +167,30 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
       <!-- Sin IA grid -->
       <div class="video-showcase" id="grid-sin-ia">
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/cartela-1-poster.jpg">
-            <source src="/media/grafismo/sin-ia/cartela-1.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/discotecas-poster.jpg">
-            <source src="/media/grafismo/sin-ia/discotecas.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/elecciones-eeuu-poster.jpg">
-            <source src="/media/grafismo/sin-ia/elecciones-eeuu.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/eurocopa-poster.jpg">
-            <source src="/media/grafismo/sin-ia/eurocopa.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/graf-1-poster.jpg">
-            <source src="/media/grafismo/sin-ia/graf-1.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/narcolanchas-poster.jpg">
-            <source src="/media/grafismo/sin-ia/narcolanchas.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/aqui-la-tierra-poster.jpg">
-            <source src="/media/grafismo/sin-ia/aqui-la-tierra.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/sin-ia/aqui-la-tierra-2-poster.jpg">
-            <source src="/media/grafismo/sin-ia/aqui-la-tierra-2.mp4" type="video/mp4" />
-          </video>
-        </figure>
+        {broadcastPieces.map((piece) => (
+          <figure class="gvideo-card">
+            <video preload="none" playsinline muted poster={`/media/grafismo/sin-ia/${piece.slug}-poster.jpg`}>
+              <source data-src={`/media/grafismo/sin-ia/${piece.slug}.mp4`} type="video/mp4" />
+            </video>
+            <figcaption>
+              <strong>{piece.title}</strong>
+            </figcaption>
+          </figure>
+        ))}
       </div>
 
       <!-- IA grid -->
       <div class="video-showcase video-showcase--hidden" id="grid-ia">
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/che-iglesias-poster.jpg">
-            <source src="/media/grafismo/ia/che-iglesias.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/abascal-wars-poster.jpg">
-            <source src="/media/grafismo/ia/abascal-wars.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/aforama-poster.jpg">
-            <source src="/media/grafismo/ia/aforama.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/begona-desafiante-poster.jpg">
-            <source src="/media/grafismo/ia/begona-desafiante.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/hulk-sanchez-poster.jpg">
-            <source src="/media/grafismo/ia/hulk-sanchez.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/los-panceta-poster.jpg">
-            <source src="/media/grafismo/ia/los-panceta.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/paganos-poster.jpg">
-            <source src="/media/grafismo/ia/paganos.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/sanchez-barco-poster.jpg">
-            <source src="/media/grafismo/ia/sanchez-barco.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/sanchez-esqui-poster.jpg">
-            <source src="/media/grafismo/ia/sanchez-esqui.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/sanchez-lightyear-poster.jpg">
-            <source src="/media/grafismo/ia/sanchez-lightyear.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/trileros-sanchez-trump-poster.jpg">
-            <source src="/media/grafismo/ia/trileros-sanchez-trump.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/vox-is-coming-poster.jpg">
-            <source src="/media/grafismo/ia/vox-is-coming.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/yolanda-oscars-poster.jpg">
-            <source src="/media/grafismo/ia/yolanda-oscars.mp4" type="video/mp4" />
-          </video>
-        </figure>
-        <figure class="gvideo-card">
-          <video preload="metadata" playsinline muted poster="/media/grafismo/ia/ia-3-poster.jpg">
-            <source src="/media/grafismo/ia/ia-3.mp4" type="video/mp4" />
-          </video>
-        </figure>
+        {generativePieces.map((piece) => (
+          <figure class="gvideo-card">
+            <video preload="none" playsinline muted poster={`/media/grafismo/ia/${piece.slug}-poster.jpg`}>
+              <source data-src={`/media/grafismo/ia/${piece.slug}.mp4`} type="video/mp4" />
+            </video>
+            <figcaption>
+              <strong>{piece.title}</strong>
+            </figcaption>
+          </figure>
+        ))}
       </div>
 
       <!-- Cabeceras grid (CH 03) -->
@@ -250,12 +204,12 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
             <video
               id="cabecera-video"
-              preload="metadata"
+              preload="none"
               playsinline
               controls
               poster="/media/grafismo/cabeceras/cabecera-zapatero-poster.jpg"
             >
-              <source src="/media/grafismo/cabeceras/cabecera-zapatero.mp4" type="video/mp4" />
+              <source data-src="/media/grafismo/cabeceras/cabecera-zapatero.mp4" type="video/mp4" />
             </video>
 
             <iframe
@@ -338,10 +292,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   </section>
 
   <!-- Tools -->
-  <section class="grafismo-tools section">
+  <section class="grafismo-tools section" id="herramientas">
     <div class="container">
       <div class="grafismo-tools__header">
-        <span class="mono grafismo-section-label" data-animate="fade-up"><span class="grafismo-section-label__index">( 02 )</span> Herramientas</span>
+        <span class="mono grafismo-section-label" data-animate="fade-up">Herramientas</span>
         <h2 class="grafismo-section-title" data-animate="title-reveal">
           <span class="title-line"><span class="title-line__inner">Stack técnico</span></span>
         </h2>
@@ -393,6 +347,13 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       </div>
     </div>
   </section>
+
+  <ProjectCTA
+    eyebrow="¿Hablamos?"
+    title="¿Necesitas una gráfica que aguante el directo?"
+    text="Puedo ayudarte con una cabecera, un paquete de rótulos o un sistema de motion completo, desde la idea hasta la entrega."
+    subject="Proyecto de grafismo"
+  />
 </SectionLayout>
 
 <style>
@@ -577,11 +538,6 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     opacity: 0.7;
     margin-bottom: var(--space-xs);
     text-align: center;
-  }
-
-  .grafismo-section-label__index {
-    color: var(--grafismo-primary);
-    margin-right: 0.5em;
   }
 
   .grafismo-section-title {
@@ -883,6 +839,38 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     text-align: center;
   }
 
+  .grafismo-case-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 900px;
+    margin: var(--space-l) auto 0;
+    border: 1px solid var(--grafismo-border);
+    border-radius: var(--radius-md);
+    background: rgba(10, 10, 26, 0.7);
+    overflow: hidden;
+  }
+
+  .grafismo-case-facts div {
+    padding: var(--space-s);
+  }
+
+  .grafismo-case-facts div + div {
+    border-left: 1px solid var(--grafismo-border);
+  }
+
+  .grafismo-case-facts dt {
+    margin-bottom: 0.35rem;
+    color: var(--grafismo-primary);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .grafismo-case-facts dd {
+    color: var(--grafismo-text);
+    font-size: var(--step--1);
+  }
+
   .video-showcase {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -1114,19 +1102,23 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   .gvideo-card figcaption {
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     padding: 0.75rem 1rem;
     font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
     color: var(--grafismo-text);
-    opacity: 0.6;
-    text-align: center;
+    text-align: left;
     transition: color 0.2s ease;
+  }
+
+  .gvideo-card figcaption strong {
+    font-size: var(--step--1);
+    font-weight: 650;
   }
 
   .gvideo-card:hover figcaption {
     color: var(--grafismo-primary);
-    opacity: 1;
   }
 
   /* Play indicator overlay */
@@ -1237,6 +1229,15 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   }
 
   @media (max-width: 768px) {
+    .grafismo-case-facts {
+      grid-template-columns: 1fr;
+    }
+
+    .grafismo-case-facts div + div {
+      border-top: 1px solid var(--grafismo-border);
+      border-left: 0;
+    }
+
     .christmas-pair {
       grid-template-columns: 1fr;
     }
@@ -1517,6 +1518,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
           vid.pause();
           vid.currentTime = 0;
           vid.muted = true;
+          vid.closest('.gvideo-card')?.classList.remove('is-playing');
         });
 
         // Trigger glitch
@@ -1540,6 +1542,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
           allGrids.forEach(g => { if (g) g.classList.add('video-showcase--hidden'); });
           const target = ch === 'ia' ? gridIa : ch === 'cabeceras' ? gridCabeceras : ch === 'christmas' ? gridChristmas : gridSinIa;
           if (target) target.classList.remove('video-showcase--hidden');
+          if (ch === 'cabeceras' && cabVid) ensureVideoSource(cabVid);
 
           currentChannel = ch!;
           switching = false;
@@ -1553,8 +1556,23 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     }, { passive: true, signal });
 
     /* ── Hover autoplay ── */
+    function ensureVideoSource(vid: HTMLVideoElement) {
+      const source = vid.querySelector<HTMLSourceElement>('source[data-src]');
+      if (!source?.dataset.src || source.getAttribute('src')) return;
+      source.src = source.dataset.src;
+      vid.load();
+    }
+
+    function playPreview(vid: HTMLVideoElement, card: Element) {
+      ensureVideoSource(vid);
+      vid.muted = true;
+      vid.play()
+        .then(() => card.classList.add('is-playing'))
+        .catch(() => card.classList.remove('is-playing'));
+    }
+
     document.querySelectorAll('.gvideo-card').forEach(card => {
-      const vid = card.querySelector('video');
+      const vid = card.querySelector<HTMLVideoElement>('video');
       if (!vid) return;
 
       // Expose the poster to the ::before layer. Browsers buffer these clips
@@ -1565,9 +1583,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       if (poster) (card as HTMLElement).style.setProperty('--poster', `url("${poster}")`);
 
       card.addEventListener('mouseenter', () => {
-        vid.muted = true;
-        vid.play().catch(() => {});
-        card.classList.add('is-playing');
+        playPreview(vid, card);
       }, { signal });
 
       card.addEventListener('mouseleave', () => {
@@ -1581,9 +1597,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
       card.addEventListener('click', () => {
         if (vid.paused) {
-          vid.muted = true;
-          vid.play().catch(() => {});
-          card.classList.add('is-playing');
+          playPreview(vid, card);
+          return;
         }
         vid.muted = !vid.muted;
       }, { signal });

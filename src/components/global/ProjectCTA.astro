@@ -1,0 +1,111 @@
+---
+import { social } from '../../data/site';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  text: string;
+  subject: string;
+}
+
+const { eyebrow, title, text, subject } = Astro.props;
+const mailto = `mailto:${social.email}?subject=${encodeURIComponent(subject)}`;
+---
+
+<section class="project-cta section">
+  <div class="container">
+    <div class="project-cta__panel" data-animate="fade-up">
+      <div>
+        <span class="project-cta__eyebrow mono">{eyebrow}</span>
+        <h2>{title}</h2>
+        <p>{text}</p>
+      </div>
+      <a class="project-cta__button mono" href={mailto}>
+        Cuéntame el proyecto
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .project-cta {
+    position: relative;
+    z-index: 1;
+  }
+
+  .project-cta__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-l);
+    padding: clamp(1.75rem, 4vw, 3.5rem);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--section-accent) 9%, transparent), transparent 60%),
+      var(--section-surface);
+    border: 1px solid var(--section-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .project-cta__eyebrow {
+    display: block;
+    margin-bottom: var(--space-s);
+    color: var(--section-accent);
+    font-size: var(--step--2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    max-width: 18ch;
+    margin-bottom: var(--space-s);
+    color: var(--section-text);
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  p {
+    max-width: 58ch;
+    color: color-mix(in srgb, var(--section-text) 67%, transparent);
+    line-height: 1.65;
+  }
+
+  .project-cta__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    min-height: 3.4rem;
+    padding: 0.85rem 1.25rem;
+    background: var(--section-text);
+    color: var(--section-bg);
+    border-radius: var(--radius-sm);
+    font-size: var(--step--1);
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition:
+      transform var(--duration-fast) var(--ease-out),
+      background var(--duration-fast) var(--ease-out);
+  }
+
+  .project-cta__button:hover {
+    background: var(--section-accent);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 760px) {
+    .project-cta__panel {
+      grid-template-columns: 1fr;
+      align-items: start;
+    }
+
+    .project-cta__button {
+      width: 100%;
+      white-space: normal;
+      text-align: center;
+    }
+  }
+</style>

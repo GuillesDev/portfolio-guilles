@@ -84,11 +84,11 @@
   --dev-border:  rgba(0, 0, 0, 0.06);
 
   /* ── Fratelli Pazzi ── */
-  --fratelli-bg:      #171B17;
-  --fratelli-surface: #242B22;
-  --fratelli-text:    #FFFFFF;
-  --fratelli-primary: #FF6B4A;
-  --fratelli-secondary: #8FD66E;
-  --fratelli-highlight: #FFD84D;
-  --fratelli-border: rgba(255, 107, 74, 0.32);
+  --fratelli-bg:      #1E2122;
+  --fratelli-surface: #292C2B;
+  --fratelli-text:    #F5EFD5;
+  --fratelli-primary: #D56858;
+  --fratelli-secondary: #7F9D6C;
+  --fratelli-highlight: #E2C87B;
+  --fratelli-border: rgba(213, 104, 88, 0.3);
 }
