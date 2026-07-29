@@ -2,1290 +2,1359 @@
 import SectionLayout from '../layouts/SectionLayout.astro';
 import ProjectCTA from '../components/global/ProjectCTA.astro';
 import { automatizacionVisualisers } from '../data/projects';
+
+const caseNotes = [
+  'Texto, color y timing cambian desde un único control.',
+  'El dato entra y el recurso de apoyo queda listo para directo.',
+  'Variables y colores construyen cada gráfico sin rehacer la pieza.',
+];
+
+const automationCases = automatizacionVisualisers.map((item, index) => ({
+  ...item,
+  note: caseNotes[index],
+}));
 ---
 
 <SectionLayout
   title="Automatización | Guillermo López"
-  description="Detecto procesos repetitivos y los convierto en sistemas automáticos. Plantillas, expresiones y scripts que multiplican la eficiencia."
+  description="Grafismo que se monta solo y sistemas que convierten tareas repetidas en flujos claros, conectados y medibles."
   theme="automatizacion"
 >
-  <!-- Number particles background -->
-  <canvas class="auto-particles" id="auto-particles" aria-hidden="true"></canvas>
-
-  <!-- Hero título -->
-  <section class="auto-hero">
-    <div class="auto-hero__content container">
-      <span class="auto-hero__kicker mono">Sistemas</span>
-      <h1 class="auto-hero__title">
-        <span class="auto-hero__title--full">Automatización</span>
-        <span class="auto-hero__title--short">Automatizar</span>
-      </h1>
-      <p class="auto-hero__sub">Detecto lo repetitivo, lo convierto en sistema y me olvido.</p>
-      <div class="auto-hero__tracks" aria-label="Elegir bloque de automatizacion">
-        <a class="auto-hero__track" href="#after-effects">
-          <strong>After Effects</strong>
-          <small>Grafismo, plantillas y renders que se montan solos</small>
-        </a>
-        <a class="auto-hero__track" href="#empresas">
-          <strong>Empresas</strong>
-          <small>Bots, CRM, citas, documentos y reporting automatizado</small>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ━━ Bloque 01 · After Effects ━━ -->
-  <div class="track" id="after-effects">
-    <div class="container track__inner">
-      <div class="track__text">
-        <span class="track__kicker mono" data-animate="fade-up">// after effects</span>
-        <h2 class="track__title" data-animate="title-reveal">
-          <span class="title-line"><span class="title-line__inner">Grafismo que se monta solo</span></span>
-        </h2>
-        <p class="track__sub" data-animate="fade-up">Plantillas, expresiones y scripts que convierten horas de rotulación en un click.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Showcase — lo primero que se ve -->
-  <section class="showcase" aria-label="Plantillas automatizadas">
-    <div class="showcase__viewport">
-      {automatizacionVisualisers.map((item, index) => (
-        <article
-          class={`showcase__slide ${index === 0 ? 'is-active' : ''}`}
-          data-index={index}
-        >
-          <video
-            class="showcase__video"
-            preload="none"
-            playsinline
-            muted
-            loop
-            poster={item.poster}
-          >
-            <source data-src={item.video} type="video/mp4" />
-          </video>
-          <div class="showcase__overlay">
-            <span class="showcase__counter mono">{String(index + 1).padStart(2, '0')} / {String(automatizacionVisualisers.length).padStart(2, '0')}</span>
-            <h3 class="showcase__title">{item.title}</h3>
-            <p class="showcase__description">{item.description}</p>
-            <div class="showcase__tags">
-              {item.tags.map((tag) => <span class="showcase__tag mono">{tag}</span>)}
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-
-    <button class="showcase__nav showcase__nav--prev" aria-label="Anterior" data-dir="-1">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <button class="showcase__nav showcase__nav--next" aria-label="Siguiente" data-dir="1">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-
-    <div class="showcase__dots">
-      {automatizacionVisualisers.map((_, i) => (
-        <button
-          class={`showcase__dot ${i === 0 ? 'is-active' : ''}`}
-          data-goto={i}
-          aria-label={`Ir a plantilla ${i + 1}`}
-        >
-          <span class="showcase__dot-fill"></span>
-        </button>
-      ))}
-    </div>
-  </section>
-
-  <!-- Terminal accent -->
-  <section class="terminal-strip">
-    <div class="container">
-      <div class="terminal-strip__block mono">
-        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">find</span> <span class="terminal-arg">./trabajo</span> <span class="terminal-flag">--repetitivo</span></span>
-        <span class="terminal-output">→ tareas y pasos manuales detectados</span>
-        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">automatizar</span> <span class="terminal-flag">--flujo</span></span>
-        <span class="terminal-success">✓ Menos pasos. Más control.</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
-  <div class="track track--business" id="empresas">
-    <div class="container track__inner">
-      <div class="track__text">
-        <span class="track__kicker mono" data-animate="fade-up">// soluciones para empresas</span>
-        <h2 class="track__title" data-animate="title-reveal">
-          <span class="title-line"><span class="title-line__inner">Automatizaciones que quitan trabajo real</span></span>
-        </h2>
-        <p class="track__sub" data-animate="fade-up">
-          Chatbots, formularios inteligentes, CRM, agendas, documentos y reportes conectados.
-          La idea no es tener mas software: es que las tareas repetidas ocurran solas y queden registradas.
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bots para empresas -->
-  <section class="bots section">
-    <div class="container">
-      <div class="bots__demo" data-animate="fade-up">
-        <!-- Demo: chatbot conversando solo -->
-        <div class="chat-demo">
-          <div class="chat-demo__bar mono">
-            <span class="chat-demo__status" aria-hidden="true"></span>
-            <span class="chat-demo__name">Fratelli Pazzi por WhatsApp</span>
-            <span class="chat-demo__tag">demo de flujo</span>
-          </div>
-          <div class="chat-demo__messages" id="chat-messages" aria-label="Conversacion de ejemplo con el chatbot de reservas de Fratelli Pazzi"></div>
-          <div class="chat-demo__input mono" aria-hidden="true">
-            <span>Mensaje por WhatsApp...</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </div>
+  <div class="automation-page">
+    <section class="auto-hero">
+      <div class="container auto-hero__content">
+        <div class="auto-hero__copy">
+          <span class="auto-kicker mono">Automatización</span>
+          <h1>
+            <span>Lo repetitivo,</span>
+            <em>automático.</em>
+          </h1>
+          <p>Grafismo que se monta solo. Sistemas que gestionan trabajo real.</p>
         </div>
 
-        <!-- Cómo lo monto: diagrama + pasos -->
-        <div class="bots__how">
-          <h3 class="bots__how-title mono">// arquitectura de automatizacion</h3>
+        <div class="auto-hero__systems" aria-label="Dos formas de automatizar">
+          <a class="system-window system-window--broadcast" href="#after-effects">
+            <header>
+              <span class="system-window__signal" aria-hidden="true"></span>
+              <strong>After Effects</strong>
+              <small class="mono">plantilla activa</small>
+            </header>
+            <div class="broadcast-preview" aria-hidden="true">
+              <div class="broadcast-preview__controls">
+                <span>TITULAR</span>
+                <strong>ÚLTIMA HORA</strong>
+                <span>COLOR</span>
+                <i></i>
+              </div>
+              <div class="broadcast-preview__output">
+                <span class="mono">OUTPUT</span>
+                <strong>ÚLTIMA<br />HORA</strong>
+                <small>render listo</small>
+              </div>
+              <div class="broadcast-preview__timeline">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <footer>
+              <span>Una plantilla</span>
+              <strong>todas las versiones →</strong>
+            </footer>
+          </a>
 
-          <div class="bots__flow" aria-hidden="true">
-            <div class="bots__flow-node">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              <span>Web · WhatsApp<br />· Formularios</span>
+          <a class="system-window system-window--business" href="#empresas">
+            <header>
+              <span class="system-window__signal" aria-hidden="true"></span>
+              <strong>Negocio</strong>
+              <small class="mono">flujo conectado</small>
+            </header>
+            <div class="route-preview" aria-hidden="true">
+              <div class="route-preview__line"></div>
+              <div class="route-preview__step">
+                <span></span>
+                <small>WhatsApp</small>
+                <strong>Mensaje</strong>
+              </div>
+              <div class="route-preview__step">
+                <span></span>
+                <small>Reglas</small>
+                <strong>Decisión</strong>
+              </div>
+              <div class="route-preview__step">
+                <span></span>
+                <small>Agenda</small>
+                <strong>Reserva</strong>
+              </div>
+              <div class="route-preview__step">
+                <span></span>
+                <small>Equipo</small>
+                <strong>Aviso</strong>
+              </div>
             </div>
-            <div class="bots__flow-arrow">
-              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
+            <footer>
+              <span>Un mensaje</span>
+              <strong>todo el flujo →</strong>
+            </footer>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="automation-cases section" id="after-effects">
+      <div class="container">
+        <header class="section-intro">
+          <span class="auto-kicker mono">After Effects</span>
+          <h2>Un máster.<br />Todas las versiones.</h2>
+          <p>Controles simples por delante. Expresiones, lógica y composición por detrás.</p>
+        </header>
+
+        <div class="case-reel">
+          {automationCases.map((item) => (
+            <article class="automation-case">
+              <div class="automation-case__media">
+                <video
+                  class="automation-case__video"
+                  preload="none"
+                  playsinline
+                  muted
+                  loop
+                  poster={item.poster}
+                >
+                  <source data-src={item.video} type="video/mp4" />
+                </video>
+                <span class="automation-case__status mono">
+                  <i aria-hidden="true"></i>
+                  Sistema activo
+                </span>
+              </div>
+              <div class="automation-case__caption">
+                <h3>{item.title.replace('Plantilla ', '')}</h3>
+                <p>{item.note}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="translation-band" aria-label="Del dato al resultado">
+      <div class="container translation-band__inner">
+        <div>
+          <span class="mono">ENTRADA</span>
+          <strong>Texto · datos · variables</strong>
+        </div>
+        <div class="translation-band__connection" aria-hidden="true">
+          <i></i>
+          <span></span>
+        </div>
+        <div>
+          <span class="mono">SALIDA</span>
+          <strong>Grafismo listo para emitir</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="business section" id="empresas">
+      <div class="container">
+        <header class="section-intro section-intro--business">
+          <span class="auto-kicker mono">Un caso real</span>
+          <h2>De un mensaje<br />a una reserva.</h2>
+          <p>El cliente solo ve una conversación. El sistema se ocupa del resto.</p>
+        </header>
+
+        <div class="business-story">
+          <div class="chat-demo">
+            <div class="chat-demo__bar">
+              <div>
+                <span class="chat-demo__avatar" aria-hidden="true">FP</span>
+                <div>
+                  <strong>Fratelli Pazzi</strong>
+                  <small>Disponible por WhatsApp</small>
+                </div>
+              </div>
+              <span class="chat-demo__live mono">EN LÍNEA</span>
             </div>
-            <div class="bots__flow-node bots__flow-node--bot">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><line x1="12" y1="7" x2="12" y2="3"/><circle cx="12" cy="3" r="1" fill="currentColor"/><circle cx="9.5" cy="12.5" r="1" fill="currentColor"/><circle cx="14.5" cy="12.5" r="1" fill="currentColor"/><path d="M9 16h6"/></svg>
-              <span>Reglas<br />+ IA + APIs</span>
-            </div>
-            <div class="bots__flow-arrow">
-              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
-            </div>
-            <div class="bots__flow-node">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>CRM · Agenda<br />· Docs · Email</span>
+            <div
+              class="chat-demo__messages"
+              id="automation-chat-messages"
+              aria-label="Conversación de ejemplo con el asistente de reservas de Fratelli Pazzi"
+            ></div>
+            <div class="chat-demo__input mono" aria-hidden="true">
+              <span>Escribe un mensaje…</span>
+              <b>→</b>
             </div>
           </div>
 
-          <ol class="bots__steps">
-            <li><strong>Detecto el cuello de botella.</strong> Donde se pierden mensajes, datos, citas, presupuestos o seguimiento.</li>
-            <li><strong>Dibujo el flujo.</strong> Que entra, que decide el sistema, que herramienta toca y que aviso sale.</li>
-            <li><strong>Lo conecto.</strong> Web, WhatsApp, email, Sheets, Airtable, Notion, CRM, agenda o APIs propias.</li>
-            <li><strong>Lo dejo medible.</strong> Registro de conversaciones, leads, conversiones, errores y tareas completadas.</li>
-          </ol>
+          <div class="journey" aria-label="Acciones ejecutadas por la automatización">
+            <div class="journey__head">
+              <span class="auto-kicker mono">Lo que ocurre detrás</span>
+              <strong>Una conversación.<br />Cuatro acciones conectadas.</strong>
+            </div>
+
+            <div class="journey__flow">
+              <div class="journey__rail" aria-hidden="true"><i></i></div>
+              <div class="journey__item" data-stage="0">
+                <span class="journey__dot" aria-hidden="true"></span>
+                <div>
+                  <strong>Mensaje recibido</strong>
+                  <small>La petición entra por WhatsApp.</small>
+                </div>
+                <b class="mono">RECIBIDO</b>
+              </div>
+              <div class="journey__item" data-stage="1">
+                <span class="journey__dot" aria-hidden="true"></span>
+                <div>
+                  <strong>Disponibilidad comprobada</strong>
+                  <small>El sistema consulta fecha, hora y personas.</small>
+                </div>
+                <b class="mono">LIBRE</b>
+              </div>
+              <div class="journey__item" data-stage="2">
+                <span class="journey__dot" aria-hidden="true"></span>
+                <div>
+                  <strong>Reserva guardada</strong>
+                  <small>Los datos quedan registrados en la agenda.</small>
+                </div>
+                <b class="mono">GUARDADA</b>
+              </div>
+              <div class="journey__item" data-stage="3">
+                <span class="journey__dot" aria-hidden="true"></span>
+                <div>
+                  <strong>Equipo avisado</strong>
+                  <small>Sala recibe la información sin copiar nada.</small>
+                </div>
+                <b class="mono">ENVIADO</b>
+              </div>
+            </div>
+
+            <div class="journey__result">
+              <span class="mono">RESULTADO</span>
+              <strong>Reserva confirmada</strong>
+              <small>sin cambiar de herramienta</small>
+            </div>
+          </div>
         </div>
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <ProjectCTA
-    eyebrow="Menos tareas manuales"
-    title="¿Hay algo que repites demasiado?"
-    text="Cuéntame el proceso. Lo revisamos, detectamos el cuello de botella y vemos si merece la pena convertirlo en un sistema."
-    subject="Proyecto de automatización"
-  />
-
+    <ProjectCTA
+      eyebrow="Menos tareas manuales"
+      title="¿Qué repites cada semana?"
+      text="Cuéntamelo y vemos si puede ocurrir solo."
+      subject="Quiero automatizar un proceso"
+      label="Contarme el proceso"
+    />
+  </div>
 </SectionLayout>
 
 <script is:inline>
-  // ── Chat demo: la conversación se escribe sola en bucle ──
   (() => {
     const SCRIPT = [
-      { from: 'user', text: 'Hola, ¿podemos reservar mesa para este viernes?' },
-      { from: 'bot', text: '¡Claro! Soy el asistente de Fratelli Pazzi. ¿Para cuántas personas sería?' },
-      { from: 'user', text: 'Para 4. Si puede ser, sobre las 21:30.' },
-      { from: 'bot', text: 'Tengo una mesa libre el viernes a las 21:30 para 4 personas. ¿A qué nombre la dejo?' },
-      { from: 'user', text: 'A nombre de Guillermo.' },
-      { from: 'bot', text: 'Perfecto, Guillermo. Reserva confirmada para 4 personas este viernes a las 21:30. Te mandamos recordatorio por WhatsApp.' },
-      { from: 'sys', text: '→ reserva creada · agenda actualizada · equipo de sala avisado' },
+      { from: 'user', text: 'Hola, ¿podemos reservar este viernes?', stage: 0 },
+      { from: 'bot', text: 'Claro. ¿Para cuántas personas y a qué hora?', stage: 0 },
+      { from: 'user', text: 'Para 4, sobre las 21:30.', stage: 1 },
+      { from: 'bot', text: 'Hay mesa disponible. ¿A qué nombre la dejo?', stage: 1 },
+      { from: 'user', text: 'A nombre de Guillermo.', stage: 2 },
+      { from: 'bot', text: 'Perfecto. Reserva confirmada para 4 a las 21:30.', stage: 3 },
     ];
 
-    function addMsg(box, from, text) {
-      const el = document.createElement('div');
-      el.className = 'chat-msg chat-msg--' + from;
-      const type = from.split(' ')[0];
-      if (type === 'user') el.dataset.speaker = 'Cliente';
-      if (type === 'bot') el.dataset.speaker = 'Fratelli Pazzi';
-      el.textContent = text;
-      box.appendChild(el);
-      box.scrollTop = box.scrollHeight;
-      return el;
+    let chatTimer = 0;
+    let chatObserver;
+
+    function setJourneyStage(stage) {
+      document.querySelectorAll('.journey__item').forEach((item) => {
+        const itemStage = Number(item.dataset.stage);
+        item.classList.toggle('is-complete', itemStage < stage);
+        item.classList.toggle('is-active', itemStage === stage);
+      });
+      const rail = document.querySelector('.journey__rail i');
+      if (rail) rail.style.setProperty('--journey-progress', `${Math.max(0, stage) / 3 * 100}%`);
     }
 
-    function initChatDemo() {
-      const box = document.getElementById('chat-messages');
-      if (!box || box.dataset.init) return;
-      box.dataset.init = '1';
+    function addChatMessage(box, message) {
+      const element = document.createElement('div');
+      element.className = `chat-message chat-message--${message.from}`;
+      element.textContent = message.text;
+      box.appendChild(element);
+      box.scrollTop = box.scrollHeight;
+    }
 
-      // Reduced motion: render the whole conversation statically, no loop
+    function runChat(box) {
+      window.clearTimeout(chatTimer);
+      box.replaceChildren();
+      setJourneyStage(-1);
+      let index = 0;
+
+      const step = () => {
+        if (!box.isConnected) return;
+        if (index >= SCRIPT.length) {
+          chatTimer = window.setTimeout(() => runChat(box), 4200);
+          return;
+        }
+
+        const message = SCRIPT[index++];
+        setJourneyStage(message.stage);
+
+        if (message.from === 'bot') {
+          const typing = document.createElement('div');
+          typing.className = 'chat-message chat-message--bot chat-message--typing';
+          typing.innerHTML = '<i></i><i></i><i></i>';
+          box.appendChild(typing);
+          box.scrollTop = box.scrollHeight;
+          chatTimer = window.setTimeout(() => {
+            typing.remove();
+            addChatMessage(box, message);
+            chatTimer = window.setTimeout(step, 1250);
+          }, 850);
+          return;
+        }
+
+        addChatMessage(box, message);
+        chatTimer = window.setTimeout(step, 1050);
+      };
+
+      step();
+    }
+
+    function initAutomationChat() {
+      const box = document.getElementById('automation-chat-messages');
+      if (!box || box.dataset.ready === '1') return;
+      box.dataset.ready = '1';
+
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        SCRIPT.forEach((m) => addMsg(box, m.from, m.text));
+        SCRIPT.forEach((message) => addChatMessage(box, message));
+        setJourneyStage(3);
         return;
       }
 
-      let i = 0;
-      let timer = 0;
-
-      function step() {
-        if (!box.isConnected) return; // page swapped away — stop
-        if (i >= SCRIPT.length) {
-          // Conversation over: pause, clear, restart
-          timer = setTimeout(() => {
-            box.innerHTML = '';
-            i = 0;
-            step();
-          }, 4200);
-          return;
-        }
-        const msg = SCRIPT[i++];
-        if (msg.from === 'bot') {
-          const typing = addMsg(box, 'bot chat-msg--typing', '');
-          typing.innerHTML = '<i></i><i></i><i></i>';
-          timer = setTimeout(() => {
-            typing.remove();
-            addMsg(box, msg.from, msg.text);
-            timer = setTimeout(step, 1400);
-          }, 1100);
-        } else {
-          addMsg(box, msg.from, msg.text);
-          timer = setTimeout(step, msg.from === 'sys' ? 1600 : 1000);
-        }
-      }
-
-      // Start when the demo scrolls into view
-      const io = new IntersectionObserver((entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          io.disconnect();
-          step();
-        }
-      }, { threshold: 0.35 });
-      io.observe(box);
-    }
-
-    initChatDemo();
-    document.addEventListener('astro:page-load', initChatDemo);
-  })();
-
-  // ── Showcase slider ──
-  (() => {
-    const slides = document.querySelectorAll('.showcase__slide');
-    const dots   = document.querySelectorAll('.showcase__dot');
-    const navs   = document.querySelectorAll('.showcase__nav');
-    let current  = 0;
-    let transitioning = false;
-
-    function ensureVideo(video) {
-      if (!video) return;
-      const source = video.querySelector('source[data-src]');
-      if (!source?.dataset.src || source.getAttribute('src')) return;
-      source.src = source.dataset.src;
-      video.load();
-    }
-
-    function playVideo(video) {
-      if (!video) return;
-      ensureVideo(video);
-      video.play().catch(() => {});
-    }
-
-    function goTo(index) {
-      if (transitioning || index === current) return;
-      transitioning = true;
-      const prev = slides[current];
-      const next = slides[index];
-      const prevVideo = prev.querySelector('video');
-      if (prevVideo) { prevVideo.pause(); prevVideo.currentTime = 0; }
-      next.classList.add('is-entering');
-      requestAnimationFrame(() => {
-        next.classList.add('is-active');
-        next.classList.remove('is-entering');
-        prev.classList.remove('is-active');
-        const nextVideo = next.querySelector('video');
-        playVideo(nextVideo);
-        dots[current].classList.remove('is-active');
-        dots[index].classList.add('is-active');
-        current = index;
-        setTimeout(() => { transitioning = false; }, 600);
-      });
-    }
-
-    navs.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dir = parseInt(btn.dataset.dir);
-        goTo((current + dir + slides.length) % slides.length);
-      });
-    });
-
-    dots.forEach(dot => {
-      dot.addEventListener('click', () => goTo(parseInt(dot.dataset.goto)));
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') goTo((current + 1) % slides.length);
-      if (e.key === 'ArrowLeft')  goTo((current - 1 + slides.length) % slides.length);
-    });
-
-    const firstVideo = slides[0]?.querySelector('video');
-    const showcase = document.querySelector('.showcase');
-    if (firstVideo && showcase) {
-      const observer = new IntersectionObserver((entries) => {
+      chatObserver?.disconnect();
+      chatObserver = new IntersectionObserver((entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
-        observer.disconnect();
-        playVideo(firstVideo);
-      }, { rootMargin: '160px 0px', threshold: 0.05 });
-      observer.observe(showcase);
-    }
-  })();
-
-  // ── Number particles ──
-  (() => {
-    // Respect reduced-motion: skip the continuous particle animation entirely
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const canvas = document.getElementById('auto-particles');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let w, h, particles = [];
-    let mouse = { x: -9999, y: -9999 };
-    let raf;
-
-    // Meaningful tokens: automation metrics, binary, code fragments
-    const tokens = [
-      '0', '1', '0', '1', '0', '1',
-      '47', '02', '40', '×10',
-      '{}', '()', '=>', '//',
-      '0:02', '%', '++', '--',
-      'for', 'if', '0x', '&&',
-      '47→2', '···', '█', '▓',
-    ];
-
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+        chatObserver.disconnect();
+        runChat(box);
+      }, { threshold: 0.28 });
+      chatObserver.observe(box);
     }
 
-    function createParticle() {
-      const size = 10 + Math.random() * 14;
-      return {
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: -0.15 - Math.random() * 0.25,
-        text: tokens[Math.floor(Math.random() * tokens.length)],
-        size: size,
-        alpha: 0.04 + Math.random() * 0.08,
-        baseAlpha: 0.04 + Math.random() * 0.08,
-        phase: Math.random() * Math.PI * 2,
-        phaseSpeed: 0.005 + Math.random() * 0.01,
-      };
+    function initAutomationVideos() {
+      const videos = document.querySelectorAll('.automation-case__video');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          const video = entry.target;
+          if (entry.isIntersecting) {
+            const source = video.querySelector('source[data-src]');
+            if (source?.dataset.src && !source.getAttribute('src')) {
+              source.setAttribute('src', source.dataset.src);
+              video.load();
+            }
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      }, { rootMargin: '180px 0px', threshold: 0.08 });
+      videos.forEach((video) => {
+        if (video.dataset.automationReady === '1') return;
+        video.dataset.automationReady = '1';
+        observer.observe(video);
+      });
     }
 
-    function init() {
-      resize();
-      particles = [];
-      const count = Math.min(80, Math.floor((w * h) / 18000));
-      for (let i = 0; i < count; i++) {
-        particles.push(createParticle());
-      }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      const mouseRadius = 120;
-
-      for (const p of particles) {
-        p.phase += p.phaseSpeed;
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Wrap
-        if (p.y < -30) { p.y = h + 30; p.x = Math.random() * w; }
-        if (p.x < -30) p.x = w + 30;
-        if (p.x > w + 30) p.x = -30;
-
-        // Mouse repulsion
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < mouseRadius) {
-          const force = (1 - dist / mouseRadius) * 0.6;
-          p.x += (dx / dist) * force * 2;
-          p.y += (dy / dist) * force * 2;
-        }
-
-        // Pulse
-        const pulse = 0.6 + 0.4 * Math.sin(p.phase);
-        const alpha = p.baseAlpha * pulse;
-
-        ctx.font = `600 ${p.size}px "JetBrains Mono", monospace`;
-        ctx.fillStyle = `rgba(57, 211, 83, ${alpha})`;
-        ctx.fillText(p.text, p.x, p.y);
-      }
-
-      raf = requestAnimationFrame(draw);
-    }
-
-    window.addEventListener('resize', () => { resize(); });
-    document.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-    document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-    init();
-    draw();
-
-    // Cleanup on page transition
-    document.addEventListener('astro:before-swap', () => {
-      cancelAnimationFrame(raf);
+    initAutomationChat();
+    initAutomationVideos();
+    document.addEventListener('astro:page-load', () => {
+      initAutomationChat();
+      initAutomationVideos();
     });
   })();
 </script>
 
 <style>
-  /* ── Number particles ── */
-  .auto-particles {
+  .automation-page {
+    --auto-accent: #39d353;
+    --auto-soft: rgba(57, 211, 83, 0.12);
+    position: relative;
+    overflow: clip;
+    background:
+      radial-gradient(circle at 10% 12%, rgba(57, 211, 83, 0.07), transparent 28rem),
+      radial-gradient(circle at 88% 58%, rgba(57, 211, 83, 0.05), transparent 30rem),
+      #090d11;
+  }
+
+  .automation-page::before {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    width: 100%;
-    height: 100%;
+    content: '';
+    opacity: 0.24;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: linear-gradient(to bottom, #000, transparent 88%);
   }
 
-  /* ── Hero título ── */
-  .auto-hero {
+  .automation-page > * {
     position: relative;
     z-index: 1;
-    background: transparent;
-    padding-top: calc(var(--space-2xl) + 80px);
-    padding-bottom: var(--space-xl);
+  }
+
+  .auto-kicker {
+    display: block;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    color: var(--auto-accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .auto-hero {
+    display: grid;
+    min-height: min(920px, 94svh);
+    padding: clamp(8.5rem, 13vw, 11.5rem) 0 clamp(4.5rem, 8vw, 7rem);
   }
 
   .auto-hero__content {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(500px, 1.18fr);
+    align-items: center;
+    gap: clamp(3rem, 7vw, 7rem);
+  }
+
+  .auto-hero h1 {
+    margin: 0;
+    color: #f4f7f5;
+    font-size: clamp(4.6rem, 8.7vw, 9.6rem);
+    font-weight: 700;
+    line-height: 0.82;
+    letter-spacing: -0.075em;
+  }
+
+  .auto-hero h1 span,
+  .auto-hero h1 em {
+    display: block;
+  }
+
+  .auto-hero h1 em {
+    color: var(--auto-accent);
+    font-style: normal;
+  }
+
+  .auto-hero__copy > p {
+    max-width: 33rem;
+    margin-top: 2rem;
+    color: rgba(244, 247, 245, 0.58);
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+    line-height: 1.65;
+  }
+
+  .auto-hero__systems {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .system-window {
+    position: relative;
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: #edf5ef;
+    background:
+      linear-gradient(145deg, rgba(57, 211, 83, 0.08), transparent 52%),
+      rgba(13, 19, 23, 0.94);
+    border: 1px solid rgba(114, 255, 136, 0.15);
+    border-radius: 1.1rem;
+    text-decoration: none;
+    transition:
+      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 280ms ease,
+      box-shadow 280ms ease;
+  }
+
+  .system-window:hover {
+    border-color: rgba(114, 255, 136, 0.42);
+    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.28);
+    transform: translateY(-4px);
+  }
+
+  .system-window header,
+  .system-window footer {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .system-window header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .system-window footer {
+    justify-content: space-between;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 0.76rem;
+  }
+
+  .system-window footer strong {
+    color: #d9f8df;
+    font-weight: 600;
+  }
+
+  .system-window header strong {
+    font-size: 0.82rem;
+  }
+
+  .system-window header small {
+    margin-left: auto;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .system-window__signal {
+    width: 0.48rem;
+    height: 0.48rem;
+    background: var(--auto-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0.75rem rgba(57, 211, 83, 0.75);
+    animation: auto-signal 1.8s ease-in-out infinite;
+  }
+
+  .broadcast-preview {
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.74fr 1.26fr;
+    gap: 0.8rem;
+    min-height: 11.25rem;
+    padding: 1rem 1rem 2.4rem;
+  }
+
+  .broadcast-preview__controls,
+  .broadcast-preview__output {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.26);
+    border-radius: 0.7rem;
+  }
+
+  .broadcast-preview__controls {
+    gap: 0.45rem;
+    color: rgba(255, 255, 255, 0.42);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.54rem;
+    letter-spacing: 0.08em;
+  }
+
+  .broadcast-preview__controls strong {
+    overflow: hidden;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.67rem;
+    text-overflow: ellipsis;
+  }
+
+  .broadcast-preview__controls i {
+    width: 1.3rem;
+    height: 1.3rem;
+    background: var(--auto-accent);
+    border-radius: 0.22rem;
+  }
+
+  .broadcast-preview__output {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(120deg, rgba(57, 211, 83, 0.18), transparent 62%),
+      #11191d;
+  }
+
+  .broadcast-preview__output::after {
+    position: absolute;
+    inset: auto -12% -40% 34%;
+    height: 100%;
+    content: '';
+    background: var(--auto-accent);
+    opacity: 0.12;
+    transform: skewX(-18deg);
+  }
+
+  .broadcast-preview__output span,
+  .broadcast-preview__output small {
+    position: relative;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 0.5rem;
+    letter-spacing: 0.12em;
+  }
+
+  .broadcast-preview__output strong {
+    position: relative;
+    z-index: 1;
+    margin: 0.3rem 0;
+    color: #f2fff5;
+    font-size: clamp(1rem, 2vw, 1.7rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+  }
+
+  .broadcast-preview__timeline {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.85rem;
+    left: 1rem;
+    display: grid;
+    grid-template-columns: 1.2fr 0.5fr 1.8fr 0.8fr 1.1fr;
+    gap: 0.2rem;
+    height: 0.42rem;
+  }
+
+  .broadcast-preview__timeline span {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+  }
+
+  .broadcast-preview__timeline span:nth-child(3) {
+    background: var(--auto-accent);
+    box-shadow: 0 0 0.9rem rgba(57, 211, 83, 0.42);
+  }
+
+  .route-preview {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    min-height: 10rem;
+    padding: 1.25rem 1.2rem;
+  }
+
+  .route-preview__line {
+    position: absolute;
+    top: calc(50% - 0.95rem);
+    right: 13%;
+    left: 13%;
+    height: 1px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .route-preview__line::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
+    transform: translateX(-100%);
+    animation: route-flow 3s ease-in-out infinite;
+  }
+
+  .route-preview__step {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    min-width: 0;
     text-align: center;
   }
 
-  .auto-hero__kicker {
-    display: inline-block;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--auto-text-secondary);
-    margin-bottom: var(--space-m);
+  .route-preview__step > span {
+    width: 0.72rem;
+    height: 0.72rem;
+    margin-bottom: 0.45rem;
+    background: #10171b;
+    border: 2px solid var(--auto-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.35rem rgba(57, 211, 83, 0.08);
   }
 
-  .auto-hero__title {
-    font-size: clamp(3rem, 2rem + 5vw, 6rem);
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    background: linear-gradient(135deg, #39D353 0%, #39D353 40%, #a8f0b0 65%, #ffffff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: var(--space-s);
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  .auto-hero__title--full {
-    display: inline;
-  }
-
-  .auto-hero__title--short {
-    display: none;
-  }
-
-  .auto-hero__sub {
-    font-size: var(--step-0);
-    color: var(--auto-text-secondary);
-    line-height: 1.5;
-    max-width: 45ch;
-    margin-inline: auto;
-  }
-
-  /* ── Terminal strip ── */
-  .terminal-strip {
-    background: var(--auto-bg);
-    padding-block: var(--space-m);
-  }
-
-  .terminal-strip__block {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-m);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(0.65rem, 0.45rem + 0.6vw, 0.78rem);
-    color: var(--auto-text-secondary);
-    opacity: 0.6;
-  }
-
-  .terminal-prompt {
-    color: var(--auto-accent);
-  }
-
-  .terminal-cmd {
-    color: var(--auto-primary);
-    font-weight: 600;
-  }
-
-  .terminal-arg {
-    color: var(--auto-text-secondary);
-  }
-
-  .terminal-flag {
-    color: #79C0FF;
-  }
-
-  .terminal-output {
-    color: var(--auto-text-secondary);
-  }
-
-  .terminal-success {
-    color: var(--auto-accent);
-  }
-
-  /* ── Showcase ── */
-  .showcase {
-    position: relative;
-    width: 100%;
-    height: 80vh;
-    height: 80dvh;
-    --showcase-side-trim: clamp(20px, 5vw, 86px);
-    background:
-      radial-gradient(ellipse 90% 80% at 50% 50%, rgba(57, 211, 83, 0.08) 0%, transparent 72%),
-      linear-gradient(180deg, #0D1117 0%, #121821 100%);
+  .route-preview__step small {
     overflow: hidden;
+    max-width: 100%;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 0.54rem;
+    text-overflow: ellipsis;
   }
 
-  .showcase::before,
-  .showcase::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: max(7vw, 56px);
-    z-index: 2;
-    pointer-events: none;
+  .route-preview__step strong {
+    font-size: clamp(0.6rem, 1vw, 0.76rem);
   }
 
-  .showcase::before {
-    left: 0;
-    background: linear-gradient(to right, rgba(13, 17, 23, 0.95) 0%, rgba(13, 17, 23, 0.35) 100%);
+  .section-intro {
+    max-width: 62rem;
+    margin-bottom: clamp(2.5rem, 6vw, 5rem);
   }
 
-  .showcase::after {
-    right: 0;
-    background: linear-gradient(to left, rgba(13, 17, 23, 0.95) 0%, rgba(13, 17, 23, 0.35) 100%);
+  .section-intro h2 {
+    max-width: 14ch;
+    margin: 0;
+    color: #f1f5f2;
+    font-size: clamp(3.2rem, 7.3vw, 7.6rem);
+    line-height: 0.88;
+    letter-spacing: -0.065em;
   }
 
-  .showcase__viewport {
+  .section-intro > p {
+    max-width: 38rem;
+    margin-top: 1.6rem;
+    color: rgba(239, 245, 241, 0.56);
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+    line-height: 1.65;
+  }
+
+  .automation-cases {
+    padding-top: clamp(5rem, 10vw, 10rem);
+  }
+
+  .case-reel {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .automation-case {
+    grid-column: span 6;
+    min-width: 0;
+  }
+
+  .automation-case:last-child {
+    grid-column: 3 / span 8;
+    margin-top: clamp(1rem, 3vw, 2.5rem);
+  }
+
+  .automation-case__media {
     position: relative;
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: #11171a;
+    border-radius: clamp(0.85rem, 1.5vw, 1.35rem);
   }
 
-  .showcase__slide {
+  .automation-case__media::after {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-    z-index: 0;
+    pointer-events: none;
+    content: '';
+    background: linear-gradient(to top, rgba(4, 8, 10, 0.45), transparent 40%);
   }
 
-  .showcase__slide.is-active {
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-  }
-
-  .showcase__slide.is-entering {
-    visibility: visible;
-  }
-
-  .showcase__video {
+  .automation-case__video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    display: block;
-    clip-path: inset(0 var(--showcase-side-trim));
+    object-fit: cover;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .showcase__overlay {
+  .automation-case:hover .automation-case__video {
+    transform: scale(1.025);
+  }
+
+  .automation-case__status {
     position: absolute;
-    inset: auto 0 0 0;
-    z-index: 2;
-    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
-  }
-
-  .showcase__counter {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: rgba(255, 255, 255, 0.5);
-  }
-
-  .showcase__title {
-    font-size: clamp(1.6rem, 1rem + 2.5vw, 3rem);
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .showcase__description {
-    max-width: 58ch;
+    right: 0.8rem;
+    bottom: 0.8rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.55rem;
     color: rgba(255, 255, 255, 0.72);
-    font-size: var(--step--1);
+    background: rgba(6, 10, 12, 0.72);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .automation-case__status i {
+    width: 0.42rem;
+    height: 0.42rem;
+    background: var(--auto-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0.55rem var(--auto-accent);
+  }
+
+  .automation-case__caption {
+    display: grid;
+    grid-template-columns: minmax(0, 0.55fr) minmax(12rem, 0.45fr);
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.25rem 0.25rem 0;
+  }
+
+  .automation-case__caption h3 {
+    margin: 0;
+    color: #f3f7f4;
+    font-size: clamp(1.65rem, 2.8vw, 2.8rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+
+  .automation-case__caption p {
+    margin: 0;
+    color: rgba(239, 245, 241, 0.53);
+    font-size: 0.88rem;
     line-height: 1.55;
   }
 
-  .showcase__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3xs);
-    margin-top: var(--space-3xs);
+  .translation-band {
+    margin: clamp(5rem, 11vw, 11rem) 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   }
 
-  .showcase__tag {
-    font-size: var(--step--2);
-    padding: 0.2em 0.6em;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: var(--radius-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.75);
+  .translation-band__inner {
+    display: grid;
+    grid-template-columns: auto minmax(7rem, 1fr) auto;
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    min-height: 10rem;
   }
 
-  .showcase__nav {
+  .translation-band__inner > div:not(.translation-band__connection) {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .translation-band__inner > div:last-child {
+    text-align: right;
+  }
+
+  .translation-band__inner span {
+    color: var(--auto-accent);
+    font-size: 0.58rem;
+    letter-spacing: 0.13em;
+  }
+
+  .translation-band__inner strong {
+    color: rgba(242, 247, 244, 0.84);
+    font-size: clamp(0.8rem, 1.4vw, 1rem);
+  }
+
+  .translation-band__connection {
+    position: relative;
+    height: 1px;
+    overflow: visible;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .translation-band__connection i {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    width: 62px;
-    height: 62px;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(145deg, rgba(121, 192, 255, 0.22) 0%, rgba(57, 211, 83, 0.24) 100%);
-    backdrop-filter: blur(10px) saturate(1.2);
-    -webkit-backdrop-filter: blur(10px) saturate(1.2);
-    border: 1px solid rgba(57, 211, 83, 0.45);
-    border-radius: 50%;
-    color: #E6EDF3;
-    cursor: pointer;
-    box-shadow: 0 0 0 1px rgba(121, 192, 255, 0.2), 0 0 28px rgba(57, 211, 83, 0.28);
-    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  }
-
-  .showcase__nav svg {
-    width: 28px;
-    height: 28px;
-    filter: drop-shadow(0 0 8px rgba(57, 211, 83, 0.45));
-  }
-
-  .showcase__nav:hover {
-    background: linear-gradient(145deg, rgba(121, 192, 255, 0.34) 0%, rgba(57, 211, 83, 0.38) 100%);
-    border-color: rgba(57, 211, 83, 0.78);
-    box-shadow: 0 0 0 1px rgba(121, 192, 255, 0.4), 0 0 40px rgba(57, 211, 83, 0.45);
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .showcase__nav--prev { left: var(--space-m); }
-  .showcase__nav--next { right: var(--space-m); }
-
-  .showcase__dots {
-    position: absolute;
-    bottom: var(--space-m);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    display: flex;
-    gap: var(--space-xs);
-  }
-
-  .showcase__dot {
-    width: 36px;
-    height: 4px;
-    padding: 0;
-    border: none;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 2px;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    transition: background 0.3s ease;
-  }
-
-  .showcase__dot.is-active {
-    background: rgba(255, 255, 255, 0.5);
-  }
-
-  .showcase__dot-fill {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    border-radius: 2px;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-  }
-
-  .showcase__dot.is-active .showcase__dot-fill {
-    transform: scaleX(1);
-  }
-
-  /* ── Section spacing ── */
-  .section {
-    padding-block: var(--space-3xl);
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 768px) {
-    .auto-hero {
-      overflow-x: clip;
-    }
-
-    .auto-hero__title--short {
-      display: inline;
-    }
-
-    .auto-hero__title--full {
-      display: none;
-    }
-
-    .auto-hero__title {
-      font-size: clamp(1.6rem, 0.8rem + 5vw, 2.4rem);
-      line-height: 1.02;
-      letter-spacing: -0.03em;
-    }
-
-    .showcase__overlay {
-      padding: var(--space-xl) var(--space-m) var(--space-l);
-    }
-
-    .showcase__description {
-      max-width: 34ch;
-      font-size: 0.8rem;
-    }
-
-    .auto-hero__sub {
-      max-width: 30ch;
-      padding-inline: var(--space-2xs);
-    }
-
-    .showcase {
-      height: 65vh;
-      height: 65dvh;
-      --showcase-side-trim: 8px;
-      overflow-x: clip;
-    }
-
-    .showcase__nav {
-      width: 50px;
-      height: 50px;
-    }
-
-    .showcase__nav--prev { left: var(--space-xs); }
-    .showcase__nav--next { right: var(--space-xs); }
-
-    .showcase__overlay {
-      padding: var(--space-l) var(--space-m) var(--space-l);
-    }
-
-    .showcase::before,
-    .showcase::after {
-      width: 28px;
-    }
-
-    .terminal-strip {
-      overflow-x: clip;
-    }
-
-  }
-
-  @media (max-width: 480px) {
-    .showcase {
-      --showcase-side-trim: 0px;
-    }
-
-    .showcase::before,
-    .showcase::after {
-      width: 12px;
-    }
-
-    .showcase__nav {
-      width: 42px;
-      height: 42px;
-    }
-
-    .showcase__nav svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  /* ── Hero: anclas a los dos bloques ── */
-  .auto-hero__tracks {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(250px, 360px));
-    justify-content: center;
-    gap: var(--space-m);
-    margin-top: var(--space-l);
-  }
-
-  .auto-hero__track {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "title"
-      "desc";
-    gap: 0.35rem 0.9rem;
-    min-height: 118px;
-    padding: var(--space-m);
-    border: 1px solid rgba(57, 211, 83, 0.22);
-    border-radius: var(--radius-lg);
-    background:
-      radial-gradient(circle at 16% 20%, rgba(57, 211, 83, 0.14), transparent 34%),
-      rgba(22, 27, 34, 0.72);
-    color: var(--auto-text);
-    text-decoration: none;
-    text-align: left;
-    overflow: hidden;
-    transition: border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
-  }
-
-  .auto-hero__track::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
-    opacity: 0.65;
-  }
-
-  .auto-hero__track strong {
-    grid-area: title;
-    font-size: var(--step-0);
-    line-height: 1.1;
-  }
-
-  .auto-hero__track small {
-    grid-area: desc;
-    color: var(--auto-text-secondary);
-    font-size: 0.82rem;
-    line-height: 1.45;
-  }
-
-  .auto-hero__track:hover {
-    border-color: rgba(57, 211, 83, 0.55);
-    transform: translateY(-3px);
-    box-shadow: 0 24px 70px rgba(57, 211, 83, 0.12);
-  }
-
-  /* ── Separadores de bloque (01 After Effects / 02 Empresas) ── */
-  .track {
-    position: relative;
-    z-index: 1;
-    background:
-      linear-gradient(90deg, rgba(57, 211, 83, 0.08), transparent 36%),
-      var(--auto-bg);
-    padding-block: var(--space-2xl) var(--space-l);
-    scroll-margin-top: 90px;
-    overflow: hidden;
-  }
-
-  .track--business {
-    background:
-      linear-gradient(90deg, rgba(121, 192, 255, 0.09), transparent 38%),
-      linear-gradient(180deg, #0D1117 0%, #101722 100%);
-  }
-
-  .track::after {
-    content: '';
-    position: absolute;
     left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(57, 211, 83, 0.42), transparent);
+    width: 0.62rem;
+    height: 0.62rem;
+    background: var(--auto-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 1rem rgba(57, 211, 83, 0.85);
+    transform: translate(-50%, -50%);
+    animation: data-transfer 3.1s ease-in-out infinite;
   }
 
-  .track__inner {
-    display: flex;
-    align-items: center;
-    gap: var(--space-l);
-    border-top: 1px solid rgba(57, 211, 83, 0.24);
-    padding-top: var(--space-xl);
+  .business {
+    padding-top: 0;
   }
 
-  .track__kicker {
-    display: block;
-    color: var(--auto-accent);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    margin-bottom: var(--space-2xs);
+  .section-intro--business h2 {
+    max-width: 11ch;
   }
 
-  .track__title {
-    font-size: var(--step-3);
-    color: var(--auto-primary);
-    margin-bottom: var(--space-2xs);
-  }
-
-  .track__sub {
-    color: var(--auto-text-secondary);
-    font-size: var(--step-0);
-    line-height: 1.6;
-    max-width: 62ch;
-  }
-
-  .track__sub strong {
-    color: var(--auto-accent);
-    font-weight: 600;
-  }
-
-  @media (max-width: 640px) {
-    .track__inner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-s);
-    }
-
-    .auto-hero__tracks {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Bots para empresas ── */
-  .bots__demo {
+  .business-story {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--space-xl);
-    align-items: start;
-    margin-bottom: var(--space-2xl);
+    grid-template-columns: minmax(20rem, 0.82fr) minmax(30rem, 1.18fr);
+    align-items: stretch;
+    gap: clamp(1rem, 2.5vw, 2rem);
   }
 
-  /* Chat demo */
-  .chat-demo {
-    background:
-      linear-gradient(135deg, rgba(37, 211, 102, 0.08), transparent 32%),
-      var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-lg);
+  .chat-demo,
+  .journey {
+    min-width: 0;
     overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    background: rgba(12, 18, 21, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: clamp(1rem, 2vw, 1.6rem);
+  }
+
+  .chat-demo {
+    display: flex;
+    flex-direction: column;
+    min-height: 41rem;
   }
 
   .chat-demo__bar {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 1rem;
-    border-bottom: 1px solid var(--auto-border);
-    font-size: 0.72rem;
-    color: var(--auto-text-secondary);
-    background: rgba(13, 17, 23, 0.72);
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    background: rgba(255, 255, 255, 0.025);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   }
 
-  .chat-demo__status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+  .chat-demo__bar > div {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .chat-demo__bar strong,
+  .chat-demo__bar small {
+    display: block;
+  }
+
+  .chat-demo__bar strong {
+    color: #eff5f1;
+    font-size: 0.82rem;
+  }
+
+  .chat-demo__bar small {
+    margin-top: 0.12rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.65rem;
+  }
+
+  .chat-demo__avatar {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    color: #071108;
     background: var(--auto-accent);
-    box-shadow: 0 0 8px var(--auto-accent);
-    animation: chat-pulse 2s ease-in-out infinite;
-    flex-shrink: 0;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 800;
   }
 
-  .chat-demo__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chat-demo__tag {
-    margin-left: auto;
-    border: 1px solid rgba(37, 211, 102, 0.4);
-    color: #25d366;
-    padding: 0.1rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.62rem;
-    flex-shrink: 0;
+  .chat-demo__live {
+    color: var(--auto-accent);
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
   }
 
   .chat-demo__messages {
-    height: 380px;
-    overflow: hidden;
-    padding: var(--space-s);
     display: flex;
+    flex: 1;
     flex-direction: column;
-    align-items: stretch;
     gap: 0.72rem;
-    background:
-      radial-gradient(circle at 12% 8%, rgba(255, 216, 77, 0.08), transparent 28%),
-      linear-gradient(180deg, rgba(10, 14, 20, 0.78), rgba(10, 14, 20, 0.92));
+    min-height: 0;
+    padding: 1.35rem 1.1rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
   }
 
-  :global(.chat-msg) {
-    position: relative;
+  .chat-demo__messages :global(.chat-message) {
     width: fit-content;
-    max-width: min(78%, 320px);
-    padding: 0.58rem 0.78rem 0.66rem;
-    border-radius: 16px;
-    font-size: 0.84rem;
-    line-height: 1.45;
-    opacity: 0;
-    transform: translateY(8px);
-    animation: chat-in 0.35s ease forwards;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+    max-width: 84%;
+    padding: 0.72rem 0.85rem;
+    color: rgba(245, 248, 246, 0.88);
+    background: rgba(255, 255, 255, 0.065);
+    border-radius: 0.3rem 0.9rem 0.9rem 0.9rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    animation: message-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  :global(.chat-msg)::before {
-    content: attr(data-speaker);
-    display: block;
-    margin-bottom: 0.2rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    opacity: 0.72;
-  }
-
-  :global(.chat-msg--user) {
+  .chat-demo__messages :global(.chat-message--user) {
     align-self: flex-end;
-    margin-left: auto;
-    margin-right: 0.35rem;
-    background: #dcf8c6;
-    border: 1px solid rgba(37, 211, 102, 0.45);
-    color: #102015;
-    border-bottom-right-radius: 5px;
+    color: #061009;
+    background: #9ef3ac;
+    border-radius: 0.9rem 0.3rem 0.9rem 0.9rem;
   }
 
-  :global(.chat-msg--bot) {
-    align-self: flex-start;
-    margin-right: auto;
-    margin-left: 0.35rem;
-    background: #ffffff;
-    border: 1px solid rgba(255, 216, 77, 0.38);
-    color: #17130d;
-    border-bottom-left-radius: 5px;
-  }
-
-  :global(.chat-msg--user)::after,
-  :global(.chat-msg--bot)::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    width: 12px;
-    height: 14px;
-    background: inherit;
-    border-bottom: inherit;
-  }
-
-  :global(.chat-msg--user)::after {
-    right: -7px;
-    border-right: inherit;
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
-  }
-
-  :global(.chat-msg--bot)::after {
-    left: -7px;
-    border-left: inherit;
-    clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  }
-
-  :global(.chat-msg--sys) {
-    align-self: center;
-    max-width: 100%;
-    background: transparent;
-    border: none;
-    padding: 0.2rem 0;
-    color: #25d366;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.66rem;
-    text-align: center;
-    opacity: 0;
-  }
-
-  :global(.chat-msg--sys)::before,
-  :global(.chat-msg--typing)::before {
-    display: none;
-  }
-
-  :global(.chat-msg--typing) {
+  .chat-demo__messages :global(.chat-message--typing) {
     display: flex;
-    gap: 4px;
-    align-items: center;
-    min-height: 1.9em;
-    width: fit-content;
+    gap: 0.25rem;
+    padding-block: 0.95rem;
   }
 
-  :global(.chat-msg--typing) i {
-    width: 6px;
-    height: 6px;
+  .chat-demo__messages :global(.chat-message--typing i) {
+    width: 0.32rem;
+    height: 0.32rem;
+    background: rgba(255, 255, 255, 0.42);
     border-radius: 50%;
-    background: rgba(23, 19, 13, 0.6);
-    animation: chat-typing 1s ease-in-out infinite;
+    animation: typing-dot 0.75s ease-in-out infinite alternate;
   }
 
-  :global(.chat-msg--typing) i:nth-child(2) { animation-delay: 0.15s; }
-  :global(.chat-msg--typing) i:nth-child(3) { animation-delay: 0.3s; }
+  .chat-demo__messages :global(.chat-message--typing i:nth-child(2)) {
+    animation-delay: 0.14s;
+  }
+
+  .chat-demo__messages :global(.chat-message--typing i:nth-child(3)) {
+    animation-delay: 0.28s;
+  }
 
   .chat-demo__input {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    padding: 0.7rem 1rem;
-    border-top: 1px solid var(--auto-border);
-    color: var(--auto-text-secondary);
-    font-size: 0.72rem;
-    opacity: 0.65;
+    margin: 0 1rem 1rem;
+    padding: 0.82rem 0.9rem;
+    color: rgba(255, 255, 255, 0.32);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0.75rem;
+    font-size: 0.66rem;
   }
 
-  @keyframes chat-in {
-    to { opacity: 1; transform: translateY(0); }
+  .chat-demo__input b {
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    color: #071108;
+    background: var(--auto-accent);
+    border-radius: 0.48rem;
   }
 
-  @keyframes chat-pulse {
-    50% { opacity: 0.4; }
-  }
-
-  @keyframes chat-typing {
-    50% { transform: translateY(-4px); opacity: 0.5; }
-  }
-
-  /* Cómo lo monto */
-  .bots__how-title {
-    color: var(--auto-accent);
-    font-size: 0.78rem;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-m);
-  }
-
-  .bots__flow {
-    display: flex;
-    align-items: stretch;
-    gap: 0.4rem;
-    margin-bottom: var(--space-l);
-  }
-
-  .bots__flow-node {
-    flex: 1;
+  .journey {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    text-align: center;
-    background: var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-md);
-    padding: 0.9rem 0.4rem;
-    color: var(--auto-text-secondary);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    line-height: 1.45;
+    padding: clamp(1.4rem, 3vw, 2.3rem);
   }
 
-  .bots__flow-node svg {
-    color: var(--auto-accent);
+  .journey__head {
+    padding-bottom: 1.8rem;
   }
 
-  .bots__flow-node--bot {
-    border-color: rgba(57, 211, 83, 0.4);
-    box-shadow: 0 0 24px rgba(57, 211, 83, 0.08);
-    color: var(--auto-text);
+  .journey__head > strong {
+    display: block;
+    max-width: 18ch;
+    color: #f2f7f3;
+    font-size: clamp(1.75rem, 3.2vw, 3.1rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
   }
 
-  .bots__flow-arrow {
-    width: 42px;
-    flex-shrink: 0;
-    align-self: center;
-  }
-
-  .bots__dash {
-    animation: bots-dash 1.1s linear infinite;
-  }
-
-  @keyframes bots-dash {
-    to { stroke-dashoffset: -10; }
-  }
-
-  .bots__steps {
-    list-style: none;
-    counter-reset: bot-step;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-    padding: 0;
-    margin: 0;
-  }
-
-  .bots__steps li {
-    counter-increment: bot-step;
+  .journey__flow {
     position: relative;
-    padding-left: 2.8rem;
-    color: var(--auto-text-secondary);
-    line-height: 1.55;
-    font-size: 0.9rem;
+    display: grid;
+    flex: 1;
+    align-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0;
   }
 
-  .bots__steps li::before {
-    content: '0' counter(bot-step);
+  .journey__rail {
     position: absolute;
+    top: 12%;
+    bottom: 12%;
+    left: 0.47rem;
+    width: 1px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .journey__rail i {
+    position: absolute;
+    top: 0;
+    right: 0;
     left: 0;
-    top: 0.1em;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
+    height: var(--journey-progress, 0%);
+    background: var(--auto-accent);
+    box-shadow: 0 0 0.8rem rgba(57, 211, 83, 0.45);
+    transition: height 420ms ease;
+  }
+
+  .journey__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 4.7rem;
+    color: rgba(255, 255, 255, 0.34);
+    transition: color 320ms ease, transform 320ms ease;
+  }
+
+  .journey__dot {
+    position: relative;
+    z-index: 1;
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-left: 0.17rem;
+    background: #11181b;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: background 320ms ease, border-color 320ms ease, box-shadow 320ms ease;
+  }
+
+  .journey__item strong,
+  .journey__item small {
+    display: block;
+  }
+
+  .journey__item strong {
+    font-size: 0.86rem;
+  }
+
+  .journey__item small {
+    margin-top: 0.2rem;
+    color: rgba(255, 255, 255, 0.28);
+    font-size: 0.68rem;
+    line-height: 1.4;
+  }
+
+  .journey__item > b {
+    color: currentColor;
+    font-size: 0.54rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .journey__item.is-active,
+  .journey__item.is-complete {
+    color: rgba(242, 249, 244, 0.92);
+  }
+
+  .journey__item.is-active {
+    transform: translateX(0.25rem);
+  }
+
+  .journey__item.is-active .journey__dot,
+  .journey__item.is-complete .journey__dot {
+    background: var(--auto-accent);
+    border-color: var(--auto-accent);
+    box-shadow: 0 0 0 0.35rem rgba(57, 211, 83, 0.1), 0 0 1rem rgba(57, 211, 83, 0.46);
+  }
+
+  .journey__result {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding-top: 1.15rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .journey__result span,
+  .journey__result small {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.56rem;
+  }
+
+  .journey__result strong {
     color: var(--auto-accent);
-    border: 1px solid rgba(57, 211, 83, 0.3);
-    border-radius: 6px;
-    padding: 0.12rem 0.4rem;
+    font-size: 0.82rem;
   }
 
-  .bots__steps strong {
-    color: var(--auto-text);
+  @keyframes auto-signal {
+    50% { opacity: 0.55; box-shadow: 0 0 0.25rem rgba(57, 211, 83, 0.35); }
   }
 
-  @media (max-width: 900px) {
-    .bots__demo {
+  @keyframes route-flow {
+    0%, 12% { transform: translateX(-100%); }
+    76%, 100% { transform: translateX(100%); }
+  }
+
+  @keyframes data-transfer {
+    0%, 12% { left: 0; }
+    78%, 100% { left: 100%; }
+  }
+
+  @keyframes message-in {
+    from { opacity: 0; transform: translateY(0.6rem) scale(0.98); }
+  }
+
+  @keyframes typing-dot {
+    to { opacity: 0.35; transform: translateY(-0.12rem); }
+  }
+
+  @media (max-width: 980px) {
+    .auto-hero {
+      min-height: auto;
+      padding-top: 8.5rem;
+    }
+
+    .auto-hero__content {
       grid-template-columns: 1fr;
-      gap: var(--space-l);
+      gap: 3.5rem;
     }
 
-    .chat-demo__messages {
-      height: 320px;
+    .auto-hero__copy {
+      max-width: 48rem;
     }
+
+    .auto-hero__systems {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .system-window footer {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .business-story {
+      grid-template-columns: 1fr;
+    }
+
+    .chat-demo {
+      min-height: 34rem;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .automation-page::before {
+      background-size: 32px 32px;
+    }
+
+    .auto-hero {
+      padding: 7.4rem 0 4.5rem;
+    }
+
+    .auto-hero__content {
+      gap: 2.5rem;
+    }
+
+    .auto-hero h1 {
+      font-size: clamp(3.5rem, 17vw, 5.4rem);
+      line-height: 0.86;
+    }
+
+    .auto-hero__copy > p {
+      max-width: 27rem;
+      margin-top: 1.45rem;
+      font-size: 0.95rem;
+    }
+
+    .auto-hero__systems {
+      grid-template-columns: 1fr;
+    }
+
+    .broadcast-preview {
+      min-height: 10.5rem;
+    }
+
+    .route-preview {
+      min-height: 8.8rem;
+    }
+
+    .automation-cases {
+      padding-top: 5.5rem;
+    }
+
+    .section-intro {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-intro h2 {
+      font-size: clamp(3rem, 15vw, 4.6rem);
+    }
+
+    .section-intro > p {
+      margin-top: 1.15rem;
+      font-size: 0.92rem;
+    }
+
+    .case-reel {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+
+    .automation-case,
+    .automation-case:last-child {
+      grid-column: auto;
+      margin-top: 0;
+    }
+
+    .automation-case__caption {
+      grid-template-columns: 1fr;
+      gap: 0.55rem;
+      padding-top: 1rem;
+    }
+
+    .automation-case__caption h3 {
+      font-size: 2rem;
+    }
+
+    .automation-case__caption p {
+      max-width: 32rem;
+    }
+
+    .translation-band {
+      margin: 5.5rem 0;
+    }
+
+    .translation-band__inner {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      min-height: auto;
+      padding-block: 2rem;
+    }
+
+    .translation-band__inner > div:last-child {
+      text-align: left;
+    }
+
+    .translation-band__connection {
+      width: 1px;
+      height: 3.5rem;
+      margin-left: 0.3rem;
+    }
+
+    .translation-band__connection i {
+      top: 0;
+      left: 50%;
+      animation: data-transfer-mobile 2.4s ease-in-out infinite;
+    }
+
+    .business-story {
+      gap: 1rem;
+    }
+
+    .chat-demo {
+      min-height: 31rem;
+    }
+
+    .journey {
+      padding: 1.35rem;
+    }
+
+    .journey__head > strong {
+      font-size: 2rem;
+    }
+
+    .journey__item {
+      grid-template-columns: 1rem minmax(0, 1fr);
+      min-height: 5rem;
+    }
+
+    .journey__item > b {
+      display: none;
+    }
+
+    .journey__result {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+  }
+
+  @keyframes data-transfer-mobile {
+    0%, 12% { top: 0; }
+    78%, 100% { top: 100%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chat-demo__status,
-    .bots__dash {
+    .system-window__signal,
+    .route-preview__line::after,
+    .translation-band__connection i,
+    .chat-demo__messages :global(.chat-message),
+    .chat-demo__messages :global(.chat-message--typing i) {
       animation: none;
     }
 
-    :global(.chat-msg) {
-      opacity: 1;
-      transform: none;
-      animation: none;
+    .automation-case__video,
+    .system-window,
+    .journey__item {
+      transition: none;
     }
-  }
-
-  /* Ensure content sections are above particles */
-  .showcase,
-  .terminal-strip,
-  .bots {
-    position: relative;
-    z-index: 1;
   }
 </style>
