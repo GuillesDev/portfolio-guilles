@@ -19,7 +19,7 @@ type RobotReply = {
 };
 
 const NVIDIA_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const DEFAULT_MODEL = 'meta/llama-3.3-70b-instruct';
+const DEFAULT_MODEL = 'meta/llama-3.1-8b-instruct';
 const MAX_HISTORY = 12;
 const MAX_QUESTION_LENGTH = 500;
 const MAX_REQUEST_BYTES = 24_000;
