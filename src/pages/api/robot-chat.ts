@@ -19,7 +19,7 @@ type RobotReply = {
 };
 
 const NVIDIA_ENDPOINT = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const DEFAULT_MODEL = 'meta/llama-3.1-8b-instruct';
+const DEFAULT_MODEL = 'microsoft/phi-4-mini-instruct';
 const MAX_HISTORY = 12;
 const MAX_QUESTION_LENGTH = 500;
 const MAX_REQUEST_BYTES = 24_000;
@@ -224,8 +224,7 @@ export const POST: APIRoute = async ({ request }) => {
       body: JSON.stringify({
         model: import.meta.env.NVIDIA_MODEL || DEFAULT_MODEL,
         messages,
-        temperature: 0.2,
-        top_p: 0.8,
+        temperature: 0.1,
         max_tokens: 240,
         stream: false,
       }),
