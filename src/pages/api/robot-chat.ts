@@ -85,18 +85,8 @@ CONTACTO
 - El portfolio tiene una sección de contacto para proyectos de grafismo, motion,
   automatización, desarrollo web, marca y contenido.
 
-NAVEGACIÓN
-Solo puedes proponer una de estas rutas:
-/, /#areas, /#contacto,
-/grafismo, /grafismo#experiencia, /grafismo#trabajo-seleccionado, /grafismo#herramientas,
-/automatizacion, /automatizacion#after-effects, /automatizacion#empresas,
-/desarrollo, /desarrollo#black-gum,
-/fratelli-pazzi, /fratelli-pazzi#identidad, /fratelli-pazzi#marca-en-sala,
-/fratelli-pazzi#contenido.
-
-Devuelve EXCLUSIVAMENTE un objeto JSON válido, sin Markdown:
-{"answer":"respuesta de máximo 70 palabras","destination":"/ruta o null","action":"texto breve del botón o null"}
-Usa destination cuando una sección concreta amplíe la respuesta. No navegues fuera del portfolio.
+Responde exclusivamente con texto plano, sin Markdown, en un máximo de 70 palabras.
+La navegación la resuelve el portfolio de forma segura.
 `;
 
 type RateBucket = { count: number; resetAt: number };
@@ -156,23 +146,90 @@ function cleanHistory(value: unknown): ClientMessage[] {
     .filter((item) => item.text.length > 0);
 }
 
-function parseReply(content: string): RobotReply {
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Invalid model response');
-  const parsed = JSON.parse(jsonMatch[0]) as Partial<RobotReply>;
-  if (typeof parsed.answer !== 'string' || !parsed.answer.trim()) {
-    throw new Error('Missing model answer');
+function navigationFor(question: string): Pick<RobotReply, 'destination' | 'action'> {
+  const q = question
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  if (/(contact|email|correo|escribir|hablar|contrat|presupuesto|precio)/.test(q)) {
+    return { destination: '/#contacto', action: 'Contactar' };
   }
-  const destination = typeof parsed.destination === 'string'
-    && ALLOWED_DESTINATIONS.has(parsed.destination)
-    ? parsed.destination
-    : null;
+  if (/(experiencia|trayectoria|cadena|mediaset|rtve|movistar)/.test(q)) {
+    return { destination: '/grafismo#experiencia', action: 'Ver experiencia' };
+  }
+  if (/(herramienta|software|tecnologia|stack)/.test(q)) {
+    return { destination: '/grafismo#herramientas', action: 'Ver herramientas' };
+  }
+  if (/(after effects|plantilla|expresion|script|cartela|comodin|quesito)/.test(q)) {
+    return { destination: '/automatizacion#after-effects', action: 'Ver After Effects' };
+  }
+  if (/(crm|chatbot|whatsapp|cita|agenda|documento|reporting|empresa|negocio)/.test(q)) {
+    return { destination: '/automatizacion#empresas', action: 'Ver sistemas' };
+  }
+  if (/(automatiz)/.test(q)) {
+    return { destination: '/automatizacion', action: 'Ver automatización' };
+  }
+  if (/(black gum|stripe|next\.?js|prisma|panel privado)/.test(q)) {
+    return { destination: '/desarrollo#black-gum', action: 'Ver Black Gum' };
+  }
+  if (/(desarrollo|web|programa|codigo)/.test(q)) {
+    return { destination: '/desarrollo', action: 'Ver desarrollo' };
+  }
+  if (/(logo|identidad|paleta|tipografia)/.test(q) && /(fratelli|pizza|pizzeria|marca)/.test(q)) {
+    return { destination: '/fratelli-pazzi#identidad', action: 'Ver identidad' };
+  }
+  if (/(local|sala|carta|flyer|pantalla)/.test(q) && /(fratelli|pizza|pizzeria|marca)/.test(q)) {
+    return { destination: '/fratelli-pazzi#marca-en-sala', action: 'Ver la marca' };
+  }
+  if (/(contenido|redes|video vertical)/.test(q) && /(fratelli|pizza|pizzeria|marca)/.test(q)) {
+    return { destination: '/fratelli-pazzi#contenido', action: 'Ver contenido' };
+  }
+  if (/(fratelli|pizza|pizzeria|branding)/.test(q)) {
+    return { destination: '/fratelli-pazzi', action: 'Ver Fratelli Pazzi' };
+  }
+  if (/(grafismo|motion|tele|television|broadcast|directo|rotulo|cabecera|ia generativa)/.test(q)) {
+    return { destination: '/grafismo#trabajo-seleccionado', action: 'Ver grafismo' };
+  }
+  if (/(portfolio|trabajo|proyecto|que hace|servicio|area)/.test(q)) {
+    return { destination: '/#areas', action: 'Ver sus áreas' };
+  }
+  return { destination: null, action: null };
+}
+
+function parseReply(content: string, question: string): RobotReply {
+  const jsonMatch = content.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[0]) as Partial<RobotReply>;
+      if (typeof parsed.answer === 'string' && parsed.answer.trim()) {
+        const destination = typeof parsed.destination === 'string'
+          && ALLOWED_DESTINATIONS.has(parsed.destination)
+          ? parsed.destination
+          : null;
+        return {
+          answer: parsed.answer.trim().slice(0, 700),
+          destination,
+          action: destination && typeof parsed.action === 'string'
+            ? parsed.action.trim().slice(0, 44)
+            : null,
+        };
+      }
+    } catch {
+      // Fall through to the plain-text response supported by newer NVIDIA models.
+    }
+  }
+
+  const answer = content
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/^```(?:text)?|```$/gim, '')
+    .trim();
+  if (!answer) throw new Error('Missing model answer');
+
+  const navigation = navigationFor(question);
   return {
-    answer: parsed.answer.trim().slice(0, 700),
-    destination,
-    action: destination && typeof parsed.action === 'string'
-      ? parsed.action.trim().slice(0, 44)
-      : null,
+    answer: answer.slice(0, 700),
+    ...navigation,
   };
 }
 
@@ -243,7 +300,7 @@ export const POST: APIRoute = async ({ request }) => {
     const content = result?.choices?.[0]?.message?.content;
     if (typeof content !== 'string') return json({ error: 'Respuesta de IA no válida.' }, 502);
 
-    return json(parseReply(content));
+    return json(parseReply(content, question));
   } catch (error) {
     console.error('Robot chat failed', error instanceof Error ? error.message : 'unknown error');
     return json({ error: 'La IA tardó demasiado. Se usará la respuesta local.' }, 504);
