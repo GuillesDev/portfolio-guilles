@@ -9,7 +9,7 @@ import Button from '../global/Button.astro';
       id="hero-reel"
       muted
       playsinline
-      preload="metadata"
+      preload="none"
     ></video>
     <div class="hero__reel-overlay"></div>
     <div class="hero__gradient"></div>
@@ -22,28 +22,19 @@ import Button from '../global/Button.astro';
       <span class="hero__line"><span class="hero__line-inner hero__title-accent">López</span></span>
     </h1>
 
-    <p class="hero__role mono" data-animate="fade-up">
-      <span class="hero__role-fixed">Soy</span>
-      <span class="hero__role-roll" aria-hidden="false">
-        <span class="hero__role-list" id="hero-role-list">
-          <span class="hero__role-item">grafista de TV</span>
-          <span class="hero__role-item">motion designer</span>
-          <span class="hero__role-item">desarrollador</span>
-          <span class="hero__role-item">fundador</span>
-          <span class="hero__role-item" aria-hidden="true">grafista de TV</span>
-        </span>
-      </span>
-    </p>
-
-    <p class="hero__subtitle" data-animate="fade-up">
-      Hago que las cosas se vean bien, funcionen solas y tengan sentido.
-    </p>
-
     <div class="hero__actions" data-animate="fade-up">
       <Button href="#areas" variant="primary" size="lg">Ver portfolio</Button>
       <Button href="/cv/guillermo-lopez-cv.pdf" variant="secondary" size="lg" download>
         Descargar CV ↓
       </Button>
+    </div>
+
+    <div class="hero__proof" data-animate="fade-up" aria-label="Experiencia destacada">
+      <span class="hero__proof-label mono">Experiencia con</span>
+      <span>Mediaset</span>
+      <span>RTVE</span>
+      <span>Movistar+</span>
+      <span>Producciones Mandarina</span>
     </div>
   </div>
 </section>
@@ -161,54 +152,32 @@ import Button from '../global/Button.astro';
     background-clip: text;
   }
 
-  .hero__role {
-    display: inline-flex;
-    align-items: baseline;
-    gap: 0.6em;
-    font-size: var(--step--1);
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--space-m);
-  }
-
-  .hero__role-roll {
-    display: inline-block;
-    overflow: hidden;
-    height: 1.4em;
-    line-height: 1.4;
-    vertical-align: bottom;
-  }
-
-  .hero__role-list {
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.6s var(--ease-out);
-  }
-
-  .hero__role-item {
-    display: block;
-    height: 1.4em;
-    line-height: 1.4;
-    color: var(--color-primary);
-    text-align: left;
-    white-space: nowrap;
-  }
-
-  .hero__subtitle {
-    font-size: var(--step-1);
-    line-height: 1.5;
-    color: var(--color-text-secondary);
-    max-width: 52ch;
-    margin-bottom: var(--space-xl);
-    text-align: center;
-  }
-
   .hero__actions {
     display: flex;
     justify-content: center;
     gap: var(--space-s);
     flex-wrap: wrap;
+  }
+
+  .hero__proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.1rem;
+    margin-top: var(--space-l);
+    color: rgba(255, 255, 255, 0.62);
+    font-size: var(--step--2);
+  }
+
+  .hero__proof-label {
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .hero__proof span:not(.hero__proof-label) {
+    font-weight: 600;
   }
 
   @media (max-width: 768px) {
@@ -222,17 +191,13 @@ import Button from '../global/Button.astro';
       letter-spacing: -0.04em;
     }
 
-    .hero__role {
-      font-size: var(--step--2);
-    }
-
-    .hero__subtitle {
-      max-width: 30ch;
-      padding-inline: var(--space-2xs);
-    }
-
     .hero__actions {
       flex-direction: column;
+    }
+
+    .hero__proof {
+      max-width: 30ch;
+      margin-top: var(--space-m);
     }
 
     .hero__reel.is-playing {
@@ -244,15 +209,8 @@ import Button from '../global/Button.astro';
 <script>
   import gsap from 'gsap';
 
-  let roleTimer: ReturnType<typeof setInterval> | null = null;
-
   function initHeroIntro() {
     const title = document.getElementById('hero-title');
-    const roleList = document.getElementById('hero-role-list');
-    if (roleTimer) {
-      clearInterval(roleTimer);
-      roleTimer = null;
-    }
     if (!title) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -270,35 +228,9 @@ import Button from '../global/Button.astro';
       { y: 0, yPercent: 112 },
       { yPercent: 0, duration: 1.1, ease: 'power4.out', stagger: 0.12, delay: 0.15 }
     );
-
-    if (!roleList) return;
-    const items = roleList.children.length; // last one is a clone of the first
-    let index = 0;
-    roleList.style.transform = 'translateY(0)';
-
-    roleTimer = setInterval(() => {
-      index += 1;
-      roleList.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
-      roleList.style.transform = `translateY(-${index * 1.4}em)`;
-
-      if (index === items - 1) {
-        // Landed on the clone: snap back to the real first item without transition
-        setTimeout(() => {
-          roleList.style.transition = 'none';
-          roleList.style.transform = 'translateY(0)';
-          index = 0;
-        }, 650);
-      }
-    }, 2600);
   }
 
   document.addEventListener('astro:page-load', initHeroIntro);
-  document.addEventListener('astro:before-swap', () => {
-    if (roleTimer) {
-      clearInterval(roleTimer);
-      roleTimer = null;
-    }
-  });
 
   function initHeroReel() {
     // Respect reduced-motion: keep the static gradient background, skip the video reel
@@ -307,21 +239,16 @@ import Button from '../global/Button.astro';
     if (!video) return;
     const heroVideo: HTMLVideoElement = video;
 
+    // Curated lightweight reel: keep the hero expressive without cycling
+    // through the multi-megabyte showcase masters.
     const videos = [
-      '/media/grafismo/ia/che-iglesias.mp4',
       '/media/grafismo/ia/abascal-wars.mp4',
-      '/media/grafismo/ia/aforama.mp4',
       '/media/grafismo/ia/begona-desafiante.mp4',
       '/media/grafismo/ia/hulk-sanchez.mp4',
       '/media/grafismo/ia/los-panceta.mp4',
-      '/media/grafismo/ia/paganos.mp4',
       '/media/grafismo/ia/personas-bestias.mp4',
-      '/media/grafismo/ia/sanchez-barco.mp4',
       '/media/grafismo/ia/sanchez-esqui.mp4',
-      '/media/grafismo/ia/sanchez-lightyear.mp4',
       '/media/grafismo/ia/trileros-sanchez-trump.mp4',
-      '/media/grafismo/ia/vox-is-coming.mp4',
-      '/media/grafismo/ia/yolanda-oscars.mp4',
     ];
 
     let index = Math.floor(Math.random() * videos.length);

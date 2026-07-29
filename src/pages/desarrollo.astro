@@ -14,22 +14,18 @@ const stack = [
 
 const reasons = [
   {
-    num: '01',
     title: 'Pienso como diseñador',
     desc: 'Vengo del grafismo, así que lo visual no es algo que pego al final. Lo tengo en la cabeza desde la primera línea de código.',
   },
   {
-    num: '02',
     title: 'Entrego producto, no maquetas',
     desc: 'Black Gum no es una maqueta para enseñar: es una web real para una productora real, pensada para que puedan mostrar su trabajo y gestionar el contenido sin depender de nadie.',
   },
   {
-    num: '03',
     title: 'Cubro todo el ciclo',
     desc: 'Diseño, frontend, backend, base de datos, seguridad y deploy. Lo llevo todo yo, así que nadie tiene que traducir entre el que diseña y el que programa.',
   },
   {
-    num: '04',
     title: 'Mantengo y mejoro',
     desc: 'No la entrego y desaparezco. Le sigo metiendo mano: la reviso, la acelero y le añado cosas nuevas cada semana.',
   },
@@ -51,7 +47,6 @@ const reasons = [
     <div class="dev-hero__content container">
       <div class="dev-hero__text">
         <span class="dev-kicker mono" data-animate="fade-up">
-          <span class="dev-kicker__prompt">( 03 )</span>
           <span data-scramble>desarrollo web</span>
         </span>
 
@@ -97,7 +92,7 @@ const reasons = [
   </section>
 
   <!-- Case study — Black Gum (panel oscuro redondeado) -->
-  <section class="dev-casestudy">
+  <section class="dev-casestudy" id="black-gum">
     <div class="casestudy-panel" data-animate="fade-up">
       <div class="casestudy-bg" aria-hidden="true"></div>
       <div class="casestudy-scanline" aria-hidden="true"></div>
@@ -107,6 +102,21 @@ const reasons = [
           <span class="casestudy-kicker mono" data-scramble>case study</span>
 
           <img src="/media/blackgum/logo-white.png" alt="Black Gum Studio" class="casestudy-logo" loading="lazy" />
+
+          <dl class="casestudy-facts">
+            <div>
+              <dt class="mono">Mi papel</dt>
+              <dd>Diseño y desarrollo full-stack</dd>
+            </div>
+            <div>
+              <dt class="mono">Producto</dt>
+              <dd>Web pública y panel privado</dd>
+            </div>
+            <div>
+              <dt class="mono">Tecnología</dt>
+              <dd>Next.js · TypeScript · Prisma</dd>
+            </div>
+          </dl>
 
           <p class="casestudy-desc">
             Black Gum necesitaba una web que estuviera a la altura de su trabajo:
@@ -145,7 +155,6 @@ const reasons = [
         <div class="dev-why__list" data-animate="stagger">
           {reasons.map((r) => (
             <div class="why-row">
-              <span class="why-row__num" aria-hidden="true">{r.num}</span>
               <div class="why-row__body">
                 <h3 class="why-row__title">{r.title}</h3>
                 <p class="why-row__desc">{r.desc}</p>
@@ -787,11 +796,6 @@ const reasons = [
     margin-bottom: var(--space-l);
   }
 
-  .dev-kicker__prompt {
-    color: var(--dev-accent);
-    font-weight: 600;
-  }
-
   .dev-hero__title {
     font-size: clamp(2.6rem, 1.2rem + 3.6vw, 5rem);
     font-weight: 800;
@@ -1100,7 +1104,7 @@ const reasons = [
     align-items: center;
     text-align: center;
     gap: var(--space-m);
-    max-width: 580px;
+    max-width: 780px;
     margin-inline: auto;
   }
 
@@ -1116,6 +1120,37 @@ const reasons = [
     width: clamp(160px, 18vw, 240px);
     height: auto;
     filter: drop-shadow(0 0 30px rgba(199,66,46,0.2));
+  }
+
+  .casestudy-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: min(760px, 86vw);
+    border: 1px solid rgba(245, 240, 232, 0.12);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .casestudy-facts div {
+    padding: var(--space-s);
+  }
+
+  .casestudy-facts div + div {
+    border-left: 1px solid rgba(245, 240, 232, 0.12);
+  }
+
+  .casestudy-facts dt {
+    margin-bottom: 0.35rem;
+    color: #f1a93a;
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .casestudy-facts dd {
+    color: #d7d1c5;
+    font-size: var(--step--1);
+    line-height: 1.45;
   }
 
   .casestudy-desc {
@@ -1200,7 +1235,7 @@ const reasons = [
   .why-row {
     position: relative;
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto;
     gap: var(--space-l);
     align-items: center;
     padding: var(--space-m) var(--space-s);
@@ -1215,22 +1250,6 @@ const reasons = [
 
   .why-row:hover {
     background: rgba(241, 169, 58, 0.05);
-  }
-
-  .why-row__num {
-    font-family: 'Syne Variable', 'Syne', sans-serif;
-    font-size: clamp(2.2rem, 1.5rem + 2vw, 3.4rem);
-    font-weight: 800;
-    line-height: 1;
-    color: transparent;
-    -webkit-text-stroke: 1.5px color-mix(in srgb, var(--dev-accent) 55%, transparent);
-    user-select: none;
-    transition: color var(--duration-base) var(--ease-out);
-  }
-
-  .why-row:hover .why-row__num {
-    color: var(--dev-accent);
-    -webkit-text-stroke: 1.5px transparent;
   }
 
   .why-row__title {
@@ -1350,12 +1369,22 @@ const reasons = [
       max-width: 100%;
     }
 
+    .casestudy-facts {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .casestudy-facts div + div {
+      border-top: 1px solid rgba(245, 240, 232, 0.12);
+      border-left: 0;
+    }
+
     .casestudy-inner {
       padding: var(--space-2xl) var(--space-m) var(--space-xl);
     }
 
     .why-row {
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 1fr;
       gap: var(--space-s);
     }
 

@@ -1,5 +1,6 @@
 ---
 import SectionLayout from '../layouts/SectionLayout.astro';
+import ProjectCTA from '../components/global/ProjectCTA.astro';
 import { automatizacionVisualisers } from '../data/projects';
 ---
 
@@ -14,7 +15,7 @@ import { automatizacionVisualisers } from '../data/projects';
   <!-- Hero título -->
   <section class="auto-hero">
     <div class="auto-hero__content container">
-      <span class="auto-hero__kicker mono"><span class="auto-hero__kicker-index">( 02 )</span> Sistemas</span>
+      <span class="auto-hero__kicker mono">Sistemas</span>
       <h1 class="auto-hero__title">
         <span class="auto-hero__title--full">Automatización</span>
         <span class="auto-hero__title--short">Automatizar</span>
@@ -22,12 +23,10 @@ import { automatizacionVisualisers } from '../data/projects';
       <p class="auto-hero__sub">Detecto lo repetitivo, lo convierto en sistema y me olvido.</p>
       <div class="auto-hero__tracks" aria-label="Elegir bloque de automatizacion">
         <a class="auto-hero__track" href="#after-effects">
-          <span class="auto-hero__track-num mono">01</span>
           <strong>After Effects</strong>
           <small>Grafismo, plantillas y renders que se montan solos</small>
         </a>
         <a class="auto-hero__track" href="#empresas">
-          <span class="auto-hero__track-num mono">02</span>
           <strong>Empresas</strong>
           <small>Bots, CRM, citas, documentos y reporting automatizado</small>
         </a>
@@ -38,7 +37,6 @@ import { automatizacionVisualisers } from '../data/projects';
   <!-- ━━ Bloque 01 · After Effects ━━ -->
   <div class="track" id="after-effects">
     <div class="container track__inner">
-      <span class="track__num" aria-hidden="true" data-animate="fade-up">01</span>
       <div class="track__text">
         <span class="track__kicker mono" data-animate="fade-up">// after effects</span>
         <h2 class="track__title" data-animate="title-reveal">
@@ -59,14 +57,22 @@ import { automatizacionVisualisers } from '../data/projects';
         >
           <video
             class="showcase__video"
-            preload="metadata"
+            preload="none"
             playsinline
             muted
             loop
             poster={item.poster}
           >
-            <source src={item.video} type="video/mp4" />
+            <source data-src={item.video} type="video/mp4" />
           </video>
+          <div class="showcase__overlay">
+            <span class="showcase__counter mono">{String(index + 1).padStart(2, '0')} / {String(automatizacionVisualisers.length).padStart(2, '0')}</span>
+            <h3 class="showcase__title">{item.title}</h3>
+            <p class="showcase__description">{item.description}</p>
+            <div class="showcase__tags">
+              {item.tags.map((tag) => <span class="showcase__tag mono">{tag}</span>)}
+            </div>
+          </div>
         </article>
       ))}
     </div>
@@ -96,9 +102,9 @@ import { automatizacionVisualisers } from '../data/projects';
     <div class="container">
       <div class="terminal-strip__block mono">
         <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">find</span> <span class="terminal-arg">./trabajo</span> <span class="terminal-flag">--repetitivo</span></span>
-        <span class="terminal-output">→ 47 procesos manuales</span>
-        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">automatizar</span> <span class="terminal-flag">--todos</span></span>
-        <span class="terminal-success">✓ Hecho.</span>
+        <span class="terminal-output">→ tareas y pasos manuales detectados</span>
+        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">automatizar</span> <span class="terminal-flag">--flujo</span></span>
+        <span class="terminal-success">✓ Menos pasos. Más control.</span>
       </div>
     </div>
   </section>
@@ -106,7 +112,6 @@ import { automatizacionVisualisers } from '../data/projects';
   <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
   <div class="track track--business" id="empresas">
     <div class="container track__inner">
-      <span class="track__num" aria-hidden="true" data-animate="fade-up">02</span>
       <div class="track__text">
         <span class="track__kicker mono" data-animate="fade-up">// soluciones para empresas</span>
         <h2 class="track__title" data-animate="title-reveal">
@@ -129,7 +134,7 @@ import { automatizacionVisualisers } from '../data/projects';
           <div class="chat-demo__bar mono">
             <span class="chat-demo__status" aria-hidden="true"></span>
             <span class="chat-demo__name">Fratelli Pazzi por WhatsApp</span>
-            <span class="chat-demo__tag">reserva</span>
+            <span class="chat-demo__tag">demo de flujo</span>
           </div>
           <div class="chat-demo__messages" id="chat-messages" aria-label="Conversacion de ejemplo con el chatbot de reservas de Fratelli Pazzi"></div>
           <div class="chat-demo__input mono" aria-hidden="true">
@@ -174,6 +179,13 @@ import { automatizacionVisualisers } from '../data/projects';
 
     </div>
   </section>
+
+  <ProjectCTA
+    eyebrow="Menos tareas manuales"
+    title="¿Hay algo que repites demasiado?"
+    text="Cuéntame el proceso. Lo revisamos, detectamos el cuello de botella y vemos si merece la pena convertirlo en un sistema."
+    subject="Proyecto de automatización"
+  />
 
 </SectionLayout>
 
@@ -264,6 +276,20 @@ import { automatizacionVisualisers } from '../data/projects';
     let current  = 0;
     let transitioning = false;
 
+    function ensureVideo(video) {
+      if (!video) return;
+      const source = video.querySelector('source[data-src]');
+      if (!source?.dataset.src || source.getAttribute('src')) return;
+      source.src = source.dataset.src;
+      video.load();
+    }
+
+    function playVideo(video) {
+      if (!video) return;
+      ensureVideo(video);
+      video.play().catch(() => {});
+    }
+
     function goTo(index) {
       if (transitioning || index === current) return;
       transitioning = true;
@@ -277,7 +303,7 @@ import { automatizacionVisualisers } from '../data/projects';
         next.classList.remove('is-entering');
         prev.classList.remove('is-active');
         const nextVideo = next.querySelector('video');
-        if (nextVideo) nextVideo.play().catch(() => {});
+        playVideo(nextVideo);
         dots[current].classList.remove('is-active');
         dots[index].classList.add('is-active');
         current = index;
@@ -302,7 +328,15 @@ import { automatizacionVisualisers } from '../data/projects';
     });
 
     const firstVideo = slides[0]?.querySelector('video');
-    if (firstVideo) firstVideo.play().catch(() => {});
+    const showcase = document.querySelector('.showcase');
+    if (firstVideo && showcase) {
+      const observer = new IntersectionObserver((entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        playVideo(firstVideo);
+      }, { rootMargin: '160px 0px', threshold: 0.05 });
+      observer.observe(showcase);
+    }
   })();
 
   // ── Number particles ──
@@ -440,11 +474,6 @@ import { automatizacionVisualisers } from '../data/projects';
     letter-spacing: 0.15em;
     color: var(--auto-text-secondary);
     margin-bottom: var(--space-m);
-  }
-
-  .auto-hero__kicker-index {
-    color: var(--auto-accent);
-    margin-right: 0.5em;
   }
 
   .auto-hero__title {
@@ -612,6 +641,13 @@ import { automatizacionVisualisers } from '../data/projects';
     line-height: 1.1;
   }
 
+  .showcase__description {
+    max-width: 58ch;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: var(--step--1);
+    line-height: 1.55;
+  }
+
   .showcase__tags {
     display: flex;
     flex-wrap: wrap;
@@ -732,6 +768,15 @@ import { automatizacionVisualisers } from '../data/projects';
       letter-spacing: -0.03em;
     }
 
+    .showcase__overlay {
+      padding: var(--space-xl) var(--space-m) var(--space-l);
+    }
+
+    .showcase__description {
+      max-width: 34ch;
+      font-size: 0.8rem;
+    }
+
     .auto-hero__sub {
       max-width: 30ch;
       padding-inline: var(--space-2xs);
@@ -800,10 +845,10 @@ import { automatizacionVisualisers } from '../data/projects';
   .auto-hero__track {
     position: relative;
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
-      "num title"
-      "num desc";
+      "title"
+      "desc";
     gap: 0.35rem 0.9rem;
     min-height: 118px;
     padding: var(--space-m);
@@ -826,13 +871,6 @@ import { automatizacionVisualisers } from '../data/projects';
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
     opacity: 0.65;
-  }
-
-  .auto-hero__track-num {
-    grid-area: num;
-    color: var(--auto-accent);
-    font-size: var(--step-1);
-    line-height: 1;
   }
 
   .auto-hero__track strong {
@@ -888,16 +926,6 @@ import { automatizacionVisualisers } from '../data/projects';
     gap: var(--space-l);
     border-top: 1px solid rgba(57, 211, 83, 0.24);
     padding-top: var(--space-xl);
-  }
-
-  .track__num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(4rem, 3rem + 6vw, 8rem);
-    font-weight: 800;
-    line-height: 0.9;
-    color: transparent;
-    -webkit-text-stroke: 1.5px rgba(57, 211, 83, 0.35);
-    flex-shrink: 0;
   }
 
   .track__kicker {

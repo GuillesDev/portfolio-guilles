@@ -4,19 +4,7 @@ import SectionHeading from '../global/SectionHeading.astro';
 
 <section class="value section" id="propuesta">
   <div class="container">
-    <SectionHeading index="01" label="Propuesta de valor" title="¿Por qué yo?" />
-
-    <div class="value__text" data-animate="fade-up">
-      <p class="value__lead">
-        No encajo en una sola casilla. Y eso es lo bueno.
-      </p>
-      <p>
-        Sé lo que es trabajar para emisión en directo, con tiempos reales y sin margen para fallar.
-        También sé lo que es montar un negocio desde cero, diseñar su marca,
-        programar su web y pelearse con los proveedores. Cada cosa que hago
-        alimenta a las demás, y eso se nota en el resultado.
-      </p>
-    </div>
+    <SectionHeading label="Experiencia" title="En pocas cifras" />
 
     <div class="value__stats" data-animate="fade-up">
       <div class="value__stat">
@@ -40,32 +28,10 @@ import SectionHeading from '../global/SectionHeading.astro';
 </section>
 
 <style>
-  .value__text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-m);
-  }
-
-  .value__lead {
-    font-size: var(--step-1);
-    line-height: 1.45;
-    color: var(--color-primary);
-    font-weight: 500;
-    max-width: 60ch;
-  }
-
-  .value__text p:not(.value__lead) {
-    color: var(--color-text-secondary);
-    line-height: 1.75;
-    max-width: 60ch;
-  }
-
   .value__stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    margin-top: var(--space-2xl);
+    margin-top: var(--space-xl);
   }
 
   .value__stat {
