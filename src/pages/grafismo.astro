@@ -112,47 +112,45 @@ const generativePieces = [
           <span class="title-line"><span class="title-line__inner">Lo que sale en pantalla</span></span>
         </h2>
         <p class="grafismo-section-desc" data-animate="fade-up">
-          Esto es lo que acaba en antena, casi todo hecho a contrarreloj y en directo.
-          Pasa el ratón por cualquier vídeo y se reproduce.
+          Casi todo hecho a contrarreloj, con el programa en directo.
         </p>
-
-        <dl class="grafismo-case-facts" data-animate="fade-up">
-          <div>
-            <dt class="mono">Mi papel</dt>
-            <dd>Grafismo y motion</dd>
-          </div>
-          <div>
-            <dt class="mono">Contexto</dt>
-            <dd>Directo y piezas editoriales</dd>
-          </div>
-          <div>
-            <dt class="mono">Experiencia</dt>
-            <dd>Mediaset · RTVE · Movistar+</dd>
-          </div>
-        </dl>
       </div>
 
-      <!-- Channel selector -->
+      <!-- Selector de canal -->
       <div class="channel-switch" data-animate="fade-up">
-        <div class="channel-switch__track">
-          <button class="channel-switch__btn channel-switch__btn--active" data-channel="sin-ia" type="button">
-            <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">Grafismos</span>
-          </button>
-          <button class="channel-switch__btn" data-channel="ia" type="button">
-            <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">IA Generativa</span>
-          </button>
-          <button class="channel-switch__btn" data-channel="cabeceras" type="button">
-            <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">Producciones</span>
-          </button>
-          <button class="channel-switch__btn" data-channel="christmas" type="button">
-            <span class="channel-switch__signal"></span>
-            <span class="channel-switch__label">Corporativo</span>
-          </button>
-          <div class="channel-switch__indicator"></div>
-        </div>
+        <button
+          class="channel-switch__btn channel-switch__btn--active"
+          data-channel="sin-ia"
+          type="button"
+          aria-pressed="true"
+        >
+          <span class="channel-switch__meta">
+            <span class="channel-switch__num mono">01</span>
+            <span class="channel-switch__signal" aria-hidden="true"></span>
+          </span>
+          <span class="channel-switch__label">Grafismos</span>
+        </button>
+        <button class="channel-switch__btn" data-channel="ia" type="button" aria-pressed="false">
+          <span class="channel-switch__meta">
+            <span class="channel-switch__num mono">02</span>
+            <span class="channel-switch__signal" aria-hidden="true"></span>
+          </span>
+          <span class="channel-switch__label">IA Generativa</span>
+        </button>
+        <button class="channel-switch__btn" data-channel="cabeceras" type="button" aria-pressed="false">
+          <span class="channel-switch__meta">
+            <span class="channel-switch__num mono">03</span>
+            <span class="channel-switch__signal" aria-hidden="true"></span>
+          </span>
+          <span class="channel-switch__label">Producciones</span>
+        </button>
+        <button class="channel-switch__btn" data-channel="christmas" type="button" aria-pressed="false">
+          <span class="channel-switch__meta">
+            <span class="channel-switch__num mono">04</span>
+            <span class="channel-switch__signal" aria-hidden="true"></span>
+          </span>
+          <span class="channel-switch__label">Corporativo</span>
+        </button>
       </div>
 
       <!-- Glitch overlay for channel transition -->
@@ -162,7 +160,10 @@ const generativePieces = [
         <div class="channel-glitch__rgb channel-glitch__rgb--b"></div>
         <div class="channel-glitch__static"></div>
         <div class="channel-glitch__bars"></div>
-        <div class="channel-glitch__text mono" id="glitch-channel-text">CH 01</div>
+        <div class="channel-glitch__text mono" id="glitch-channel-text">
+          <span class="channel-glitch__num" id="glitch-channel-num">CH 01</span>
+          <span class="channel-glitch__name" id="glitch-channel-name">Grafismos</span>
+        </div>
       </div>
 
       <!-- Sin IA grid -->
@@ -558,59 +559,86 @@ const generativePieces = [
   }
 
   /* ── Channel Switch (TV toggle) ── */
+  /* Tira de canales: cada opción es una entrada de emisión, no una pestaña.
+     La barra superior se enciende al sintonizar el canal. */
   .channel-switch {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.75rem, 2.5vw, 2.5rem);
+    max-width: 880px;
     margin: var(--space-xl) auto;
     padding-inline: var(--space-s);
   }
 
-  .channel-switch__track {
-    position: relative;
-    display: flex;
-    gap: 0;
-    border: 1px solid var(--grafismo-border);
-    border-radius: var(--radius-md);
-    background: var(--grafismo-surface);
-    padding: 4px;
-    max-width: 100%;
-    overflow-x: auto;
-  }
-
   .channel-switch__btn {
     position: relative;
-    z-index: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    gap: var(--space-xs);
-    padding: 0.75em 1.2em;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    padding: var(--space-xs) 0 0;
     background: transparent;
     border: none;
+    border-top: 1px solid var(--grafismo-border);
     cursor: pointer;
-    transition: color 0.3s ease;
+    text-align: left;
     color: var(--grafismo-text);
-    opacity: 0.5;
-    white-space: nowrap;
+    opacity: 0.45;
+    transition: opacity 0.3s ease;
+  }
+
+  .channel-switch__btn::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--grafismo-primary);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.65);
+    transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .channel-switch__btn:hover {
+    opacity: 0.75;
   }
 
   .channel-switch__btn--active {
     opacity: 1;
-    color: var(--grafismo-bg);
+  }
+
+  .channel-switch__btn--active::before {
+    width: 100%;
+  }
+
+  .channel-switch__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .channel-switch__num {
+    font-size: var(--step--2);
+    letter-spacing: 0.18em;
+    opacity: 0.55;
+    transition: color 0.3s ease, opacity 0.3s ease;
+  }
+
+  .channel-switch__btn--active .channel-switch__num {
+    color: var(--grafismo-primary);
+    opacity: 1;
   }
 
   .channel-switch__signal {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background: var(--grafismo-text);
-    opacity: 0.3;
-    transition: all 0.3s ease;
+    background: var(--grafismo-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .channel-switch__btn--active .channel-switch__signal {
-    background: var(--grafismo-accent);
     opacity: 1;
     box-shadow: 0 0 8px rgba(255, 23, 68, 0.6);
     animation: rec-blink 1.5s ease-in-out infinite;
@@ -618,36 +646,25 @@ const generativePieces = [
 
   @keyframes rec-blink {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0.25; }
   }
 
   .channel-switch__label {
     font-family: 'Syne Variable', sans-serif;
     font-size: var(--step-0);
     font-weight: 700;
+    line-height: 1.15;
     letter-spacing: -0.01em;
   }
 
-  .channel-switch__badge {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    opacity: 0.6;
-  }
+  @media (prefers-reduced-motion: reduce) {
+    .channel-switch__btn::before {
+      transition: none;
+    }
 
-  .channel-switch__btn--active .channel-switch__badge {
-    opacity: 1;
-  }
-
-  .channel-switch__indicator {
-    position: absolute;
-    top: 4px;
-    height: calc(100% - 8px);
-    background: var(--grafismo-primary);
-    border-radius: calc(var(--radius-md) - 2px);
-    transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 0;
+    .channel-switch__btn--active .channel-switch__signal {
+      animation: none;
+    }
   }
 
   /* ── Glitch transition overlay ── */
@@ -793,16 +810,36 @@ const generativePieces = [
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: clamp(4rem, 3rem + 6vw, 10rem);
-    font-weight: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.12em;
     color: white;
     opacity: 0;
     text-shadow:
       3px 0 rgba(255, 0, 0, 0.7),
       -3px 0 rgba(0, 100, 255, 0.7),
       0 0 40px rgba(0, 212, 255, 0.5);
-    letter-spacing: 0.1em;
     white-space: nowrap;
+  }
+
+  .channel-glitch__num {
+    font-size: clamp(3.5rem, 2.6rem + 5.4vw, 9rem);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+
+  /* El nombre va mucho más pequeño a propósito: en monoespaciada, "IA
+     GENERATIVA" al tamaño del número se saldría del viewport. */
+  .channel-glitch__name {
+    font-size: clamp(0.8rem, 0.6rem + 0.9vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--grafismo-primary);
+    /* compensa el hueco que deja el letter-spacing al final */
+    text-indent: 0.4em;
   }
 
   .glitch--active .channel-glitch__text {
@@ -837,38 +874,6 @@ const generativePieces = [
   .grafismo-showcase__header {
     margin-bottom: var(--space-l);
     text-align: center;
-  }
-
-  .grafismo-case-facts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 900px;
-    margin: var(--space-l) auto 0;
-    border: 1px solid var(--grafismo-border);
-    border-radius: var(--radius-md);
-    background: rgba(10, 10, 26, 0.7);
-    overflow: hidden;
-  }
-
-  .grafismo-case-facts div {
-    padding: var(--space-s);
-  }
-
-  .grafismo-case-facts div + div {
-    border-left: 1px solid var(--grafismo-border);
-  }
-
-  .grafismo-case-facts dt {
-    margin-bottom: 0.35rem;
-    color: var(--grafismo-primary);
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .grafismo-case-facts dd {
-    color: var(--grafismo-text);
-    font-size: var(--step--1);
   }
 
   .video-showcase {
@@ -1141,6 +1146,15 @@ const generativePieces = [
     opacity: 0.7;
   }
 
+  /* Sin hover (táctil) el icono no aparecería nunca y no habría forma de
+     saber que la tarjeta se reproduce. Ahí se queda visible: la tarjeta
+     responde también al toque. */
+  @media (hover: none) {
+    .gvideo-card::after {
+      opacity: 0.55;
+    }
+  }
+
   .gvideo-card.is-playing::after {
     opacity: 0;
   }
@@ -1229,15 +1243,6 @@ const generativePieces = [
   }
 
   @media (max-width: 768px) {
-    .grafismo-case-facts {
-      grid-template-columns: 1fr;
-    }
-
-    .grafismo-case-facts div + div {
-      border-top: 1px solid var(--grafismo-border);
-      border-left: 0;
-    }
-
     .christmas-pair {
       grid-template-columns: 1fr;
     }
@@ -1365,10 +1370,6 @@ const generativePieces = [
       display: none;
     }
 
-    .channel-switch__badge {
-      display: none;
-    }
-
     .video-showcase {
       grid-template-columns: 1fr;
     }
@@ -1379,33 +1380,15 @@ const generativePieces = [
   }
 
   @media (max-width: 640px) {
+    /* Cuatro columnas no caben en un teléfono: la tira pasa a 2x2. */
     .channel-switch {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-s) var(--space-m);
       padding-inline: 0;
     }
 
-    .channel-switch__track {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      width: 100%;
-    }
-
-    .channel-switch__indicator {
-      display: none;
-    }
-
     .channel-switch__btn {
-      padding: 0.6em 0.8em;
-      gap: 6px;
-      justify-content: center;
-      border-radius: calc(var(--radius-md) - 2px);
-      white-space: normal;
-      text-align: center;
       min-height: 48px;
-    }
-
-    .channel-switch__btn--active {
-      background: var(--grafismo-primary);
     }
 
     .channel-switch__label {
@@ -1417,13 +1400,16 @@ const generativePieces = [
       height: 6px;
     }
 
+    /* El tamaño ya lo fijan .channel-glitch__num y __name con su propio
+       clamp; aquí solo hace falta acotar el ancho. */
     .channel-glitch__text {
-      font-size: clamp(1.35rem, 0.9rem + 3.3vw, 2.4rem);
-      letter-spacing: 0.05em;
       max-width: 92vw;
       text-align: center;
-      overflow-wrap: anywhere;
-      white-space: normal;
+    }
+
+    .channel-glitch__name {
+      letter-spacing: 0.28em;
+      text-indent: 0.28em;
     }
 
     .cabecera-player__selector {
@@ -1474,7 +1460,6 @@ const generativePieces = [
 
     /* ── Channel switch ── */
     const btns = document.querySelectorAll<HTMLButtonElement>('.channel-switch__btn');
-    const indicator = document.querySelector<HTMLElement>('.channel-switch__indicator');
     const glitch = document.getElementById('channel-glitch');
     const gridSinIa = document.getElementById('grid-sin-ia');
     const gridIa = document.getElementById('grid-ia');
@@ -1486,19 +1471,6 @@ const generativePieces = [
     let currentChannel = 'sin-ia';
     let switching = false;
 
-    function moveIndicator(btn: HTMLElement) {
-      if (!indicator) return;
-      const track = btn.parentElement!;
-      const trackRect = track.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-      indicator.style.left = (btnRect.left - trackRect.left) + 'px';
-      indicator.style.width = btnRect.width + 'px';
-    }
-
-    // Position indicator on the initial active button
-    const initialActive = document.querySelector<HTMLButtonElement>('.channel-switch__btn--active');
-    if (initialActive) moveIndicator(initialActive);
-
     btns.forEach(btn => {
       btn.addEventListener('click', () => {
         const ch = btn.dataset.channel;
@@ -1506,11 +1478,12 @@ const generativePieces = [
         switching = true;
 
         // Update active button
-        btns.forEach(b => b.classList.remove('channel-switch__btn--active'));
+        btns.forEach(b => {
+          b.classList.remove('channel-switch__btn--active');
+          b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('channel-switch__btn--active');
-
-        // Move indicator
-        moveIndicator(btn);
+        btn.setAttribute('aria-pressed', 'true');
 
         // Pause all playing videos
         document.querySelectorAll('.gvideo-card video').forEach(v => {
@@ -1526,9 +1499,14 @@ const generativePieces = [
           glitch.classList.remove('glitch--active');
           void glitch.offsetWidth; // force reflow
 
-          // Update channel text
-          const chText = document.getElementById('glitch-channel-text');
-          if (chText) chText.textContent = ch === 'ia' ? 'CON IA' : ch === 'cabeceras' ? 'PRODUCCIONES' : ch === 'christmas' ? 'CORPORATIVO' : 'SIN IA';
+          // El rótulo se lee del propio botón, así nunca se desincroniza
+          // de los nombres de los canales.
+          const chNum = document.getElementById('glitch-channel-num');
+          const chName = document.getElementById('glitch-channel-name');
+          const num = btn.querySelector('.channel-switch__num')?.textContent?.trim();
+          const label = btn.querySelector('.channel-switch__label')?.textContent?.trim();
+          if (chNum && num) chNum.textContent = `CH ${num}`;
+          if (chName && label) chName.textContent = label;
 
           glitch.classList.add('glitch--active');
         }
@@ -1549,11 +1527,6 @@ const generativePieces = [
         }, 350);
       }, { signal });
     });
-
-    window.addEventListener('resize', () => {
-      const active = document.querySelector<HTMLButtonElement>('.channel-switch__btn--active');
-      if (active) moveIndicator(active);
-    }, { passive: true, signal });
 
     /* ── Hover autoplay ── */
     function ensureVideoSource(vid: HTMLVideoElement) {
