@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { DiaryLoader } from "./compositions/DiaryLoader";
 import { CinematicReveal } from "./compositions/CinematicReveal";
+import { BlackGumProduct } from "./compositions/BlackGumProduct";
 import { TransatlanticFlight } from "./compositions/TransatlanticFlight";
 
 /**
@@ -28,6 +29,16 @@ export const RemotionRoot: React.FC = () => {
         id="CinematicReveal"
         component={CinematicReveal}
         durationInFrames={180}      /* 6 s @ 30 fps */
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+
+      {/* ─── Black Gum: el caso contado por el producto ────── */}
+      <Composition
+        id="BlackGumProduct"
+        component={BlackGumProduct}
+        durationInFrames={270}      /* 9 s @ 30 fps */
         fps={30}
         width={1920}
         height={1080}
