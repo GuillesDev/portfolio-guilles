@@ -3,235 +3,124 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 import ProjectCTA from '../components/global/ProjectCTA.astro';
 import { automatizacionVisualisers } from '../data/projects';
 
-const caseNotes = [
-  'Texto, color y timing cambian desde un único control.',
-  'El dato entra y el recurso de apoyo queda listo para directo.',
-  'Variables y colores construyen cada gráfico sin rehacer la pieza.',
-];
-
-const automationCases = automatizacionVisualisers.map((item, index) => ({
-  ...item,
-  note: caseNotes[index],
+const cases = automatizacionVisualisers.map((item) => ({
+  name: item.title.replace('Plantilla ', ''),
+  video: item.video,
+  poster: item.poster,
+  holo: item.video.replace('.mp4', '-holo.mp4'),
 }));
 ---
 
 <SectionLayout
   title="Automatización | Guillermo López"
-  description="Grafismo que se monta solo y sistemas que convierten tareas repetidas en flujos claros, conectados y medibles."
+  description="Grafismo que se monta solo y procesos que convierten tareas repetidas en flujos conectados."
   theme="automatizacion"
 >
   <div class="automation-page">
     <section class="auto-hero">
-      <div class="container auto-hero__content">
-        <div class="auto-hero__copy">
-          <span class="auto-kicker mono">Automatización</span>
-          <h1>
-            <span>Lo repetitivo,</span>
-            <em>automático.</em>
-          </h1>
-          <p>Grafismo que se monta solo. Sistemas que gestionan trabajo real.</p>
-        </div>
+      <div class="auto-hero__stage" aria-hidden="true">
+        {cases.map((item, index) => (
+          <video
+            class="auto-hero__clip"
+            data-hero-clip={index}
+            preload="none"
+            playsinline
+            muted
+            loop
+            poster={item.poster}
+          >
+            <source data-src={item.holo} type="video/mp4" />
+          </video>
+        ))}
+        <span class="auto-hero__scrim"></span>
+      </div>
 
-        <div class="auto-hero__systems" aria-label="Dos formas de automatizar">
-          <a class="system-window system-window--broadcast" href="#after-effects">
-            <header>
-              <span class="system-window__signal" aria-hidden="true"></span>
-              <strong>After Effects</strong>
-              <small class="mono">plantilla activa</small>
-            </header>
-            <div class="broadcast-preview" aria-hidden="true">
-              <div class="broadcast-preview__controls">
-                <span>TITULAR</span>
-                <strong>ÚLTIMA HORA</strong>
-                <span>COLOR</span>
-                <i></i>
-              </div>
-              <div class="broadcast-preview__output">
-                <span class="mono">OUTPUT</span>
-                <strong>ÚLTIMA<br />HORA</strong>
-                <small>render listo</small>
-              </div>
-              <div class="broadcast-preview__timeline">
-                <span></span><span></span><span></span><span></span><span></span>
-              </div>
-            </div>
-            <footer>
-              <span>Una plantilla</span>
-              <strong>todas las versiones →</strong>
-            </footer>
-          </a>
-
-          <a class="system-window system-window--business" href="#empresas">
-            <header>
-              <span class="system-window__signal" aria-hidden="true"></span>
-              <strong>Negocio</strong>
-              <small class="mono">flujo conectado</small>
-            </header>
-            <div class="route-preview" aria-hidden="true">
-              <div class="route-preview__line"></div>
-              <div class="route-preview__step">
-                <span></span>
-                <small>WhatsApp</small>
-                <strong>Mensaje</strong>
-              </div>
-              <div class="route-preview__step">
-                <span></span>
-                <small>Reglas</small>
-                <strong>Decisión</strong>
-              </div>
-              <div class="route-preview__step">
-                <span></span>
-                <small>Agenda</small>
-                <strong>Reserva</strong>
-              </div>
-              <div class="route-preview__step">
-                <span></span>
-                <small>Equipo</small>
-                <strong>Aviso</strong>
-              </div>
-            </div>
-            <footer>
-              <span>Un mensaje</span>
-              <strong>todo el flujo →</strong>
-            </footer>
-          </a>
-        </div>
+      <div class="container auto-hero__inner">
+        <span class="auto-kicker mono">Automatización</span>
+        <h1>
+          <span>Lo repetitivo,</span>
+          <em>automático.</em>
+        </h1>
+        <p>Grafismo que se monta solo. Sistemas que gestionan trabajo real.</p>
+        <nav class="auto-hero__jump" aria-label="Ir a un bloque">
+          <a href="#after-effects">After Effects</a>
+          <a href="#empresas">Negocio</a>
+        </nav>
       </div>
     </section>
 
-    <section class="automation-cases section" id="after-effects">
+    <section class="auto-block section" id="after-effects">
       <div class="container">
-        <header class="section-intro">
+        <header class="auto-head">
           <span class="auto-kicker mono">After Effects</span>
           <h2>Un máster.<br />Todas las versiones.</h2>
-          <p>Controles simples por delante. Expresiones, lógica y composición por detrás.</p>
         </header>
+      </div>
 
-        <div class="case-reel">
-          {automationCases.map((item) => (
-            <article class="automation-case">
-              <div class="automation-case__media">
-                <video
-                  class="automation-case__video"
-                  preload="none"
-                  playsinline
-                  muted
-                  loop
-                  poster={item.poster}
-                >
-                  <source data-src={item.video} type="video/mp4" />
-                </video>
-                <span class="automation-case__status mono">
-                  <i aria-hidden="true"></i>
-                  Sistema activo
-                </span>
-              </div>
-              <div class="automation-case__caption">
-                <h3>{item.title.replace('Plantilla ', '')}</h3>
-                <p>{item.note}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+      <div class="case-stack">
+        {cases.map((item) => (
+          <figure class="case">
+            <div class="case__media">
+              <video
+                class="case__video"
+                preload="none"
+                playsinline
+                muted
+                loop
+                poster={item.poster}
+              >
+                <source data-src={item.video} type="video/mp4" />
+              </video>
+            </div>
+            <figcaption class="case__name">{item.name}</figcaption>
+          </figure>
+        ))}
       </div>
     </section>
 
-    <section class="translation-band" aria-label="Del dato al resultado">
-      <div class="container translation-band__inner">
-        <div>
-          <span class="mono">ENTRADA</span>
-          <strong>Texto · datos · variables</strong>
-        </div>
-        <div class="translation-band__connection" aria-hidden="true">
-          <i></i>
-          <span></span>
-        </div>
-        <div>
-          <span class="mono">SALIDA</span>
-          <strong>Grafismo listo para emitir</strong>
-        </div>
-      </div>
-    </section>
-
-    <section class="business section" id="empresas">
+    <section class="auto-block section" id="empresas">
       <div class="container">
-        <header class="section-intro section-intro--business">
-          <span class="auto-kicker mono">Un caso real</span>
+        <header class="auto-head">
+          <span class="auto-kicker mono">Fratelli Pazzi</span>
           <h2>De un mensaje<br />a una reserva.</h2>
-          <p>El cliente solo ve una conversación. El sistema se ocupa del resto.</p>
         </header>
 
-        <div class="business-story">
-          <div class="chat-demo">
-            <div class="chat-demo__bar">
-              <div>
-                <span class="chat-demo__avatar" aria-hidden="true">FP</span>
-                <div>
-                  <strong>Fratelli Pazzi</strong>
-                  <small>Disponible por WhatsApp</small>
-                </div>
-              </div>
-              <span class="chat-demo__live mono">EN LÍNEA</span>
+        <div class="flow">
+          <div class="phone">
+            <div class="phone__bar">
+              <span class="phone__avatar" aria-hidden="true">FP</span>
+              <strong>Fratelli Pazzi</strong>
             </div>
             <div
-              class="chat-demo__messages"
+              class="phone__messages"
               id="automation-chat-messages"
-              aria-label="Conversación de ejemplo con el asistente de reservas de Fratelli Pazzi"
+              aria-label="Conversación de ejemplo con el sistema de reservas"
             ></div>
-            <div class="chat-demo__input mono" aria-hidden="true">
+            <div class="phone__input mono" aria-hidden="true">
               <span>Escribe un mensaje…</span>
               <b>→</b>
             </div>
           </div>
 
-          <div class="journey" aria-label="Acciones ejecutadas por la automatización">
-            <div class="journey__head">
-              <span class="auto-kicker mono">Lo que ocurre detrás</span>
-              <strong>Una conversación.<br />Cuatro acciones conectadas.</strong>
-            </div>
-
-            <div class="journey__flow">
-              <div class="journey__rail" aria-hidden="true"><i></i></div>
-              <div class="journey__item" data-stage="0">
-                <span class="journey__dot" aria-hidden="true"></span>
-                <div>
-                  <strong>Mensaje recibido</strong>
-                  <small>La petición entra por WhatsApp.</small>
-                </div>
-                <b class="mono">RECIBIDO</b>
-              </div>
-              <div class="journey__item" data-stage="1">
-                <span class="journey__dot" aria-hidden="true"></span>
-                <div>
-                  <strong>Disponibilidad comprobada</strong>
-                  <small>El sistema consulta fecha, hora y personas.</small>
-                </div>
-                <b class="mono">LIBRE</b>
-              </div>
-              <div class="journey__item" data-stage="2">
-                <span class="journey__dot" aria-hidden="true"></span>
-                <div>
-                  <strong>Reserva guardada</strong>
-                  <small>Los datos quedan registrados en la agenda.</small>
-                </div>
-                <b class="mono">GUARDADA</b>
-              </div>
-              <div class="journey__item" data-stage="3">
-                <span class="journey__dot" aria-hidden="true"></span>
-                <div>
-                  <strong>Equipo avisado</strong>
-                  <small>Sala recibe la información sin copiar nada.</small>
-                </div>
-                <b class="mono">ENVIADO</b>
-              </div>
-            </div>
-
-            <div class="journey__result">
-              <span class="mono">RESULTADO</span>
-              <strong>Reserva confirmada</strong>
-              <small>sin cambiar de herramienta</small>
-            </div>
-          </div>
+          <ol class="flow__steps" aria-label="Acciones que ejecuta el sistema">
+            <span class="flow__rail" aria-hidden="true"><i></i></span>
+            <li class="flow__step" data-stage="0">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Mensaje recibido
+            </li>
+            <li class="flow__step" data-stage="1">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Mesa libre
+            </li>
+            <li class="flow__step" data-stage="2">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Reserva guardada
+            </li>
+            <li class="flow__step" data-stage="3">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Equipo avisado
+            </li>
+          </ol>
         </div>
       </div>
     </section>
@@ -257,22 +146,99 @@ const automationCases = automatizacionVisualisers.map((item, index) => ({
       { from: 'bot', text: 'Perfecto. Reserva confirmada para 4 a las 21:30.', stage: 3 },
     ];
 
+    const reduced = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     let chatTimer = 0;
     let chatObserver;
+    let heroTimer = 0;
 
-    function setJourneyStage(stage) {
-      document.querySelectorAll('.journey__item').forEach((item) => {
-        const itemStage = Number(item.dataset.stage);
-        item.classList.toggle('is-complete', itemStage < stage);
-        item.classList.toggle('is-active', itemStage === stage);
-      });
-      const rail = document.querySelector('.journey__rail i');
-      if (rail) rail.style.setProperty('--journey-progress', `${Math.max(0, stage) / 3 * 100}%`);
+    function loadVideo(video) {
+      const source = video.querySelector('source[data-src]');
+      if (source?.dataset.src && !source.getAttribute('src')) {
+        source.setAttribute('src', source.dataset.src);
+        video.load();
+      }
     }
 
-    function addChatMessage(box, message) {
+    /* ── Hero: los tres clips se turnan con fundido ── */
+    function initHero() {
+      const clips = Array.from(document.querySelectorAll('.auto-hero__clip'));
+      if (!clips.length || clips[0].dataset.heroReady === '1') return;
+      clips.forEach((clip) => {
+        clip.dataset.heroReady = '1';
+      });
+
+      loadVideo(clips[0]);
+      clips[0].classList.add('is-active');
+
+      if (reduced() || clips.length < 2) return;
+
+      let index = 0;
+      const advance = () => {
+        const next = (index + 1) % clips.length;
+        loadVideo(clips[next]);
+        clips[next].classList.add('is-active');
+        clips[next].play().catch(() => {});
+        clips[index].classList.remove('is-active');
+        const leaving = clips[index];
+        window.setTimeout(() => {
+          if (!leaving.classList.contains('is-active')) leaving.pause();
+        }, 1200);
+        index = next;
+      };
+
+      clips[0].play().catch(() => {});
+      window.clearInterval(heroTimer);
+      heroTimer = window.setInterval(advance, 5200);
+    }
+
+    /* ── Vídeos de plantilla: cargan y se pausan según viewport ── */
+    function initCaseVideos() {
+      const videos = document.querySelectorAll('.case__video');
+      if (!videos.length) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+              loadVideo(video);
+              if (!reduced()) video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { rootMargin: '200px 0px', threshold: 0.1 },
+      );
+
+      videos.forEach((video) => {
+        if (video.dataset.caseReady === '1') return;
+        video.dataset.caseReady = '1';
+        observer.observe(video);
+      });
+    }
+
+    /* ── Conversación sincronizada con las cuatro acciones ── */
+    function setStage(stage) {
+      document.querySelectorAll('.flow__step').forEach((step) => {
+        const value = Number(step.dataset.stage);
+        step.classList.toggle('is-done', value < stage);
+        step.classList.toggle('is-active', value === stage);
+      });
+      const rail = document.querySelector('.flow__rail i');
+      if (rail) {
+        rail.style.setProperty(
+          '--flow-progress',
+          `${(Math.max(0, stage) / 3) * 100}%`,
+        );
+      }
+    }
+
+    function addMessage(box, message) {
       const element = document.createElement('div');
-      element.className = `chat-message chat-message--${message.from}`;
+      element.className = `bubble bubble--${message.from}`;
       element.textContent = message.text;
       box.appendChild(element);
       box.scrollTop = box.scrollHeight;
@@ -281,1080 +247,465 @@ const automationCases = automatizacionVisualisers.map((item, index) => ({
     function runChat(box) {
       window.clearTimeout(chatTimer);
       box.replaceChildren();
-      setJourneyStage(-1);
+      setStage(-1);
       let index = 0;
 
       const step = () => {
         if (!box.isConnected) return;
         if (index >= SCRIPT.length) {
-          chatTimer = window.setTimeout(() => runChat(box), 4200);
+          chatTimer = window.setTimeout(() => runChat(box), 4600);
           return;
         }
 
         const message = SCRIPT[index++];
-        setJourneyStage(message.stage);
+        setStage(message.stage);
 
         if (message.from === 'bot') {
           const typing = document.createElement('div');
-          typing.className = 'chat-message chat-message--bot chat-message--typing';
+          typing.className = 'bubble bubble--bot bubble--typing';
           typing.innerHTML = '<i></i><i></i><i></i>';
           box.appendChild(typing);
           box.scrollTop = box.scrollHeight;
           chatTimer = window.setTimeout(() => {
             typing.remove();
-            addChatMessage(box, message);
+            addMessage(box, message);
             chatTimer = window.setTimeout(step, 1250);
           }, 850);
           return;
         }
 
-        addChatMessage(box, message);
+        addMessage(box, message);
         chatTimer = window.setTimeout(step, 1050);
       };
 
       step();
     }
 
-    function initAutomationChat() {
+    function initChat() {
       const box = document.getElementById('automation-chat-messages');
       if (!box || box.dataset.ready === '1') return;
       box.dataset.ready = '1';
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        SCRIPT.forEach((message) => addChatMessage(box, message));
-        setJourneyStage(3);
+      if (reduced()) {
+        SCRIPT.forEach((message) => addMessage(box, message));
+        setStage(3);
         return;
       }
 
       chatObserver?.disconnect();
-      chatObserver = new IntersectionObserver((entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        chatObserver.disconnect();
-        runChat(box);
-      }, { threshold: 0.28 });
+      chatObserver = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          chatObserver.disconnect();
+          runChat(box);
+        },
+        { threshold: 0.28 },
+      );
       chatObserver.observe(box);
     }
 
-    function initAutomationVideos() {
-      const videos = document.querySelectorAll('.automation-case__video');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          const video = entry.target;
-          if (entry.isIntersecting) {
-            const source = video.querySelector('source[data-src]');
-            if (source?.dataset.src && !source.getAttribute('src')) {
-              source.setAttribute('src', source.dataset.src);
-              video.load();
-            }
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      }, { rootMargin: '180px 0px', threshold: 0.08 });
-      videos.forEach((video) => {
-        if (video.dataset.automationReady === '1') return;
-        video.dataset.automationReady = '1';
-        observer.observe(video);
-      });
+    function initAll() {
+      initHero();
+      initCaseVideos();
+      initChat();
     }
 
-    initAutomationChat();
-    initAutomationVideos();
-    document.addEventListener('astro:page-load', () => {
-      initAutomationChat();
-      initAutomationVideos();
+    initAll();
+    document.addEventListener('astro:page-load', initAll);
+    document.addEventListener('astro:before-swap', () => {
+      window.clearInterval(heroTimer);
+      window.clearTimeout(chatTimer);
     });
   })();
 </script>
 
 <style>
   .automation-page {
-    --auto-accent: #39d353;
-    --auto-soft: rgba(57, 211, 83, 0.12);
-    position: relative;
-    overflow: clip;
-    background:
-      radial-gradient(circle at 10% 12%, rgba(57, 211, 83, 0.07), transparent 28rem),
-      radial-gradient(circle at 88% 58%, rgba(57, 211, 83, 0.05), transparent 30rem),
-      #090d11;
-  }
-
-  .automation-page::before {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    content: '';
-    opacity: 0.24;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: linear-gradient(to bottom, #000, transparent 88%);
-  }
-
-  .automation-page > * {
-    position: relative;
-    z-index: 1;
+    --accent: var(--auto-accent);
+    --muted: var(--auto-text-secondary);
+    --line: var(--auto-border);
+    overflow-x: clip;
   }
 
   .auto-kicker {
-    display: block;
-    margin-bottom: clamp(1rem, 2vw, 1.5rem);
-    color: var(--auto-accent);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+    display: inline-block;
+    color: var(--accent);
     text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: var(--step--2);
   }
+
+  /* ═══════════ HERO ═══════════ */
 
   .auto-hero {
-    display: grid;
-    min-height: min(920px, 94svh);
-    padding: clamp(8.5rem, 13vw, 11.5rem) 0 clamp(4.5rem, 8vw, 7rem);
-  }
-
-  .auto-hero__content {
-    display: grid;
-    grid-template-columns: minmax(0, 0.82fr) minmax(500px, 1.18fr);
-    align-items: center;
-    gap: clamp(3rem, 7vw, 7rem);
-  }
-
-  .auto-hero h1 {
-    margin: 0;
-    color: #f4f7f5;
-    font-size: clamp(4.6rem, 8.7vw, 9.6rem);
-    font-weight: 700;
-    line-height: 0.82;
-    letter-spacing: -0.075em;
-  }
-
-  .auto-hero h1 span,
-  .auto-hero h1 em {
-    display: block;
-  }
-
-  .auto-hero h1 em {
-    color: var(--auto-accent);
-    font-style: normal;
-  }
-
-  .auto-hero__copy > p {
-    max-width: 33rem;
-    margin-top: 2rem;
-    color: rgba(244, 247, 245, 0.58);
-    font-size: clamp(1rem, 1.5vw, 1.25rem);
-    line-height: 1.65;
-  }
-
-  .auto-hero__systems {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .system-window {
     position: relative;
-    display: block;
-    min-width: 0;
-    overflow: hidden;
-    color: #edf5ef;
-    background:
-      linear-gradient(145deg, rgba(57, 211, 83, 0.08), transparent 52%),
-      rgba(13, 19, 23, 0.94);
-    border: 1px solid rgba(114, 255, 136, 0.15);
-    border-radius: 1.1rem;
-    text-decoration: none;
-    transition:
-      transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 280ms ease,
-      box-shadow 280ms ease;
-  }
-
-  .system-window:hover {
-    border-color: rgba(114, 255, 136, 0.42);
-    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.28);
-    transform: translateY(-4px);
-  }
-
-  .system-window header,
-  .system-window footer {
     display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.9rem 1rem;
-  }
-
-  .system-window header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .system-window footer {
-    justify-content: space-between;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    color: rgba(255, 255, 255, 0.48);
-    font-size: 0.76rem;
-  }
-
-  .system-window footer strong {
-    color: #d9f8df;
-    font-weight: 600;
-  }
-
-  .system-window header strong {
-    font-size: 0.82rem;
-  }
-
-  .system-window header small {
-    margin-left: auto;
-    color: rgba(255, 255, 255, 0.38);
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .system-window__signal {
-    width: 0.48rem;
-    height: 0.48rem;
-    background: var(--auto-accent);
-    border-radius: 50%;
-    box-shadow: 0 0 0.75rem rgba(57, 211, 83, 0.75);
-    animation: auto-signal 1.8s ease-in-out infinite;
-  }
-
-  .broadcast-preview {
-    position: relative;
-    display: grid;
-    grid-template-columns: 0.74fr 1.26fr;
-    gap: 0.8rem;
-    min-height: 11.25rem;
-    padding: 1rem 1rem 2.4rem;
-  }
-
-  .broadcast-preview__controls,
-  .broadcast-preview__output {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 0;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.26);
-    border-radius: 0.7rem;
-  }
-
-  .broadcast-preview__controls {
-    gap: 0.45rem;
-    color: rgba(255, 255, 255, 0.42);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.54rem;
-    letter-spacing: 0.08em;
-  }
-
-  .broadcast-preview__controls strong {
+    align-items: flex-end;
+    min-height: min(92svh, 780px);
+    padding-block: var(--space-3xl) var(--space-2xl);
+    isolation: isolate;
     overflow: hidden;
-    color: #fff;
-    font-family: inherit;
-    font-size: 0.67rem;
-    text-overflow: ellipsis;
   }
 
-  .broadcast-preview__controls i {
-    width: 1.3rem;
-    height: 1.3rem;
-    background: var(--auto-accent);
-    border-radius: 0.22rem;
-  }
-
-  .broadcast-preview__output {
-    position: relative;
-    overflow: hidden;
-    background:
-      linear-gradient(120deg, rgba(57, 211, 83, 0.18), transparent 62%),
-      #11191d;
-  }
-
-  .broadcast-preview__output::after {
-    position: absolute;
-    inset: auto -12% -40% 34%;
-    height: 100%;
-    content: '';
-    background: var(--auto-accent);
-    opacity: 0.12;
-    transform: skewX(-18deg);
-  }
-
-  .broadcast-preview__output span,
-  .broadcast-preview__output small {
-    position: relative;
-    z-index: 1;
-    color: rgba(255, 255, 255, 0.42);
-    font-size: 0.5rem;
-    letter-spacing: 0.12em;
-  }
-
-  .broadcast-preview__output strong {
-    position: relative;
-    z-index: 1;
-    margin: 0.3rem 0;
-    color: #f2fff5;
-    font-size: clamp(1rem, 2vw, 1.7rem);
-    line-height: 0.86;
-    letter-spacing: -0.05em;
-  }
-
-  .broadcast-preview__timeline {
-    position: absolute;
-    right: 1rem;
-    bottom: 0.85rem;
-    left: 1rem;
-    display: grid;
-    grid-template-columns: 1.2fr 0.5fr 1.8fr 0.8fr 1.1fr;
-    gap: 0.2rem;
-    height: 0.42rem;
-  }
-
-  .broadcast-preview__timeline span {
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 999px;
-  }
-
-  .broadcast-preview__timeline span:nth-child(3) {
-    background: var(--auto-accent);
-    box-shadow: 0 0 0.9rem rgba(57, 211, 83, 0.42);
-  }
-
-  .route-preview {
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: center;
-    min-height: 10rem;
-    padding: 1.25rem 1.2rem;
-  }
-
-  .route-preview__line {
-    position: absolute;
-    top: calc(50% - 0.95rem);
-    right: 13%;
-    left: 13%;
-    height: 1px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.12);
-  }
-
-  .route-preview__line::after {
+  .auto-hero__stage {
     position: absolute;
     inset: 0;
-    content: '';
-    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
-    transform: translateX(-100%);
-    animation: route-flow 3s ease-in-out infinite;
+    z-index: -1;
   }
 
-  .route-preview__step {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    justify-items: center;
-    gap: 0.35rem;
-    min-width: 0;
-    text-align: center;
-  }
-
-  .route-preview__step > span {
-    width: 0.72rem;
-    height: 0.72rem;
-    margin-bottom: 0.45rem;
-    background: #10171b;
-    border: 2px solid var(--auto-accent);
-    border-radius: 50%;
-    box-shadow: 0 0 0 0.35rem rgba(57, 211, 83, 0.08);
-  }
-
-  .route-preview__step small {
-    overflow: hidden;
-    max-width: 100%;
-    color: rgba(255, 255, 255, 0.38);
-    font-size: 0.54rem;
-    text-overflow: ellipsis;
-  }
-
-  .route-preview__step strong {
-    font-size: clamp(0.6rem, 1vw, 0.76rem);
-  }
-
-  .section-intro {
-    max-width: 62rem;
-    margin-bottom: clamp(2.5rem, 6vw, 5rem);
-  }
-
-  .section-intro h2 {
-    max-width: 14ch;
-    margin: 0;
-    color: #f1f5f2;
-    font-size: clamp(3.2rem, 7.3vw, 7.6rem);
-    line-height: 0.88;
-    letter-spacing: -0.065em;
-  }
-
-  .section-intro > p {
-    max-width: 38rem;
-    margin-top: 1.6rem;
-    color: rgba(239, 245, 241, 0.56);
-    font-size: clamp(1rem, 1.6vw, 1.2rem);
-    line-height: 1.65;
-  }
-
-  .automation-cases {
-    padding-top: clamp(5rem, 10vw, 10rem);
-  }
-
-  .case-reel {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: clamp(1rem, 2vw, 1.5rem);
-  }
-
-  .automation-case {
-    grid-column: span 6;
-    min-width: 0;
-  }
-
-  .automation-case:last-child {
-    grid-column: 3 / span 8;
-    margin-top: clamp(1rem, 3vw, 2.5rem);
-  }
-
-  .automation-case__media {
-    position: relative;
-    overflow: hidden;
-    aspect-ratio: 16 / 9;
-    background: #11171a;
-    border-radius: clamp(0.85rem, 1.5vw, 1.35rem);
-  }
-
-  .automation-case__media::after {
+  .auto-hero__clip {
     position: absolute;
     inset: 0;
-    pointer-events: none;
-    content: '';
-    background: linear-gradient(to top, rgba(4, 8, 10, 0.45), transparent 40%);
-  }
-
-  .automation-case__video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    transition: opacity 1200ms var(--ease-out);
   }
 
-  .automation-case:hover .automation-case__video {
-    transform: scale(1.025);
+  .auto-hero__clip.is-active {
+    opacity: 1;
   }
 
-  .automation-case__status {
+  .auto-hero__scrim {
     position: absolute;
-    right: 0.8rem;
-    bottom: 0.8rem;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.4rem 0.55rem;
-    color: rgba(255, 255, 255, 0.72);
-    background: rgba(6, 10, 12, 0.72);
-    border-radius: 999px;
-    backdrop-filter: blur(10px);
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    inset: 0;
+    /* Viñeteado simétrico: el contraste para el texto lo da la base, no un
+       degradado lateral, que hacía leer el vídeo como desplazado a la derecha. */
+    background:
+      linear-gradient(
+        to top,
+        var(--auto-bg) 3%,
+        rgba(13, 17, 23, 0.8) 34%,
+        rgba(13, 17, 23, 0.42) 72%,
+        rgba(13, 17, 23, 0.5) 100%
+      ),
+      radial-gradient(
+        125% 95% at 50% 42%,
+        transparent 28%,
+        rgba(13, 17, 23, 0.58) 100%
+      );
   }
 
-  .automation-case__status i {
-    width: 0.42rem;
-    height: 0.42rem;
-    background: var(--auto-accent);
-    border-radius: 50%;
-    box-shadow: 0 0 0.55rem var(--auto-accent);
-  }
-
-  .automation-case__caption {
-    display: grid;
-    grid-template-columns: minmax(0, 0.55fr) minmax(12rem, 0.45fr);
-    gap: 1.5rem;
-    align-items: start;
-    padding: 1.25rem 0.25rem 0;
-  }
-
-  .automation-case__caption h3 {
-    margin: 0;
-    color: #f3f7f4;
-    font-size: clamp(1.65rem, 2.8vw, 2.8rem);
-    line-height: 1;
-    letter-spacing: -0.045em;
-  }
-
-  .automation-case__caption p {
-    margin: 0;
-    color: rgba(239, 245, 241, 0.53);
-    font-size: 0.88rem;
-    line-height: 1.55;
-  }
-
-  .translation-band {
-    margin: clamp(5rem, 11vw, 11rem) 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.07);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  .translation-band__inner {
-    display: grid;
-    grid-template-columns: auto minmax(7rem, 1fr) auto;
-    align-items: center;
-    gap: clamp(1.5rem, 4vw, 4rem);
-    min-height: 10rem;
-  }
-
-  .translation-band__inner > div:not(.translation-band__connection) {
-    display: grid;
-    gap: 0.45rem;
-  }
-
-  .translation-band__inner > div:last-child {
-    text-align: right;
-  }
-
-  .translation-band__inner span {
-    color: var(--auto-accent);
-    font-size: 0.58rem;
-    letter-spacing: 0.13em;
-  }
-
-  .translation-band__inner strong {
-    color: rgba(242, 247, 244, 0.84);
-    font-size: clamp(0.8rem, 1.4vw, 1rem);
-  }
-
-  .translation-band__connection {
+  .auto-hero__inner {
     position: relative;
-    height: 1px;
-    overflow: visible;
-    background: rgba(255, 255, 255, 0.12);
   }
 
-  .translation-band__connection i {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 0.62rem;
-    height: 0.62rem;
-    background: var(--auto-accent);
-    border-radius: 50%;
-    box-shadow: 0 0 1rem rgba(57, 211, 83, 0.85);
-    transform: translate(-50%, -50%);
-    animation: data-transfer 3.1s ease-in-out infinite;
-  }
-
-  .business {
-    padding-top: 0;
-  }
-
-  .section-intro--business h2 {
-    max-width: 11ch;
-  }
-
-  .business-story {
+  .auto-hero h1 {
     display: grid;
-    grid-template-columns: minmax(20rem, 0.82fr) minmax(30rem, 1.18fr);
-    align-items: stretch;
-    gap: clamp(1rem, 2.5vw, 2rem);
+    margin-block: var(--space-xs) var(--space-s);
+    /* --step-5 no baja de 4.21rem y parte el titular en móvil */
+    font-size: clamp(2.6rem, 10.5vw, 5.26rem);
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
   }
 
-  .chat-demo,
-  .journey {
-    min-width: 0;
+  .auto-hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .auto-hero p {
+    max-width: 34ch;
+    color: var(--muted);
+    font-size: var(--step-0);
+  }
+
+  .auto-hero__jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-top: var(--space-l);
+  }
+
+  .auto-hero__jump a {
+    padding: 0.55em 1.1em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(22, 27, 34, 0.65);
+    backdrop-filter: blur(6px);
+    font-size: var(--step--1);
+    transition:
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
+  }
+
+  .auto-hero__jump a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ═══════════ CABECERAS ═══════════ */
+
+  .auto-head {
+    margin-bottom: var(--space-xl);
+  }
+
+  .auto-head h2 {
+    margin-top: var(--space-2xs);
+    font-size: var(--step-3);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+
+  /* ═══════════ PLANTILLAS ═══════════ */
+
+  .case-stack {
+    display: grid;
+    gap: var(--space-xl);
+    width: 100%;
+    max-width: 1600px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .case__media {
+    position: relative;
     overflow: hidden;
-    background: rgba(12, 18, 21, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: clamp(1rem, 2vw, 1.6rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--auto-surface);
   }
 
-  .chat-demo {
+  .case__video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .case__name {
+    margin-top: var(--space-xs);
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 900px) {
+    .case-stack {
+      gap: var(--space-2xl);
+    }
+
+    .case {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: var(--space-m);
+    }
+
+    .case__name {
+      margin: 0 0 var(--space-2xs);
+      writing-mode: vertical-rl;
+      font-size: var(--step-2);
+      color: var(--muted);
+    }
+  }
+
+  /* ═══════════ FLUJO DE NEGOCIO ═══════════ */
+
+  .flow {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  @media (min-width: 900px) {
+    .flow {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+      gap: var(--space-2xl);
+      align-items: center;
+    }
+  }
+
+  .phone {
     display: flex;
     flex-direction: column;
-    min-height: 41rem;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--auto-surface);
   }
 
-  .chat-demo__bar {
+  .phone__bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem 1.1rem;
-    background: rgba(255, 255, 255, 0.025);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-s);
+    border-bottom: 1px solid var(--line);
   }
 
-  .chat-demo__bar > div {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-  }
-
-  .chat-demo__bar strong,
-  .chat-demo__bar small {
-    display: block;
-  }
-
-  .chat-demo__bar strong {
-    color: #eff5f1;
-    font-size: 0.82rem;
-  }
-
-  .chat-demo__bar small {
-    margin-top: 0.12rem;
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 0.65rem;
-  }
-
-  .chat-demo__avatar {
+  .phone__avatar {
     display: grid;
     place-items: center;
-    width: 2.35rem;
-    height: 2.35rem;
-    color: #071108;
-    background: var(--auto-accent);
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
-    font-size: 0.7rem;
-    font-weight: 800;
+    background: var(--accent);
+    color: var(--auto-bg);
+    font-size: var(--step--1);
+    font-weight: 700;
   }
 
-  .chat-demo__live {
-    color: var(--auto-accent);
-    font-size: 0.56rem;
-    letter-spacing: 0.1em;
-  }
-
-  .chat-demo__messages {
+  .phone__messages {
     display: flex;
-    flex: 1;
     flex-direction: column;
-    gap: 0.72rem;
-    min-height: 0;
-    padding: 1.35rem 1.1rem;
+    gap: var(--space-2xs);
+    min-height: 19rem;
+    max-height: 19rem;
+    padding: var(--space-s);
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
   }
 
-  .chat-demo__messages :global(.chat-message) {
-    width: fit-content;
-    max-width: 84%;
-    padding: 0.72rem 0.85rem;
-    color: rgba(245, 248, 246, 0.88);
-    background: rgba(255, 255, 255, 0.065);
-    border-radius: 0.3rem 0.9rem 0.9rem 0.9rem;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    animation: message-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Las burbujas las crea el JS, así que no llevan el atributo de scope de
+     Astro. Se estilan con :global() colgando del contenedor, que sí lo lleva. */
+  .phone__messages :global(.bubble) {
+    max-width: 82%;
+    padding: 0.6em 0.9em;
+    border-radius: var(--radius-md);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    animation: bubble-in 320ms var(--ease-out) both;
   }
 
-  .chat-demo__messages :global(.chat-message--user) {
+  .phone__messages :global(.bubble--user) {
     align-self: flex-end;
-    color: #061009;
-    background: #9ef3ac;
-    border-radius: 0.9rem 0.3rem 0.9rem 0.9rem;
+    background: rgba(255, 255, 255, 0.07);
+    border-bottom-right-radius: var(--radius-sm);
   }
 
-  .chat-demo__messages :global(.chat-message--typing) {
+  .phone__messages :global(.bubble--bot) {
+    align-self: flex-start;
+    background: var(--accent);
+    color: var(--auto-bg);
+    border-bottom-left-radius: var(--radius-sm);
+  }
+
+  .phone__messages :global(.bubble--typing) {
     display: flex;
-    gap: 0.25rem;
-    padding-block: 0.95rem;
+    gap: 0.28rem;
+    padding: 0.85em 0.9em;
   }
 
-  .chat-demo__messages :global(.chat-message--typing i) {
-    width: 0.32rem;
-    height: 0.32rem;
-    background: rgba(255, 255, 255, 0.42);
+  .phone__messages :global(.bubble--typing i) {
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: 50%;
-    animation: typing-dot 0.75s ease-in-out infinite alternate;
+    background: currentColor;
+    opacity: 0.5;
+    animation: typing 1s ease-in-out infinite;
   }
 
-  .chat-demo__messages :global(.chat-message--typing i:nth-child(2)) {
-    animation-delay: 0.14s;
+  .phone__messages :global(.bubble--typing i:nth-child(2)) {
+    animation-delay: 0.15s;
   }
 
-  .chat-demo__messages :global(.chat-message--typing i:nth-child(3)) {
-    animation-delay: 0.28s;
+  .phone__messages :global(.bubble--typing i:nth-child(3)) {
+    animation-delay: 0.3s;
   }
 
-  .chat-demo__input {
+  .phone__input {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 0 1rem 1rem;
-    padding: 0.82rem 0.9rem;
-    color: rgba(255, 255, 255, 0.32);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 0.75rem;
-    font-size: 0.66rem;
+    padding: var(--space-xs) var(--space-s);
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: var(--step--2);
   }
 
-  .chat-demo__input b {
-    display: grid;
-    place-items: center;
-    width: 1.8rem;
-    height: 1.8rem;
-    color: #071108;
-    background: var(--auto-accent);
-    border-radius: 0.48rem;
-  }
+  /* ── Los cuatro estados ── */
 
-  .journey {
-    display: flex;
-    flex-direction: column;
-    padding: clamp(1.4rem, 3vw, 2.3rem);
-  }
-
-  .journey__head {
-    padding-bottom: 1.8rem;
-  }
-
-  .journey__head > strong {
-    display: block;
-    max-width: 18ch;
-    color: #f2f7f3;
-    font-size: clamp(1.75rem, 3.2vw, 3.1rem);
-    line-height: 1;
-    letter-spacing: -0.045em;
-  }
-
-  .journey__flow {
+  .flow__steps {
     position: relative;
     display: grid;
-    flex: 1;
-    align-content: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0;
+    gap: var(--space-m);
+    padding-left: var(--space-m);
   }
 
-  .journey__rail {
+  .flow__rail {
     position: absolute;
-    top: 12%;
-    bottom: 12%;
-    left: 0.47rem;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.3rem;
     width: 1px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.09);
+    background: var(--line);
   }
 
-  .journey__rail i {
+  .flow__rail i {
     position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    height: var(--journey-progress, 0%);
-    background: var(--auto-accent);
-    box-shadow: 0 0 0.8rem rgba(57, 211, 83, 0.45);
-    transition: height 420ms ease;
+    inset: 0 auto 0 0;
+    width: 100%;
+    height: var(--flow-progress, 0%);
+    background: var(--accent);
+    transition: height var(--duration-slow) var(--ease-out);
   }
 
-  .journey__item {
+  .flow__step {
     position: relative;
-    display: grid;
-    grid-template-columns: 1rem minmax(0, 1fr) auto;
+    display: flex;
     align-items: center;
-    gap: 0.85rem;
-    min-height: 4.7rem;
-    color: rgba(255, 255, 255, 0.34);
-    transition: color 320ms ease, transform 320ms ease;
+    gap: var(--space-xs);
+    margin-left: calc(var(--space-m) * -1);
+    padding-left: var(--space-m);
+    color: var(--muted);
+    font-size: var(--step-0);
+    transition: color var(--duration-base) var(--ease-out);
   }
 
-  .journey__dot {
-    position: relative;
-    z-index: 1;
+  .flow__dot {
+    position: absolute;
+    left: 0;
     width: 0.65rem;
     height: 0.65rem;
-    margin-left: 0.17rem;
-    background: #11181b;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--line);
     border-radius: 50%;
-    transition: background 320ms ease, border-color 320ms ease, box-shadow 320ms ease;
+    background: var(--auto-bg);
+    transition:
+      background var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
   }
 
-  .journey__item strong,
-  .journey__item small {
-    display: block;
+  .flow__step.is-done,
+  .flow__step.is-active {
+    color: var(--auto-text);
   }
 
-  .journey__item strong {
-    font-size: 0.86rem;
+  .flow__step.is-done .flow__dot,
+  .flow__step.is-active .flow__dot {
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
-  .journey__item small {
-    margin-top: 0.2rem;
-    color: rgba(255, 255, 255, 0.28);
-    font-size: 0.68rem;
-    line-height: 1.4;
+  .flow__step.is-active .flow__dot {
+    transform: scale(1.35);
+    box-shadow: 0 0 0 4px rgba(57, 211, 83, 0.16);
   }
 
-  .journey__item > b {
-    color: currentColor;
-    font-size: 0.54rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-  }
-
-  .journey__item.is-active,
-  .journey__item.is-complete {
-    color: rgba(242, 249, 244, 0.92);
-  }
-
-  .journey__item.is-active {
-    transform: translateX(0.25rem);
-  }
-
-  .journey__item.is-active .journey__dot,
-  .journey__item.is-complete .journey__dot {
-    background: var(--auto-accent);
-    border-color: var(--auto-accent);
-    box-shadow: 0 0 0 0.35rem rgba(57, 211, 83, 0.1), 0 0 1rem rgba(57, 211, 83, 0.46);
-  }
-
-  .journey__result {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 1.5rem;
-    padding-top: 1.15rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .journey__result span,
-  .journey__result small {
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.56rem;
-  }
-
-  .journey__result strong {
-    color: var(--auto-accent);
-    font-size: 0.82rem;
-  }
-
-  @keyframes auto-signal {
-    50% { opacity: 0.55; box-shadow: 0 0 0.25rem rgba(57, 211, 83, 0.35); }
-  }
-
-  @keyframes route-flow {
-    0%, 12% { transform: translateX(-100%); }
-    76%, 100% { transform: translateX(100%); }
-  }
-
-  @keyframes data-transfer {
-    0%, 12% { left: 0; }
-    78%, 100% { left: 100%; }
-  }
-
-  @keyframes message-in {
-    from { opacity: 0; transform: translateY(0.6rem) scale(0.98); }
-  }
-
-  @keyframes typing-dot {
-    to { opacity: 0.35; transform: translateY(-0.12rem); }
-  }
-
-  @media (max-width: 980px) {
-    .auto-hero {
-      min-height: auto;
-      padding-top: 8.5rem;
-    }
-
-    .auto-hero__content {
-      grid-template-columns: 1fr;
-      gap: 3.5rem;
-    }
-
-    .auto-hero__copy {
-      max-width: 48rem;
-    }
-
-    .auto-hero__systems {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .system-window footer {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .business-story {
-      grid-template-columns: 1fr;
-    }
-
-    .chat-demo {
-      min-height: 34rem;
+  @keyframes bubble-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
     }
   }
 
-  @media (max-width: 700px) {
-    .automation-page::before {
-      background-size: 32px 32px;
+  @keyframes typing {
+    50% {
+      opacity: 1;
+      transform: translateY(-2px);
     }
-
-    .auto-hero {
-      padding: 7.4rem 0 4.5rem;
-    }
-
-    .auto-hero__content {
-      gap: 2.5rem;
-    }
-
-    .auto-hero h1 {
-      font-size: clamp(3.5rem, 17vw, 5.4rem);
-      line-height: 0.86;
-    }
-
-    .auto-hero__copy > p {
-      max-width: 27rem;
-      margin-top: 1.45rem;
-      font-size: 0.95rem;
-    }
-
-    .auto-hero__systems {
-      grid-template-columns: 1fr;
-    }
-
-    .broadcast-preview {
-      min-height: 10.5rem;
-    }
-
-    .route-preview {
-      min-height: 8.8rem;
-    }
-
-    .automation-cases {
-      padding-top: 5.5rem;
-    }
-
-    .section-intro {
-      margin-bottom: 2.5rem;
-    }
-
-    .section-intro h2 {
-      font-size: clamp(3rem, 15vw, 4.6rem);
-    }
-
-    .section-intro > p {
-      margin-top: 1.15rem;
-      font-size: 0.92rem;
-    }
-
-    .case-reel {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 3rem;
-    }
-
-    .automation-case,
-    .automation-case:last-child {
-      grid-column: auto;
-      margin-top: 0;
-    }
-
-    .automation-case__caption {
-      grid-template-columns: 1fr;
-      gap: 0.55rem;
-      padding-top: 1rem;
-    }
-
-    .automation-case__caption h3 {
-      font-size: 2rem;
-    }
-
-    .automation-case__caption p {
-      max-width: 32rem;
-    }
-
-    .translation-band {
-      margin: 5.5rem 0;
-    }
-
-    .translation-band__inner {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-      min-height: auto;
-      padding-block: 2rem;
-    }
-
-    .translation-band__inner > div:last-child {
-      text-align: left;
-    }
-
-    .translation-band__connection {
-      width: 1px;
-      height: 3.5rem;
-      margin-left: 0.3rem;
-    }
-
-    .translation-band__connection i {
-      top: 0;
-      left: 50%;
-      animation: data-transfer-mobile 2.4s ease-in-out infinite;
-    }
-
-    .business-story {
-      gap: 1rem;
-    }
-
-    .chat-demo {
-      min-height: 31rem;
-    }
-
-    .journey {
-      padding: 1.35rem;
-    }
-
-    .journey__head > strong {
-      font-size: 2rem;
-    }
-
-    .journey__item {
-      grid-template-columns: 1rem minmax(0, 1fr);
-      min-height: 5rem;
-    }
-
-    .journey__item > b {
-      display: none;
-    }
-
-    .journey__result {
-      grid-template-columns: 1fr;
-      gap: 0.35rem;
-    }
-  }
-
-  @keyframes data-transfer-mobile {
-    0%, 12% { top: 0; }
-    78%, 100% { top: 100%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .system-window__signal,
-    .route-preview__line::after,
-    .translation-band__connection i,
-    .chat-demo__messages :global(.chat-message),
-    .chat-demo__messages :global(.chat-message--typing i) {
-      animation: none;
+    .auto-hero__clip,
+    .flow__rail i,
+    .flow__dot,
+    .flow__step {
+      transition: none;
     }
 
-    .automation-case__video,
-    .system-window,
-    .journey__item {
-      transition: none;
+    .phone__messages :global(.bubble),
+    .phone__messages :global(.bubble--typing i) {
+      animation: none;
     }
   }
 </style>
