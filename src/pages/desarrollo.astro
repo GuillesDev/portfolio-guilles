@@ -12,25 +12,6 @@ const stack = [
   { name: 'GSAP', bg: '#88ce02', fg: '#1f2d00' },
 ];
 
-const reasons = [
-  {
-    title: 'Pienso como diseñador',
-    desc: 'Vengo del grafismo, así que lo visual no es algo que pego al final. Lo tengo en la cabeza desde la primera línea de código.',
-  },
-  {
-    title: 'Entrego producto, no maquetas',
-    desc: 'Black Gum no es una maqueta para enseñar: es una web real para una productora real, pensada para que puedan mostrar su trabajo y gestionar el contenido sin depender de nadie.',
-  },
-  {
-    title: 'Cubro todo el ciclo',
-    desc: 'Diseño, frontend, backend, base de datos, seguridad y deploy. Lo llevo todo yo, así que nadie tiene que traducir entre el que diseña y el que programa.',
-  },
-  {
-    title: 'Mantengo y mejoro',
-    desc: 'No la entrego y desaparezco. Le sigo metiendo mano: la reviso, la acelero y le añado cosas nuevas cada semana.',
-  },
-];
-
 ---
 
 <SectionLayout
@@ -103,33 +84,25 @@ const reasons = [
 
           <img src="/media/blackgum/logo-white.png" alt="Black Gum Studio" class="casestudy-logo" loading="lazy" />
 
-          <dl class="casestudy-facts">
-            <div>
-              <dt class="mono">Mi papel</dt>
-              <dd>Diseño y desarrollo full-stack</dd>
-            </div>
-            <div>
-              <dt class="mono">Producto</dt>
-              <dd>Web pública y panel privado</dd>
-            </div>
-            <div>
-              <dt class="mono">Tecnología</dt>
-              <dd>Next.js · TypeScript · Prisma</dd>
-            </div>
-          </dl>
-
           <p class="casestudy-desc">
-            Black Gum necesitaba una web que estuviera a la altura de su trabajo:
-            visual, cuidada y fácil de actualizar. Por eso construí tanto la
-            parte pública como un panel privado desde el que el equipo puede
-            gestionar sus contenidos sin complicaciones.
+            Web pública y panel privado. El equipo sube sus vídeos, cambia los
+            textos y cobra con Stripe sin depender de mí.
           </p>
 
-          <p class="casestudy-insight">
-            La idea no era montar otra web más, sino crear una herramienta propia:
-            con personalidad, flexible y sin depender de una plantilla o un CMS
-            que no encajara con lo que necesitaban.
-          </p>
+          <div class="casestudy-media">
+            <video
+              class="casestudy-video"
+              preload="none"
+              playsinline
+              muted
+              loop
+              poster="/media/blackgum/blackgum-product-poster.jpg"
+              aria-label="Black Gum Studio: la web pública y el panel privado desde el que se publica"
+            >
+              <source data-src="/media/blackgum/blackgum-product.webm" type="video/webm" />
+              <source data-src="/media/blackgum/blackgum-product.mp4" type="video/mp4" />
+            </video>
+          </div>
 
           <a href="https://blackgumgroup.com/" target="_blank" rel="noopener noreferrer" class="casestudy-cta__link mono">
             Ver blackgumgroup.com
@@ -140,30 +113,13 @@ const reasons = [
     </div>
   </section>
 
-  <!-- Por qué también desarrollador -->
-  <section class="dev-why section">
+  <!-- Lo único del perfil que no se demuestra ya en el resto de la página -->
+  <section class="dev-after">
     <div class="container">
-      <div class="dev-why__inner">
-        <div class="dev-why__head">
-          <span class="dev-label mono" data-animate="fade-up" data-scramble>el perfil</span>
-          <h2 class="dev-why__title" data-animate="title-reveal">
-            <span class="title-line"><span class="title-line__inner">Por qué un grafista</span></span>
-            <span class="title-line"><span class="title-line__inner">puede ser tu desarrollador</span></span>
-          </h2>
-        </div>
-
-        <div class="dev-why__list" data-animate="stagger">
-          {reasons.map((r) => (
-            <div class="why-row">
-              <div class="why-row__body">
-                <h3 class="why-row__title">{r.title}</h3>
-                <p class="why-row__desc">{r.desc}</p>
-              </div>
-              <span class="why-row__arrow" aria-hidden="true">→</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <p class="dev-after__line" data-animate="fade-up">
+        No la entrego y desaparezco. La reviso, la acelero y le añado cosas
+        nuevas cada semana.
+      </p>
     </div>
   </section>
 
@@ -686,6 +642,33 @@ const reasons = [
     document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
   }
 
+  // ── Vídeo del caso Black Gum: carga y reproduce solo al entrar en pantalla ──
+  function initCaseVideo() {
+    const video = document.querySelector<HTMLVideoElement>('.casestudy-video');
+    if (!video || video.dataset.ready === '1') return;
+    video.dataset.ready = '1';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const target = entry.target as HTMLVideoElement;
+        if (entry.isIntersecting) {
+          target.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((source) => {
+            if (source.dataset.src && !source.getAttribute('src')) {
+              source.setAttribute('src', source.dataset.src);
+            }
+          });
+          if (target.readyState === 0) target.load();
+          target.play().catch(() => {});
+        } else {
+          target.pause();
+        }
+      });
+    }, { rootMargin: '200px 0px', threshold: 0.1 });
+
+    observer.observe(video);
+  }
+
   document.addEventListener('astro:page-load', () => {
     initScramble();
     initEditor();
@@ -693,6 +676,7 @@ const reasons = [
     initHero3D();
     initEditorBot();
     initEditorTilt();
+    initCaseVideo();
   });
 </script>
 
@@ -1104,7 +1088,7 @@ const reasons = [
     align-items: center;
     text-align: center;
     gap: var(--space-m);
-    max-width: 780px;
+    max-width: 980px;
     margin-inline: auto;
   }
 
@@ -1122,54 +1106,28 @@ const reasons = [
     filter: drop-shadow(0 0 30px rgba(199,66,46,0.2));
   }
 
-  .casestudy-facts {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    width: min(760px, 86vw);
-    border: 1px solid rgba(245, 240, 232, 0.12);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-  }
-
-  .casestudy-facts div {
-    padding: var(--space-s);
-  }
-
-  .casestudy-facts div + div {
-    border-left: 1px solid rgba(245, 240, 232, 0.12);
-  }
-
-  .casestudy-facts dt {
-    margin-bottom: 0.35rem;
-    color: #f1a93a;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .casestudy-facts dd {
-    color: #d7d1c5;
-    font-size: var(--step--1);
-    line-height: 1.45;
-  }
-
   .casestudy-desc {
-    font-size: var(--step-0);
-    line-height: 1.7;
+    max-width: 46ch;
+    font-size: var(--step-1);
+    line-height: 1.5;
     color: #d7d1c5;
+    text-wrap: balance;
   }
 
-  .casestudy-insight {
-    font-size: var(--step--1);
-    font-style: italic;
-    line-height: 1.6;
-    color: #f1a93a;
-    padding-left: var(--space-s);
-    border-left: 2px solid rgba(241,169,58,0.5);
-    text-align: left;
-    opacity: 0.85;
-    align-self: center;
-    max-width: 460px;
+  .casestudy-media {
+    width: 100%;
+    margin-top: var(--space-2xs);
+    overflow: hidden;
+    border: 1px solid rgba(245, 240, 232, 0.12);
+    border-radius: var(--radius-lg);
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  .casestudy-video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 
   .casestudy-cta__link {
@@ -1204,81 +1162,22 @@ const reasons = [
     margin-bottom: var(--space-m);
   }
 
-  /* ════ Por qué desarrollador ════ */
-  .dev-why {
+  /* ════ Cierre de perfil ════ */
+  .dev-after {
+    padding-block: var(--space-2xl);
     background: var(--dev-surface);
   }
 
-  .dev-why__inner {
-    max-width: 820px;
+  .dev-after__line {
+    max-width: 24ch;
     margin-inline: auto;
-  }
-
-  .dev-why__head {
-    text-align: center;
-    margin-bottom: var(--space-xl);
-  }
-
-  .dev-why__title {
-    font-size: var(--step-3);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    color: var(--dev-primary);
-  }
-
-  .dev-why__list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .why-row {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--space-l);
-    align-items: center;
-    padding: var(--space-m) var(--space-s);
-    border-bottom: 1px solid var(--dev-border);
-    border-radius: var(--radius-sm);
-    transition: background var(--duration-base) var(--ease-out);
-  }
-
-  .why-row:last-child {
-    border-bottom: none;
-  }
-
-  .why-row:hover {
-    background: rgba(241, 169, 58, 0.05);
-  }
-
-  .why-row__title {
-    font-size: var(--step-1);
+    font-size: var(--step-2);
     font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+    text-wrap: balance;
     color: var(--dev-primary);
-    letter-spacing: -0.01em;
-    margin-bottom: var(--space-2xs);
-  }
-
-  .why-row__desc {
-    font-size: var(--step--1);
-    line-height: 1.65;
-    color: var(--dev-text-secondary);
-    max-width: 56ch;
-  }
-
-  .why-row__arrow {
-    font-size: var(--step-1);
-    color: var(--dev-accent);
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity var(--duration-base) var(--ease-out),
-                transform var(--duration-base) var(--ease-out);
-  }
-
-  .why-row:hover .why-row__arrow {
-    opacity: 1;
-    transform: translateX(0);
   }
 
   /* ════ CTA ════ */
@@ -1364,32 +1263,8 @@ const reasons = [
       font-size: clamp(2.4rem, 1.4rem + 6vw, 4.2rem);
     }
 
-    .casestudy-insight {
-      align-self: stretch;
-      max-width: 100%;
-    }
-
-    .casestudy-facts {
-      grid-template-columns: 1fr;
-      width: 100%;
-    }
-
-    .casestudy-facts div + div {
-      border-top: 1px solid rgba(245, 240, 232, 0.12);
-      border-left: 0;
-    }
-
     .casestudy-inner {
       padding: var(--space-2xl) var(--space-m) var(--space-xl);
-    }
-
-    .why-row {
-      grid-template-columns: 1fr;
-      gap: var(--space-s);
-    }
-
-    .why-row__arrow {
-      display: none;
     }
 
     /* Code lines were touching/overflowing the right edge: shrink the font

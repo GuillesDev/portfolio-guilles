@@ -6,9 +6,10 @@ interface Props {
   title: string;
   text: string;
   subject: string;
+  label?: string;
 }
 
-const { eyebrow, title, text, subject } = Astro.props;
+const { eyebrow, title, text, subject, label = 'Cuéntame el proyecto' } = Astro.props;
 const mailto = `mailto:${social.email}?subject=${encodeURIComponent(subject)}`;
 ---
 
@@ -21,7 +22,7 @@ const mailto = `mailto:${social.email}?subject=${encodeURIComponent(subject)}`;
         <p>{text}</p>
       </div>
       <a class="project-cta__button mono" href={mailto}>
-        Cuéntame el proyecto
+        {label}
         <span aria-hidden="true">→</span>
       </a>
     </div>

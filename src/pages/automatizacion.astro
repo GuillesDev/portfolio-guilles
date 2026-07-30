@@ -2,1290 +2,710 @@
 import SectionLayout from '../layouts/SectionLayout.astro';
 import ProjectCTA from '../components/global/ProjectCTA.astro';
 import { automatizacionVisualisers } from '../data/projects';
+
+const cases = automatizacionVisualisers.map((item) => ({
+  name: item.title.replace('Plantilla ', ''),
+  video: item.video,
+  poster: item.poster,
+  holo: item.video.replace('.mp4', '-holo.mp4'),
+}));
 ---
 
 <SectionLayout
   title="Automatización | Guillermo López"
-  description="Detecto procesos repetitivos y los convierto en sistemas automáticos. Plantillas, expresiones y scripts que multiplican la eficiencia."
+  description="Grafismo que se monta solo y procesos que convierten tareas repetidas en flujos conectados."
   theme="automatizacion"
 >
-  <!-- Number particles background -->
-  <canvas class="auto-particles" id="auto-particles" aria-hidden="true"></canvas>
-
-  <!-- Hero título -->
-  <section class="auto-hero">
-    <div class="auto-hero__content container">
-      <span class="auto-hero__kicker mono">Sistemas</span>
-      <h1 class="auto-hero__title">
-        <span class="auto-hero__title--full">Automatización</span>
-        <span class="auto-hero__title--short">Automatizar</span>
-      </h1>
-      <p class="auto-hero__sub">Detecto lo repetitivo, lo convierto en sistema y me olvido.</p>
-      <div class="auto-hero__tracks" aria-label="Elegir bloque de automatizacion">
-        <a class="auto-hero__track" href="#after-effects">
-          <strong>After Effects</strong>
-          <small>Grafismo, plantillas y renders que se montan solos</small>
-        </a>
-        <a class="auto-hero__track" href="#empresas">
-          <strong>Empresas</strong>
-          <small>Bots, CRM, citas, documentos y reporting automatizado</small>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ━━ Bloque 01 · After Effects ━━ -->
-  <div class="track" id="after-effects">
-    <div class="container track__inner">
-      <div class="track__text">
-        <span class="track__kicker mono" data-animate="fade-up">// after effects</span>
-        <h2 class="track__title" data-animate="title-reveal">
-          <span class="title-line"><span class="title-line__inner">Grafismo que se monta solo</span></span>
-        </h2>
-        <p class="track__sub" data-animate="fade-up">Plantillas, expresiones y scripts que convierten horas de rotulación en un click.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Showcase — lo primero que se ve -->
-  <section class="showcase" aria-label="Plantillas automatizadas">
-    <div class="showcase__viewport">
-      {automatizacionVisualisers.map((item, index) => (
-        <article
-          class={`showcase__slide ${index === 0 ? 'is-active' : ''}`}
-          data-index={index}
-        >
+  <div class="automation-page">
+    <section class="auto-hero">
+      <div class="auto-hero__stage" aria-hidden="true">
+        {cases.map((item, index) => (
           <video
-            class="showcase__video"
+            class="auto-hero__clip"
+            data-hero-clip={index}
             preload="none"
             playsinline
             muted
             loop
             poster={item.poster}
           >
-            <source data-src={item.video} type="video/mp4" />
+            <source data-src={item.holo} type="video/mp4" />
           </video>
-          <div class="showcase__overlay">
-            <span class="showcase__counter mono">{String(index + 1).padStart(2, '0')} / {String(automatizacionVisualisers.length).padStart(2, '0')}</span>
-            <h3 class="showcase__title">{item.title}</h3>
-            <p class="showcase__description">{item.description}</p>
-            <div class="showcase__tags">
-              {item.tags.map((tag) => <span class="showcase__tag mono">{tag}</span>)}
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-
-    <button class="showcase__nav showcase__nav--prev" aria-label="Anterior" data-dir="-1">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <button class="showcase__nav showcase__nav--next" aria-label="Siguiente" data-dir="1">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
-
-    <div class="showcase__dots">
-      {automatizacionVisualisers.map((_, i) => (
-        <button
-          class={`showcase__dot ${i === 0 ? 'is-active' : ''}`}
-          data-goto={i}
-          aria-label={`Ir a plantilla ${i + 1}`}
-        >
-          <span class="showcase__dot-fill"></span>
-        </button>
-      ))}
-    </div>
-  </section>
-
-  <!-- Terminal accent -->
-  <section class="terminal-strip">
-    <div class="container">
-      <div class="terminal-strip__block mono">
-        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">find</span> <span class="terminal-arg">./trabajo</span> <span class="terminal-flag">--repetitivo</span></span>
-        <span class="terminal-output">→ tareas y pasos manuales detectados</span>
-        <span><span class="terminal-prompt">~</span> <span class="terminal-cmd">automatizar</span> <span class="terminal-flag">--flujo</span></span>
-        <span class="terminal-success">✓ Menos pasos. Más control.</span>
+        ))}
+        <span class="auto-hero__scrim"></span>
       </div>
-    </div>
-  </section>
 
-  <!-- ━━ Bloque 02 · Soluciones para empresas ━━ -->
-  <div class="track track--business" id="empresas">
-    <div class="container track__inner">
-      <div class="track__text">
-        <span class="track__kicker mono" data-animate="fade-up">// soluciones para empresas</span>
-        <h2 class="track__title" data-animate="title-reveal">
-          <span class="title-line"><span class="title-line__inner">Automatizaciones que quitan trabajo real</span></span>
-        </h2>
-        <p class="track__sub" data-animate="fade-up">
-          Chatbots, formularios inteligentes, CRM, agendas, documentos y reportes conectados.
-          La idea no es tener mas software: es que las tareas repetidas ocurran solas y queden registradas.
-        </p>
+      <div class="container auto-hero__inner">
+        <span class="auto-kicker mono">Automatización</span>
+        <h1>
+          <span>Lo repetitivo,</span>
+          <em>automático.</em>
+        </h1>
+        <p>Grafismo que se monta solo. Sistemas que gestionan trabajo real.</p>
+        <nav class="auto-hero__jump" aria-label="Ir a un bloque">
+          <a href="#after-effects">After Effects</a>
+          <a href="#empresas">Negocio</a>
+        </nav>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- Bots para empresas -->
-  <section class="bots section">
-    <div class="container">
-      <div class="bots__demo" data-animate="fade-up">
-        <!-- Demo: chatbot conversando solo -->
-        <div class="chat-demo">
-          <div class="chat-demo__bar mono">
-            <span class="chat-demo__status" aria-hidden="true"></span>
-            <span class="chat-demo__name">Fratelli Pazzi por WhatsApp</span>
-            <span class="chat-demo__tag">demo de flujo</span>
+    <section class="auto-block section" id="after-effects">
+      <div class="container">
+        <header class="auto-head">
+          <span class="auto-kicker mono">After Effects</span>
+          <h2>Un máster.<br />Todas las versiones.</h2>
+        </header>
+      </div>
+
+      <div class="case-stack">
+        {cases.map((item) => (
+          <figure class="case">
+            <div class="case__media">
+              <video
+                class="case__video"
+                preload="none"
+                playsinline
+                muted
+                loop
+                poster={item.poster}
+              >
+                <source data-src={item.video} type="video/mp4" />
+              </video>
+            </div>
+            <figcaption class="case__name">{item.name}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section class="auto-block section" id="empresas">
+      <div class="container">
+        <header class="auto-head">
+          <span class="auto-kicker mono">Fratelli Pazzi</span>
+          <h2>De un mensaje<br />a una reserva.</h2>
+        </header>
+
+        <div class="flow">
+          <div class="phone">
+            <div class="phone__bar">
+              <span class="phone__avatar" aria-hidden="true">FP</span>
+              <strong>Fratelli Pazzi</strong>
+            </div>
+            <div
+              class="phone__messages"
+              id="automation-chat-messages"
+              aria-label="Conversación de ejemplo con el sistema de reservas"
+            ></div>
+            <div class="phone__input mono" aria-hidden="true">
+              <span>Escribe un mensaje…</span>
+              <b>→</b>
+            </div>
           </div>
-          <div class="chat-demo__messages" id="chat-messages" aria-label="Conversacion de ejemplo con el chatbot de reservas de Fratelli Pazzi"></div>
-          <div class="chat-demo__input mono" aria-hidden="true">
-            <span>Mensaje por WhatsApp...</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          </div>
-        </div>
 
-        <!-- Cómo lo monto: diagrama + pasos -->
-        <div class="bots__how">
-          <h3 class="bots__how-title mono">// arquitectura de automatizacion</h3>
-
-          <div class="bots__flow" aria-hidden="true">
-            <div class="bots__flow-node">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-              <span>Web · WhatsApp<br />· Formularios</span>
-            </div>
-            <div class="bots__flow-arrow">
-              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
-            </div>
-            <div class="bots__flow-node bots__flow-node--bot">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="12" rx="3"/><line x1="12" y1="7" x2="12" y2="3"/><circle cx="12" cy="3" r="1" fill="currentColor"/><circle cx="9.5" cy="12.5" r="1" fill="currentColor"/><circle cx="14.5" cy="12.5" r="1" fill="currentColor"/><path d="M9 16h6"/></svg>
-              <span>Reglas<br />+ IA + APIs</span>
-            </div>
-            <div class="bots__flow-arrow">
-              <svg viewBox="0 0 60 24" fill="none"><path class="bots__dash" d="M0 12h44" stroke="var(--auto-accent)" stroke-width="2" stroke-dasharray="6 4"/><path d="M40 6l8 6-8 6" stroke="var(--auto-accent)" stroke-width="2"/></svg>
-            </div>
-            <div class="bots__flow-node">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>CRM · Agenda<br />· Docs · Email</span>
-            </div>
-          </div>
-
-          <ol class="bots__steps">
-            <li><strong>Detecto el cuello de botella.</strong> Donde se pierden mensajes, datos, citas, presupuestos o seguimiento.</li>
-            <li><strong>Dibujo el flujo.</strong> Que entra, que decide el sistema, que herramienta toca y que aviso sale.</li>
-            <li><strong>Lo conecto.</strong> Web, WhatsApp, email, Sheets, Airtable, Notion, CRM, agenda o APIs propias.</li>
-            <li><strong>Lo dejo medible.</strong> Registro de conversaciones, leads, conversiones, errores y tareas completadas.</li>
+          <ol class="flow__steps" aria-label="Acciones que ejecuta el sistema">
+            <span class="flow__rail" aria-hidden="true"><i></i></span>
+            <li class="flow__step" data-stage="0">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Mensaje recibido
+            </li>
+            <li class="flow__step" data-stage="1">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Mesa libre
+            </li>
+            <li class="flow__step" data-stage="2">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Reserva guardada
+            </li>
+            <li class="flow__step" data-stage="3">
+              <span class="flow__dot" aria-hidden="true"></span>
+              Equipo avisado
+            </li>
           </ol>
         </div>
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <ProjectCTA
-    eyebrow="Menos tareas manuales"
-    title="¿Hay algo que repites demasiado?"
-    text="Cuéntame el proceso. Lo revisamos, detectamos el cuello de botella y vemos si merece la pena convertirlo en un sistema."
-    subject="Proyecto de automatización"
-  />
-
+    <ProjectCTA
+      eyebrow="Menos tareas manuales"
+      title="¿Qué repites cada semana?"
+      text="Cuéntamelo y vemos si puede ocurrir solo."
+      subject="Quiero automatizar un proceso"
+      label="Contarme el proceso"
+    />
+  </div>
 </SectionLayout>
 
 <script is:inline>
-  // ── Chat demo: la conversación se escribe sola en bucle ──
   (() => {
     const SCRIPT = [
-      { from: 'user', text: 'Hola, ¿podemos reservar mesa para este viernes?' },
-      { from: 'bot', text: '¡Claro! Soy el asistente de Fratelli Pazzi. ¿Para cuántas personas sería?' },
-      { from: 'user', text: 'Para 4. Si puede ser, sobre las 21:30.' },
-      { from: 'bot', text: 'Tengo una mesa libre el viernes a las 21:30 para 4 personas. ¿A qué nombre la dejo?' },
-      { from: 'user', text: 'A nombre de Guillermo.' },
-      { from: 'bot', text: 'Perfecto, Guillermo. Reserva confirmada para 4 personas este viernes a las 21:30. Te mandamos recordatorio por WhatsApp.' },
-      { from: 'sys', text: '→ reserva creada · agenda actualizada · equipo de sala avisado' },
+      { from: 'user', text: 'Hola, ¿podemos reservar este viernes?', stage: 0 },
+      { from: 'bot', text: 'Claro. ¿Para cuántas personas y a qué hora?', stage: 0 },
+      { from: 'user', text: 'Para 4, sobre las 21:30.', stage: 1 },
+      { from: 'bot', text: 'Hay mesa disponible. ¿A qué nombre la dejo?', stage: 1 },
+      { from: 'user', text: 'A nombre de Guillermo.', stage: 2 },
+      { from: 'bot', text: 'Perfecto. Reserva confirmada para 4 a las 21:30.', stage: 3 },
     ];
 
-    function addMsg(box, from, text) {
-      const el = document.createElement('div');
-      el.className = 'chat-msg chat-msg--' + from;
-      const type = from.split(' ')[0];
-      if (type === 'user') el.dataset.speaker = 'Cliente';
-      if (type === 'bot') el.dataset.speaker = 'Fratelli Pazzi';
-      el.textContent = text;
-      box.appendChild(el);
-      box.scrollTop = box.scrollHeight;
-      return el;
+    const reduced = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let chatTimer = 0;
+    let chatObserver;
+    let heroTimer = 0;
+
+    function loadVideo(video) {
+      const source = video.querySelector('source[data-src]');
+      if (source?.dataset.src && !source.getAttribute('src')) {
+        source.setAttribute('src', source.dataset.src);
+        video.load();
+      }
     }
 
-    function initChatDemo() {
-      const box = document.getElementById('chat-messages');
-      if (!box || box.dataset.init) return;
-      box.dataset.init = '1';
+    /* ── Hero: los tres clips se turnan con fundido ── */
+    function initHero() {
+      const clips = Array.from(document.querySelectorAll('.auto-hero__clip'));
+      if (!clips.length || clips[0].dataset.heroReady === '1') return;
+      clips.forEach((clip) => {
+        clip.dataset.heroReady = '1';
+      });
 
-      // Reduced motion: render the whole conversation statically, no loop
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        SCRIPT.forEach((m) => addMsg(box, m.from, m.text));
+      loadVideo(clips[0]);
+      clips[0].classList.add('is-active');
+
+      if (reduced() || clips.length < 2) return;
+
+      let index = 0;
+      const advance = () => {
+        const next = (index + 1) % clips.length;
+        loadVideo(clips[next]);
+        clips[next].classList.add('is-active');
+        clips[next].play().catch(() => {});
+        clips[index].classList.remove('is-active');
+        const leaving = clips[index];
+        window.setTimeout(() => {
+          if (!leaving.classList.contains('is-active')) leaving.pause();
+        }, 1200);
+        index = next;
+      };
+
+      clips[0].play().catch(() => {});
+      window.clearInterval(heroTimer);
+      heroTimer = window.setInterval(advance, 5200);
+    }
+
+    /* ── Vídeos de plantilla: cargan y se pausan según viewport ── */
+    function initCaseVideos() {
+      const videos = document.querySelectorAll('.case__video');
+      if (!videos.length) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+              loadVideo(video);
+              if (!reduced()) video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { rootMargin: '200px 0px', threshold: 0.1 },
+      );
+
+      videos.forEach((video) => {
+        if (video.dataset.caseReady === '1') return;
+        video.dataset.caseReady = '1';
+        observer.observe(video);
+      });
+    }
+
+    /* ── Conversación sincronizada con las cuatro acciones ── */
+    function setStage(stage) {
+      document.querySelectorAll('.flow__step').forEach((step) => {
+        const value = Number(step.dataset.stage);
+        step.classList.toggle('is-done', value < stage);
+        step.classList.toggle('is-active', value === stage);
+      });
+      const rail = document.querySelector('.flow__rail i');
+      if (rail) {
+        rail.style.setProperty(
+          '--flow-progress',
+          `${(Math.max(0, stage) / 3) * 100}%`,
+        );
+      }
+    }
+
+    function addMessage(box, message) {
+      const element = document.createElement('div');
+      element.className = `bubble bubble--${message.from}`;
+      element.textContent = message.text;
+      box.appendChild(element);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function runChat(box) {
+      window.clearTimeout(chatTimer);
+      box.replaceChildren();
+      setStage(-1);
+      let index = 0;
+
+      const step = () => {
+        if (!box.isConnected) return;
+        if (index >= SCRIPT.length) {
+          chatTimer = window.setTimeout(() => runChat(box), 4600);
+          return;
+        }
+
+        const message = SCRIPT[index++];
+        setStage(message.stage);
+
+        if (message.from === 'bot') {
+          const typing = document.createElement('div');
+          typing.className = 'bubble bubble--bot bubble--typing';
+          typing.innerHTML = '<i></i><i></i><i></i>';
+          box.appendChild(typing);
+          box.scrollTop = box.scrollHeight;
+          chatTimer = window.setTimeout(() => {
+            typing.remove();
+            addMessage(box, message);
+            chatTimer = window.setTimeout(step, 1250);
+          }, 850);
+          return;
+        }
+
+        addMessage(box, message);
+        chatTimer = window.setTimeout(step, 1050);
+      };
+
+      step();
+    }
+
+    function initChat() {
+      const box = document.getElementById('automation-chat-messages');
+      if (!box || box.dataset.ready === '1') return;
+      box.dataset.ready = '1';
+
+      if (reduced()) {
+        SCRIPT.forEach((message) => addMessage(box, message));
+        setStage(3);
         return;
       }
 
-      let i = 0;
-      let timer = 0;
-
-      function step() {
-        if (!box.isConnected) return; // page swapped away — stop
-        if (i >= SCRIPT.length) {
-          // Conversation over: pause, clear, restart
-          timer = setTimeout(() => {
-            box.innerHTML = '';
-            i = 0;
-            step();
-          }, 4200);
-          return;
-        }
-        const msg = SCRIPT[i++];
-        if (msg.from === 'bot') {
-          const typing = addMsg(box, 'bot chat-msg--typing', '');
-          typing.innerHTML = '<i></i><i></i><i></i>';
-          timer = setTimeout(() => {
-            typing.remove();
-            addMsg(box, msg.from, msg.text);
-            timer = setTimeout(step, 1400);
-          }, 1100);
-        } else {
-          addMsg(box, msg.from, msg.text);
-          timer = setTimeout(step, msg.from === 'sys' ? 1600 : 1000);
-        }
-      }
-
-      // Start when the demo scrolls into view
-      const io = new IntersectionObserver((entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          io.disconnect();
-          step();
-        }
-      }, { threshold: 0.35 });
-      io.observe(box);
+      chatObserver?.disconnect();
+      chatObserver = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          chatObserver.disconnect();
+          runChat(box);
+        },
+        { threshold: 0.28 },
+      );
+      chatObserver.observe(box);
     }
 
-    initChatDemo();
-    document.addEventListener('astro:page-load', initChatDemo);
-  })();
-
-  // ── Showcase slider ──
-  (() => {
-    const slides = document.querySelectorAll('.showcase__slide');
-    const dots   = document.querySelectorAll('.showcase__dot');
-    const navs   = document.querySelectorAll('.showcase__nav');
-    let current  = 0;
-    let transitioning = false;
-
-    function ensureVideo(video) {
-      if (!video) return;
-      const source = video.querySelector('source[data-src]');
-      if (!source?.dataset.src || source.getAttribute('src')) return;
-      source.src = source.dataset.src;
-      video.load();
+    function initAll() {
+      initHero();
+      initCaseVideos();
+      initChat();
     }
 
-    function playVideo(video) {
-      if (!video) return;
-      ensureVideo(video);
-      video.play().catch(() => {});
-    }
-
-    function goTo(index) {
-      if (transitioning || index === current) return;
-      transitioning = true;
-      const prev = slides[current];
-      const next = slides[index];
-      const prevVideo = prev.querySelector('video');
-      if (prevVideo) { prevVideo.pause(); prevVideo.currentTime = 0; }
-      next.classList.add('is-entering');
-      requestAnimationFrame(() => {
-        next.classList.add('is-active');
-        next.classList.remove('is-entering');
-        prev.classList.remove('is-active');
-        const nextVideo = next.querySelector('video');
-        playVideo(nextVideo);
-        dots[current].classList.remove('is-active');
-        dots[index].classList.add('is-active');
-        current = index;
-        setTimeout(() => { transitioning = false; }, 600);
-      });
-    }
-
-    navs.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const dir = parseInt(btn.dataset.dir);
-        goTo((current + dir + slides.length) % slides.length);
-      });
-    });
-
-    dots.forEach(dot => {
-      dot.addEventListener('click', () => goTo(parseInt(dot.dataset.goto)));
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') goTo((current + 1) % slides.length);
-      if (e.key === 'ArrowLeft')  goTo((current - 1 + slides.length) % slides.length);
-    });
-
-    const firstVideo = slides[0]?.querySelector('video');
-    const showcase = document.querySelector('.showcase');
-    if (firstVideo && showcase) {
-      const observer = new IntersectionObserver((entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        observer.disconnect();
-        playVideo(firstVideo);
-      }, { rootMargin: '160px 0px', threshold: 0.05 });
-      observer.observe(showcase);
-    }
-  })();
-
-  // ── Number particles ──
-  (() => {
-    // Respect reduced-motion: skip the continuous particle animation entirely
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const canvas = document.getElementById('auto-particles');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let w, h, particles = [];
-    let mouse = { x: -9999, y: -9999 };
-    let raf;
-
-    // Meaningful tokens: automation metrics, binary, code fragments
-    const tokens = [
-      '0', '1', '0', '1', '0', '1',
-      '47', '02', '40', '×10',
-      '{}', '()', '=>', '//',
-      '0:02', '%', '++', '--',
-      'for', 'if', '0x', '&&',
-      '47→2', '···', '█', '▓',
-    ];
-
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    }
-
-    function createParticle() {
-      const size = 10 + Math.random() * 14;
-      return {
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: -0.15 - Math.random() * 0.25,
-        text: tokens[Math.floor(Math.random() * tokens.length)],
-        size: size,
-        alpha: 0.04 + Math.random() * 0.08,
-        baseAlpha: 0.04 + Math.random() * 0.08,
-        phase: Math.random() * Math.PI * 2,
-        phaseSpeed: 0.005 + Math.random() * 0.01,
-      };
-    }
-
-    function init() {
-      resize();
-      particles = [];
-      const count = Math.min(80, Math.floor((w * h) / 18000));
-      for (let i = 0; i < count; i++) {
-        particles.push(createParticle());
-      }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, w, h);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      const mouseRadius = 120;
-
-      for (const p of particles) {
-        p.phase += p.phaseSpeed;
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Wrap
-        if (p.y < -30) { p.y = h + 30; p.x = Math.random() * w; }
-        if (p.x < -30) p.x = w + 30;
-        if (p.x > w + 30) p.x = -30;
-
-        // Mouse repulsion
-        const dx = p.x - mouse.x;
-        const dy = p.y - mouse.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < mouseRadius) {
-          const force = (1 - dist / mouseRadius) * 0.6;
-          p.x += (dx / dist) * force * 2;
-          p.y += (dy / dist) * force * 2;
-        }
-
-        // Pulse
-        const pulse = 0.6 + 0.4 * Math.sin(p.phase);
-        const alpha = p.baseAlpha * pulse;
-
-        ctx.font = `600 ${p.size}px "JetBrains Mono", monospace`;
-        ctx.fillStyle = `rgba(57, 211, 83, ${alpha})`;
-        ctx.fillText(p.text, p.x, p.y);
-      }
-
-      raf = requestAnimationFrame(draw);
-    }
-
-    window.addEventListener('resize', () => { resize(); });
-    document.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
-    document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-    init();
-    draw();
-
-    // Cleanup on page transition
+    initAll();
+    document.addEventListener('astro:page-load', initAll);
     document.addEventListener('astro:before-swap', () => {
-      cancelAnimationFrame(raf);
+      window.clearInterval(heroTimer);
+      window.clearTimeout(chatTimer);
     });
   })();
 </script>
 
 <style>
-  /* ── Number particles ── */
-  .auto-particles {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    width: 100%;
-    height: 100%;
+  .automation-page {
+    --accent: var(--auto-accent);
+    --muted: var(--auto-text-secondary);
+    --line: var(--auto-border);
+    overflow-x: clip;
   }
 
-  /* ── Hero título ── */
+  .auto-kicker {
+    display: inline-block;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: var(--step--2);
+  }
+
+  /* ═══════════ HERO ═══════════ */
+
   .auto-hero {
     position: relative;
-    z-index: 1;
-    background: transparent;
-    padding-top: calc(var(--space-2xl) + 80px);
-    padding-bottom: var(--space-xl);
-  }
-
-  .auto-hero__content {
-    text-align: center;
-  }
-
-  .auto-hero__kicker {
-    display: inline-block;
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: var(--auto-text-secondary);
-    margin-bottom: var(--space-m);
-  }
-
-  .auto-hero__title {
-    font-size: clamp(3rem, 2rem + 5vw, 6rem);
-    font-weight: 900;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    background: linear-gradient(135deg, #39D353 0%, #39D353 40%, #a8f0b0 65%, #ffffff 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: var(--space-s);
-    max-width: 100%;
-    white-space: nowrap;
-  }
-
-  .auto-hero__title--full {
-    display: inline;
-  }
-
-  .auto-hero__title--short {
-    display: none;
-  }
-
-  .auto-hero__sub {
-    font-size: var(--step-0);
-    color: var(--auto-text-secondary);
-    line-height: 1.5;
-    max-width: 45ch;
-    margin-inline: auto;
-  }
-
-  /* ── Terminal strip ── */
-  .terminal-strip {
-    background: var(--auto-bg);
-    padding-block: var(--space-m);
-  }
-
-  .terminal-strip__block {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs) var(--space-m);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: clamp(0.65rem, 0.45rem + 0.6vw, 0.78rem);
-    color: var(--auto-text-secondary);
-    opacity: 0.6;
-  }
-
-  .terminal-prompt {
-    color: var(--auto-accent);
-  }
-
-  .terminal-cmd {
-    color: var(--auto-primary);
-    font-weight: 600;
-  }
-
-  .terminal-arg {
-    color: var(--auto-text-secondary);
-  }
-
-  .terminal-flag {
-    color: #79C0FF;
-  }
-
-  .terminal-output {
-    color: var(--auto-text-secondary);
-  }
-
-  .terminal-success {
-    color: var(--auto-accent);
-  }
-
-  /* ── Showcase ── */
-  .showcase {
-    position: relative;
-    width: 100%;
-    height: 80vh;
-    height: 80dvh;
-    --showcase-side-trim: clamp(20px, 5vw, 86px);
-    background:
-      radial-gradient(ellipse 90% 80% at 50% 50%, rgba(57, 211, 83, 0.08) 0%, transparent 72%),
-      linear-gradient(180deg, #0D1117 0%, #121821 100%);
+    align-items: flex-end;
+    min-height: min(92svh, 780px);
+    padding-block: var(--space-3xl) var(--space-2xl);
+    isolation: isolate;
     overflow: hidden;
   }
 
-  .showcase::before,
-  .showcase::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: max(7vw, 56px);
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  .showcase::before {
-    left: 0;
-    background: linear-gradient(to right, rgba(13, 17, 23, 0.95) 0%, rgba(13, 17, 23, 0.35) 100%);
-  }
-
-  .showcase::after {
-    right: 0;
-    background: linear-gradient(to left, rgba(13, 17, 23, 0.95) 0%, rgba(13, 17, 23, 0.35) 100%);
-  }
-
-  .showcase__viewport {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-
-  .showcase__slide {
+  .auto-hero__stage {
     position: absolute;
     inset: 0;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.6s ease, visibility 0.6s ease;
-    z-index: 0;
+    z-index: -1;
   }
 
-  .showcase__slide.is-active {
-    opacity: 1;
-    visibility: visible;
-    z-index: 1;
-  }
-
-  .showcase__slide.is-entering {
-    visibility: visible;
-  }
-
-  .showcase__video {
+  .auto-hero__clip {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    display: block;
-    clip-path: inset(0 var(--showcase-side-trim));
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1200ms var(--ease-out);
   }
 
-  .showcase__overlay {
+  .auto-hero__clip.is-active {
+    opacity: 1;
+  }
+
+  .auto-hero__scrim {
     position: absolute;
-    inset: auto 0 0 0;
-    z-index: 2;
-    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-xs);
+    inset: 0;
+    /* Viñeteado simétrico: el contraste para el texto lo da la base, no un
+       degradado lateral, que hacía leer el vídeo como desplazado a la derecha. */
+    background:
+      linear-gradient(
+        to top,
+        var(--auto-bg) 3%,
+        rgba(13, 17, 23, 0.8) 34%,
+        rgba(13, 17, 23, 0.42) 72%,
+        rgba(13, 17, 23, 0.5) 100%
+      ),
+      radial-gradient(
+        125% 95% at 50% 42%,
+        transparent 28%,
+        rgba(13, 17, 23, 0.58) 100%
+      );
   }
 
-  .showcase__counter {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    color: rgba(255, 255, 255, 0.5);
+  .auto-hero__inner {
+    position: relative;
   }
 
-  .showcase__title {
-    font-size: clamp(1.6rem, 1rem + 2.5vw, 3rem);
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+  .auto-hero h1 {
+    display: grid;
+    margin-block: var(--space-xs) var(--space-s);
+    /* --step-5 no baja de 4.21rem y parte el titular en móvil */
+    font-size: clamp(2.6rem, 10.5vw, 5.26rem);
+    line-height: 0.94;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
   }
 
-  .showcase__description {
-    max-width: 58ch;
-    color: rgba(255, 255, 255, 0.72);
-    font-size: var(--step--1);
-    line-height: 1.55;
+  .auto-hero h1 em {
+    font-style: normal;
+    color: var(--accent);
   }
 
-  .showcase__tags {
+  .auto-hero p {
+    max-width: 34ch;
+    color: var(--muted);
+    font-size: var(--step-0);
+  }
+
+  .auto-hero__jump {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3xs);
-    margin-top: var(--space-3xs);
-  }
-
-  .showcase__tag {
-    font-size: var(--step--2);
-    padding: 0.2em 0.6em;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: var(--radius-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(255, 255, 255, 0.75);
-  }
-
-  .showcase__nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 3;
-    width: 62px;
-    height: 62px;
-    display: grid;
-    place-items: center;
-    background: linear-gradient(145deg, rgba(121, 192, 255, 0.22) 0%, rgba(57, 211, 83, 0.24) 100%);
-    backdrop-filter: blur(10px) saturate(1.2);
-    -webkit-backdrop-filter: blur(10px) saturate(1.2);
-    border: 1px solid rgba(57, 211, 83, 0.45);
-    border-radius: 50%;
-    color: #E6EDF3;
-    cursor: pointer;
-    box-shadow: 0 0 0 1px rgba(121, 192, 255, 0.2), 0 0 28px rgba(57, 211, 83, 0.28);
-    transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  }
-
-  .showcase__nav svg {
-    width: 28px;
-    height: 28px;
-    filter: drop-shadow(0 0 8px rgba(57, 211, 83, 0.45));
-  }
-
-  .showcase__nav:hover {
-    background: linear-gradient(145deg, rgba(121, 192, 255, 0.34) 0%, rgba(57, 211, 83, 0.38) 100%);
-    border-color: rgba(57, 211, 83, 0.78);
-    box-shadow: 0 0 0 1px rgba(121, 192, 255, 0.4), 0 0 40px rgba(57, 211, 83, 0.45);
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .showcase__nav--prev { left: var(--space-m); }
-  .showcase__nav--next { right: var(--space-m); }
-
-  .showcase__dots {
-    position: absolute;
-    bottom: var(--space-m);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    display: flex;
-    gap: var(--space-xs);
-  }
-
-  .showcase__dot {
-    width: 36px;
-    height: 4px;
-    padding: 0;
-    border: none;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 2px;
-    cursor: pointer;
-    overflow: hidden;
-    position: relative;
-    transition: background 0.3s ease;
-  }
-
-  .showcase__dot.is-active {
-    background: rgba(255, 255, 255, 0.5);
-  }
-
-  .showcase__dot-fill {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: #fff;
-    border-radius: 2px;
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-  }
-
-  .showcase__dot.is-active .showcase__dot-fill {
-    transform: scaleX(1);
-  }
-
-  /* ── Section spacing ── */
-  .section {
-    padding-block: var(--space-3xl);
-  }
-
-  /* ── Responsive ── */
-  @media (max-width: 768px) {
-    .auto-hero {
-      overflow-x: clip;
-    }
-
-    .auto-hero__title--short {
-      display: inline;
-    }
-
-    .auto-hero__title--full {
-      display: none;
-    }
-
-    .auto-hero__title {
-      font-size: clamp(1.6rem, 0.8rem + 5vw, 2.4rem);
-      line-height: 1.02;
-      letter-spacing: -0.03em;
-    }
-
-    .showcase__overlay {
-      padding: var(--space-xl) var(--space-m) var(--space-l);
-    }
-
-    .showcase__description {
-      max-width: 34ch;
-      font-size: 0.8rem;
-    }
-
-    .auto-hero__sub {
-      max-width: 30ch;
-      padding-inline: var(--space-2xs);
-    }
-
-    .showcase {
-      height: 65vh;
-      height: 65dvh;
-      --showcase-side-trim: 8px;
-      overflow-x: clip;
-    }
-
-    .showcase__nav {
-      width: 50px;
-      height: 50px;
-    }
-
-    .showcase__nav--prev { left: var(--space-xs); }
-    .showcase__nav--next { right: var(--space-xs); }
-
-    .showcase__overlay {
-      padding: var(--space-l) var(--space-m) var(--space-l);
-    }
-
-    .showcase::before,
-    .showcase::after {
-      width: 28px;
-    }
-
-    .terminal-strip {
-      overflow-x: clip;
-    }
-
-  }
-
-  @media (max-width: 480px) {
-    .showcase {
-      --showcase-side-trim: 0px;
-    }
-
-    .showcase::before,
-    .showcase::after {
-      width: 12px;
-    }
-
-    .showcase__nav {
-      width: 42px;
-      height: 42px;
-    }
-
-    .showcase__nav svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  /* ── Hero: anclas a los dos bloques ── */
-  .auto-hero__tracks {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(250px, 360px));
-    justify-content: center;
-    gap: var(--space-m);
+    gap: var(--space-2xs);
     margin-top: var(--space-l);
   }
 
-  .auto-hero__track {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "title"
-      "desc";
-    gap: 0.35rem 0.9rem;
-    min-height: 118px;
-    padding: var(--space-m);
-    border: 1px solid rgba(57, 211, 83, 0.22);
-    border-radius: var(--radius-lg);
-    background:
-      radial-gradient(circle at 16% 20%, rgba(57, 211, 83, 0.14), transparent 34%),
-      rgba(22, 27, 34, 0.72);
-    color: var(--auto-text);
-    text-decoration: none;
-    text-align: left;
-    overflow: hidden;
-    transition: border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out);
-  }
-
-  .auto-hero__track::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--auto-accent), transparent);
-    opacity: 0.65;
-  }
-
-  .auto-hero__track strong {
-    grid-area: title;
-    font-size: var(--step-0);
-    line-height: 1.1;
-  }
-
-  .auto-hero__track small {
-    grid-area: desc;
-    color: var(--auto-text-secondary);
-    font-size: 0.82rem;
-    line-height: 1.45;
-  }
-
-  .auto-hero__track:hover {
-    border-color: rgba(57, 211, 83, 0.55);
-    transform: translateY(-3px);
-    box-shadow: 0 24px 70px rgba(57, 211, 83, 0.12);
-  }
-
-  /* ── Separadores de bloque (01 After Effects / 02 Empresas) ── */
-  .track {
-    position: relative;
-    z-index: 1;
-    background:
-      linear-gradient(90deg, rgba(57, 211, 83, 0.08), transparent 36%),
-      var(--auto-bg);
-    padding-block: var(--space-2xl) var(--space-l);
-    scroll-margin-top: 90px;
-    overflow: hidden;
-  }
-
-  .track--business {
-    background:
-      linear-gradient(90deg, rgba(121, 192, 255, 0.09), transparent 38%),
-      linear-gradient(180deg, #0D1117 0%, #101722 100%);
-  }
-
-  .track::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(57, 211, 83, 0.42), transparent);
-  }
-
-  .track__inner {
-    display: flex;
-    align-items: center;
-    gap: var(--space-l);
-    border-top: 1px solid rgba(57, 211, 83, 0.24);
-    padding-top: var(--space-xl);
-  }
-
-  .track__kicker {
-    display: block;
-    color: var(--auto-accent);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    margin-bottom: var(--space-2xs);
-  }
-
-  .track__title {
-    font-size: var(--step-3);
-    color: var(--auto-primary);
-    margin-bottom: var(--space-2xs);
-  }
-
-  .track__sub {
-    color: var(--auto-text-secondary);
-    font-size: var(--step-0);
-    line-height: 1.6;
-    max-width: 62ch;
-  }
-
-  .track__sub strong {
-    color: var(--auto-accent);
-    font-weight: 600;
-  }
-
-  @media (max-width: 640px) {
-    .track__inner {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: var(--space-s);
-    }
-
-    .auto-hero__tracks {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Bots para empresas ── */
-  .bots__demo {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--space-xl);
-    align-items: start;
-    margin-bottom: var(--space-2xl);
-  }
-
-  /* Chat demo */
-  .chat-demo {
-    background:
-      linear-gradient(135deg, rgba(37, 211, 102, 0.08), transparent 32%),
-      var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
-  }
-
-  .chat-demo__bar {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.7rem 1rem;
-    border-bottom: 1px solid var(--auto-border);
-    font-size: 0.72rem;
-    color: var(--auto-text-secondary);
-    background: rgba(13, 17, 23, 0.72);
-  }
-
-  .chat-demo__status {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--auto-accent);
-    box-shadow: 0 0 8px var(--auto-accent);
-    animation: chat-pulse 2s ease-in-out infinite;
-    flex-shrink: 0;
-  }
-
-  .chat-demo__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .chat-demo__tag {
-    margin-left: auto;
-    border: 1px solid rgba(37, 211, 102, 0.4);
-    color: #25d366;
-    padding: 0.1rem 0.5rem;
+  .auto-hero__jump a {
+    padding: 0.55em 1.1em;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    font-size: 0.62rem;
-    flex-shrink: 0;
+    background: rgba(22, 27, 34, 0.65);
+    backdrop-filter: blur(6px);
+    font-size: var(--step--1);
+    transition:
+      border-color var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
   }
 
-  .chat-demo__messages {
-    height: 380px;
+  .auto-hero__jump a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ═══════════ CABECERAS ═══════════ */
+
+  .auto-head {
+    margin-bottom: var(--space-xl);
+  }
+
+  .auto-head h2 {
+    margin-top: var(--space-2xs);
+    font-size: var(--step-3);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+
+  /* ═══════════ PLANTILLAS ═══════════ */
+
+  .case-stack {
+    display: grid;
+    gap: var(--space-xl);
+    width: 100%;
+    max-width: 1600px;
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .case__media {
+    position: relative;
     overflow: hidden;
-    padding: var(--space-s);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.72rem;
-    background:
-      radial-gradient(circle at 12% 8%, rgba(255, 216, 77, 0.08), transparent 28%),
-      linear-gradient(180deg, rgba(10, 14, 20, 0.78), rgba(10, 14, 20, 0.92));
-  }
-
-  :global(.chat-msg) {
-    position: relative;
-    width: fit-content;
-    max-width: min(78%, 320px);
-    padding: 0.58rem 0.78rem 0.66rem;
-    border-radius: 16px;
-    font-size: 0.84rem;
-    line-height: 1.45;
-    opacity: 0;
-    transform: translateY(8px);
-    animation: chat-in 0.35s ease forwards;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
-  }
-
-  :global(.chat-msg)::before {
-    content: attr(data-speaker);
-    display: block;
-    margin-bottom: 0.2rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    opacity: 0.72;
-  }
-
-  :global(.chat-msg--user) {
-    align-self: flex-end;
-    margin-left: auto;
-    margin-right: 0.35rem;
-    background: #dcf8c6;
-    border: 1px solid rgba(37, 211, 102, 0.45);
-    color: #102015;
-    border-bottom-right-radius: 5px;
-  }
-
-  :global(.chat-msg--bot) {
-    align-self: flex-start;
-    margin-right: auto;
-    margin-left: 0.35rem;
-    background: #ffffff;
-    border: 1px solid rgba(255, 216, 77, 0.38);
-    color: #17130d;
-    border-bottom-left-radius: 5px;
-  }
-
-  :global(.chat-msg--user)::after,
-  :global(.chat-msg--bot)::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    width: 12px;
-    height: 14px;
-    background: inherit;
-    border-bottom: inherit;
-  }
-
-  :global(.chat-msg--user)::after {
-    right: -7px;
-    border-right: inherit;
-    clip-path: polygon(0 0, 100% 100%, 0 100%);
-  }
-
-  :global(.chat-msg--bot)::after {
-    left: -7px;
-    border-left: inherit;
-    clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  }
-
-  :global(.chat-msg--sys) {
-    align-self: center;
-    max-width: 100%;
-    background: transparent;
-    border: none;
-    padding: 0.2rem 0;
-    color: #25d366;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.66rem;
-    text-align: center;
-    opacity: 0;
-  }
-
-  :global(.chat-msg--sys)::before,
-  :global(.chat-msg--typing)::before {
-    display: none;
-  }
-
-  :global(.chat-msg--typing) {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    min-height: 1.9em;
-    width: fit-content;
-  }
-
-  :global(.chat-msg--typing) i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(23, 19, 13, 0.6);
-    animation: chat-typing 1s ease-in-out infinite;
-  }
-
-  :global(.chat-msg--typing) i:nth-child(2) { animation-delay: 0.15s; }
-  :global(.chat-msg--typing) i:nth-child(3) { animation-delay: 0.3s; }
-
-  .chat-demo__input {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.7rem 1rem;
-    border-top: 1px solid var(--auto-border);
-    color: var(--auto-text-secondary);
-    font-size: 0.72rem;
-    opacity: 0.65;
-  }
-
-  @keyframes chat-in {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes chat-pulse {
-    50% { opacity: 0.4; }
-  }
-
-  @keyframes chat-typing {
-    50% { transform: translateY(-4px); opacity: 0.5; }
-  }
-
-  /* Cómo lo monto */
-  .bots__how-title {
-    color: var(--auto-accent);
-    font-size: 0.78rem;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-m);
-  }
-
-  .bots__flow {
-    display: flex;
-    align-items: stretch;
-    gap: 0.4rem;
-    margin-bottom: var(--space-l);
-  }
-
-  .bots__flow-node {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    text-align: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
     background: var(--auto-surface);
-    border: 1px solid var(--auto-border);
-    border-radius: var(--radius-md);
-    padding: 0.9rem 0.4rem;
-    color: var(--auto-text-secondary);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.6rem;
-    line-height: 1.45;
   }
 
-  .bots__flow-node svg {
-    color: var(--auto-accent);
+  .case__video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 
-  .bots__flow-node--bot {
-    border-color: rgba(57, 211, 83, 0.4);
-    box-shadow: 0 0 24px rgba(57, 211, 83, 0.08);
-    color: var(--auto-text);
+  .case__name {
+    margin-top: var(--space-xs);
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
   }
 
-  .bots__flow-arrow {
-    width: 42px;
-    flex-shrink: 0;
-    align-self: center;
-  }
-
-  .bots__dash {
-    animation: bots-dash 1.1s linear infinite;
-  }
-
-  @keyframes bots-dash {
-    to { stroke-dashoffset: -10; }
-  }
-
-  .bots__steps {
-    list-style: none;
-    counter-reset: bot-step;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-s);
-    padding: 0;
-    margin: 0;
-  }
-
-  .bots__steps li {
-    counter-increment: bot-step;
-    position: relative;
-    padding-left: 2.8rem;
-    color: var(--auto-text-secondary);
-    line-height: 1.55;
-    font-size: 0.9rem;
-  }
-
-  .bots__steps li::before {
-    content: '0' counter(bot-step);
-    position: absolute;
-    left: 0;
-    top: 0.1em;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--auto-accent);
-    border: 1px solid rgba(57, 211, 83, 0.3);
-    border-radius: 6px;
-    padding: 0.12rem 0.4rem;
-  }
-
-  .bots__steps strong {
-    color: var(--auto-text);
-  }
-
-  @media (max-width: 900px) {
-    .bots__demo {
-      grid-template-columns: 1fr;
-      gap: var(--space-l);
+  @media (min-width: 900px) {
+    .case-stack {
+      gap: var(--space-2xl);
     }
 
-    .chat-demo__messages {
-      height: 320px;
+    .case {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: var(--space-m);
+    }
+
+    .case__name {
+      margin: 0 0 var(--space-2xs);
+      writing-mode: vertical-rl;
+      font-size: var(--step-2);
+      color: var(--muted);
+    }
+  }
+
+  /* ═══════════ FLUJO DE NEGOCIO ═══════════ */
+
+  .flow {
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  @media (min-width: 900px) {
+    .flow {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+      gap: var(--space-2xl);
+      align-items: center;
+    }
+  }
+
+  .phone {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--auto-surface);
+  }
+
+  .phone__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-xs) var(--space-s);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .phone__avatar {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--auto-bg);
+    font-size: var(--step--1);
+    font-weight: 700;
+  }
+
+  .phone__messages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    min-height: 19rem;
+    max-height: 19rem;
+    padding: var(--space-s);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  /* Las burbujas las crea el JS, así que no llevan el atributo de scope de
+     Astro. Se estilan con :global() colgando del contenedor, que sí lo lleva. */
+  .phone__messages :global(.bubble) {
+    max-width: 82%;
+    padding: 0.6em 0.9em;
+    border-radius: var(--radius-md);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    animation: bubble-in 320ms var(--ease-out) both;
+  }
+
+  .phone__messages :global(.bubble--user) {
+    align-self: flex-end;
+    background: rgba(255, 255, 255, 0.07);
+    border-bottom-right-radius: var(--radius-sm);
+  }
+
+  .phone__messages :global(.bubble--bot) {
+    align-self: flex-start;
+    background: var(--accent);
+    color: var(--auto-bg);
+    border-bottom-left-radius: var(--radius-sm);
+  }
+
+  .phone__messages :global(.bubble--typing) {
+    display: flex;
+    gap: 0.28rem;
+    padding: 0.85em 0.9em;
+  }
+
+  .phone__messages :global(.bubble--typing i) {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.5;
+    animation: typing 1s ease-in-out infinite;
+  }
+
+  .phone__messages :global(.bubble--typing i:nth-child(2)) {
+    animation-delay: 0.15s;
+  }
+
+  .phone__messages :global(.bubble--typing i:nth-child(3)) {
+    animation-delay: 0.3s;
+  }
+
+  .phone__input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-xs) var(--space-s);
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: var(--step--2);
+  }
+
+  /* ── Los cuatro estados ── */
+
+  .flow__steps {
+    position: relative;
+    display: grid;
+    gap: var(--space-m);
+    padding-left: var(--space-m);
+  }
+
+  .flow__rail {
+    position: absolute;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.3rem;
+    width: 1px;
+    background: var(--line);
+  }
+
+  .flow__rail i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 100%;
+    height: var(--flow-progress, 0%);
+    background: var(--accent);
+    transition: height var(--duration-slow) var(--ease-out);
+  }
+
+  .flow__step {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-left: calc(var(--space-m) * -1);
+    padding-left: var(--space-m);
+    color: var(--muted);
+    font-size: var(--step-0);
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .flow__dot {
+    position: absolute;
+    left: 0;
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--auto-bg);
+    transition:
+      background var(--duration-base) var(--ease-out),
+      border-color var(--duration-base) var(--ease-out),
+      transform var(--duration-base) var(--ease-out);
+  }
+
+  .flow__step.is-done,
+  .flow__step.is-active {
+    color: var(--auto-text);
+  }
+
+  .flow__step.is-done .flow__dot,
+  .flow__step.is-active .flow__dot {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .flow__step.is-active .flow__dot {
+    transform: scale(1.35);
+    box-shadow: 0 0 0 4px rgba(57, 211, 83, 0.16);
+  }
+
+  @keyframes bubble-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  @keyframes typing {
+    50% {
+      opacity: 1;
+      transform: translateY(-2px);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chat-demo__status,
-    .bots__dash {
-      animation: none;
+    .auto-hero__clip,
+    .flow__rail i,
+    .flow__dot,
+    .flow__step {
+      transition: none;
     }
 
-    :global(.chat-msg) {
-      opacity: 1;
-      transform: none;
+    .phone__messages :global(.bubble),
+    .phone__messages :global(.bubble--typing i) {
       animation: none;
     }
-  }
-
-  /* Ensure content sections are above particles */
-  .showcase,
-  .terminal-strip,
-  .bots {
-    position: relative;
-    z-index: 1;
   }
 </style>
