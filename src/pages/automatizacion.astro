@@ -482,7 +482,7 @@ const cases = automatizacionVisualisers.map((item) => ({
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--accent) 13%, transparent),
+      color-mix(in srgb, var(--accent) 16%, transparent),
       transparent 65%
     );
     animation:
@@ -604,6 +604,7 @@ const cases = automatizacionVisualisers.map((item) => ({
 
   .prompt__state {
     margin-top: var(--space-xs);
+    margin-inline: auto;
     min-height: 1.2em;
     text-align: center;
     color: var(--muted);
@@ -647,7 +648,8 @@ const cases = automatizacionVisualisers.map((item) => ({
     display: flex;
     align-items: center;
     min-height: 100svh;
-    padding-block: var(--space-2xl);
+    padding-top: calc(var(--space-2xl) + 112px);
+    padding-bottom: var(--space-2xl);
   }
 
   .auto-hero__inner {
@@ -966,6 +968,7 @@ const cases = automatizacionVisualisers.map((item) => ({
   }
 
   .auto-cta p {
+    margin-inline: auto;
     margin-bottom: var(--space-l);
     color: var(--muted);
   }
