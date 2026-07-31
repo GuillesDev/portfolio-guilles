@@ -250,8 +250,12 @@ envía, y el resultado se genera delante del visitante.
   También hay recomprobaciones a los 400 y 1200 ms de cargar, porque el
   viewport puede medirse tarde.
 - Con `prefers-reduced-motion`, la página se muestra completa y estática con
-  los prompts ya escritos. Sin JS no se oculta nada (la clase `prompt-armed`
-  la pone el JS antes de armar los estados).
+  los prompts ya escritos.
+- Vídeos y flujo van ocultos por defecto en el CSS y los revela el JS. Al
+  principio era al revés (visibles y ocultados por una clase que ponía el
+  JS), y al entrar por transición de Astro se pintaban unos frames de las
+  cartelas antes de correr el script. Un `<noscript>` los muestra y esconde
+  las barras de prompt cuando no hay JS.
 
 Direcciones que Guillermo rechazó para esta página, no reintentar: línea de
 proceso con nodos y estados, estética de editor de nodos con cables y LEDs,
