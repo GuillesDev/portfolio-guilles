@@ -16,6 +16,19 @@ const cases = automatizacionVisualisers.map((item) => ({
   theme="automatizacion"
 >
   <div class="automation-page">
+    <noscript>
+      <style is:inline>
+        .gen,
+        .flow {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+
+        .pzone {
+          display: none !important;
+        }
+      </style>
+    </noscript>
     <div class="auto-bg" aria-hidden="true"></div>
 
     <!-- El primer encargo se escribe solo y genera las piezas -->
@@ -375,10 +388,6 @@ const cases = automatizacionVisualisers.map((item) => ({
         return;
       }
 
-      // Solo con JS activo se ocultan los resultados pendientes; sin él,
-      // todo queda visible desde el principio.
-      page.classList.add('prompt-armed');
-
       // Disparo por posición en vez de IntersectionObserver: un scroll rápido
       // o una ancla pueden saltarse el elemento entre frame y frame.
       const pending = new Set(zones);
@@ -680,22 +689,23 @@ const cases = automatizacionVisualisers.map((item) => ({
     padding-top: var(--space-2xs);
   }
 
+  /* Ocultos por defecto y revelados por JS. Si fuera al revés (visibles y
+     ocultados al arrancar el JS), al entrar por transición de Astro se
+     pintarían unos frames antes de que el script corra. El <noscript> de
+     arriba los muestra cuando no hay JS. */
   .gen {
     width: 100%;
     max-width: 900px;
     margin-inline: auto;
     text-align: left;
+    opacity: 0;
+    transform: translateY(90px) scale(0.94);
     transition:
       opacity 700ms ease,
       transform 950ms var(--overshoot);
   }
 
-  .prompt-armed .gen {
-    opacity: 0;
-    transform: translateY(90px) scale(0.94);
-  }
-
-  .prompt-armed .gen.is-in {
+  .gen.is-in {
     opacity: 1;
     transform: none;
   }
@@ -756,17 +766,14 @@ const cases = automatizacionVisualisers.map((item) => ({
     width: min(100%, 900px);
     margin-inline: auto;
     margin-top: var(--space-l);
+    opacity: 0;
+    transform: translateY(70px) scale(0.97);
     transition:
       opacity 700ms ease,
       transform 950ms var(--overshoot);
   }
 
-  .prompt-armed .flow {
-    opacity: 0;
-    transform: translateY(70px) scale(0.97);
-  }
-
-  .prompt-armed .flow.is-in {
+  .flow.is-in {
     opacity: 1;
     transform: none;
   }
