@@ -31,7 +31,19 @@
         <span class="rg__chat-status" aria-hidden="true"></span>
         <strong>Pregúntame</strong>
       </div>
-      <button class="rg__chat-close" id="rg-chat-close" type="button" aria-label="Cerrar asistente">×</button>
+      <div class="rg__chat-actions">
+        <button
+          class="rg__chat-close rg__chat-mute"
+          id="rg-chat-mute"
+          type="button"
+          aria-pressed="false"
+          aria-label="Silenciar la voz del robot"
+          title="Silenciar la voz del robot"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+        <button class="rg__chat-close" id="rg-chat-close" type="button" aria-label="Cerrar asistente">×</button>
+      </div>
     </header>
 
     <div class="rg__chat-messages" id="rg-chat-messages" aria-live="polite">
@@ -146,6 +158,7 @@
   let chatCloseTimer = 0;
   let chatBusy = false;
   let cuteAudioCtx: AudioContext | null = null;
+  let lastVoiceAt = -1;
 
   type ChatRecord = {
     role: 'user' | 'bot';
@@ -162,6 +175,9 @@
 
   const CHAT_HISTORY_KEY = 'rg-chat-history-v2';
   const CHAT_OPEN_KEY = 'rg-chat-open';
+  // En localStorage y no en sessionStorage: si alguien silencia al robot,
+  // debe seguir callado la próxima vez que entre.
+  const VOICE_MUTED_KEY = 'rg-voice-muted';
   const CHAT_GREETING: ChatRecord = {
     role: 'bot',
     text: 'Hola, soy el bot de Guille. Pregúntame por su trabajo, experiencia o cómo contactar con él.',
@@ -295,6 +311,23 @@
         text: 'Puedo contarte cuatro cosas: grafismo para televisión, automatizaciones, desarrollo web y Fratelli Pazzi. Y te llevo a la sección que quieras ver.',
         href: '/#areas',
         action: 'Ver sus áreas',
+      };
+    }
+    if (/(chiste|una broma|hazme reir|algo gracioso|cuentame algo divertido)/.test(q)) {
+      const jokes = [
+        'Te contaría un chiste sobre After Effects, pero todavía se está renderizando.',
+        'Un render y yo nos parecemos: los dos llegamos al 99 % y ahí nos quedamos un rato.',
+        'Los grafistas no juegan al escondite: siempre los delatan las capas sin nombrar.',
+      ];
+      return { text: jokes[Math.floor(Math.random() * jokes.length)] };
+    }
+    // Va antes que las temáticas: "¿cuándo estuvo en Mediaset?" contiene
+    // "mediaset" y si no, caería en la respuesta de experiencia sin responder.
+    if (/(cuando|en que ano|que ano|cuanto tiempo|desde cuando|hasta cuando|en que fecha|que fecha)/.test(q)) {
+      return {
+        text: 'Las fechas no están en el portfolio, así que no te las puedo concretar. Sí puedo contarte qué hizo en cada proyecto, o se lo preguntas a él directamente.',
+        href: '/#contacto',
+        action: 'Preguntar a Guille',
       };
     }
 
@@ -445,6 +478,9 @@
   function appendChatMessage(record: ChatRecord, persist = true): HTMLDivElement | null {
     const messages = document.getElementById('rg-chat-messages');
     if (!messages) return null;
+    // Solo en respuestas nuevas del robot. Al restaurar el historial o al
+    // pintar el "Pensando…" se llama con persist=false, y ahí no debe sonar.
+    if (persist && record.role === 'bot') playSpeech(record.text);
     const message = document.createElement('div');
     message.className = `rg__chat-message rg__chat-message--${record.role}`;
     message.textContent = record.text;
@@ -582,6 +618,29 @@
       openChat();
     });
     close?.addEventListener('click', closeChat);
+
+    const mute = document.getElementById('rg-chat-mute');
+    if (mute) {
+      const paint = () => {
+        const muted = isVoiceMuted();
+        mute.setAttribute('aria-pressed', String(muted));
+        const label = muted ? 'Activar la voz del robot' : 'Silenciar la voz del robot';
+        mute.setAttribute('aria-label', label);
+        mute.setAttribute('title', label);
+      };
+      paint();
+      mute.addEventListener('click', () => {
+        try {
+          if (isVoiceMuted()) localStorage.removeItem(VOICE_MUTED_KEY);
+          else localStorage.setItem(VOICE_MUTED_KEY, '1');
+        } catch {
+          // Sin almacenamiento el botón no persiste, pero no debe romper nada.
+        }
+        paint();
+        // Una muestra al reactivar, para que se oiga lo que se enciende.
+        if (!isVoiceMuted()) playSpeech('vale, ya hablo');
+      });
+    }
     messages?.addEventListener('click', (event) => {
       const action = (event.target as HTMLElement).closest<HTMLAnchorElement>('[data-rg-route]');
       if (!action?.dataset.rgRoute) return;
@@ -605,37 +664,149 @@
     if (sessionStorage.getItem(CHAT_OPEN_KEY) === '1') openChat();
   }
 
-  function playCuteWorkSound() {
+  function isVoiceMuted(): boolean {
+    try {
+      return localStorage.getItem(VOICE_MUTED_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Voz del robot, sintetizada en el navegador: no hay archivos de audio.
+   * Cada golpe es una sierra filtrada con curva de tono y vibrato, que es de
+   * donde sale el aire de gruñido en vez de pitido.
+   *
+   * Al hablar no suena un tono largo, sino una ristra de gruñidos cortos, uno
+   * por golpe de voz: así una frase larga suena larga y una corta, corta. Un
+   * tono único estirado sonaría a zumbido.
+   */
+  function voiceContext(): AudioContext | null {
     try {
       const AudioCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtor) return;
+      if (!AudioCtor) return null;
       cuteAudioCtx ??= new AudioCtor();
       if (cuteAudioCtx.state === 'suspended') cuteAudioCtx.resume();
-      const now = cuteAudioCtx.currentTime;
-      const out = cuteAudioCtx.createGain();
-      out.gain.setValueAtTime(0.0001, now);
-      out.gain.exponentialRampToValueAtTime(0.045, now + 0.018);
-      out.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
-      out.connect(cuteAudioCtx.destination);
-
-      [740, 940].forEach((freq, index) => {
-        const osc = cuteAudioCtx!.createOscillator();
-        const chirp = cuteAudioCtx!.createGain();
-        const start = now + index * 0.105;
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, start);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.12, start + 0.08);
-        chirp.gain.setValueAtTime(0.0001, start);
-        chirp.gain.exponentialRampToValueAtTime(0.65, start + 0.012);
-        chirp.gain.exponentialRampToValueAtTime(0.0001, start + 0.15);
-        osc.connect(chirp);
-        chirp.connect(out);
-        osc.start(start);
-        osc.stop(start + 0.17);
-      });
+      return cuteAudioCtx;
     } catch {
-      // Audio is decorative; ignore browsers that block or fail it.
+      return null;
     }
+  }
+
+  function voiceBlip(
+    ctx: AudioContext,
+    at: number,
+    base: number,
+    dur: number,
+    peak: number,
+    formantHz: number,
+    vib: number,
+    shape: 'cae' | 'sube',
+  ) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sawtooth';
+    if (shape === 'sube') {
+      // Sube de golpe y luego se desliza hacia abajo: eso es lo que se lee
+      // como un "¡ay!" en vez de como una nota.
+      osc.frequency.setValueAtTime(base * 0.92, at);
+      osc.frequency.exponentialRampToValueAtTime(base * 1.34, at + dur * 0.2);
+      osc.frequency.exponentialRampToValueAtTime(base * 0.6, at + dur * 0.92);
+    } else {
+      osc.frequency.setValueAtTime(base * 1.2, at);
+      osc.frequency.exponentialRampToValueAtTime(base * 0.86, at + dur * 0.9);
+    }
+
+    // Vibrato: sin esto suena a nota, no a voz.
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = vib;
+    lfoGain.gain.value = base * 0.06;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+
+    // Banda estrecha para el timbre nasal, y un techo para quitar aspereza.
+    const formant = ctx.createBiquadFilter();
+    formant.type = 'bandpass';
+    formant.frequency.value = formantHz;
+    formant.Q.value = 5.5;
+
+    const tone = ctx.createBiquadFilter();
+    tone.type = 'lowpass';
+    tone.frequency.value = 1850;
+
+    // El paso de banda con Q alta se come mucho nivel: con 0.075 el pico real
+    // quedaba en 0.026 y no se oía en altavoces de portátil.
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, at);
+    gain.gain.exponentialRampToValueAtTime(peak, at + Math.min(0.03, dur * 0.22));
+    gain.gain.setValueAtTime(peak, at + dur * 0.55);
+    gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+
+    osc.connect(formant);
+    formant.connect(tone);
+    tone.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(at);
+    lfo.start(at);
+    osc.stop(at + dur + 0.03);
+    lfo.stop(at + dur + 0.03);
+  }
+
+  /** Habla: tantos golpes como sílabas tenga la frase, con tope. */
+  function playSpeech(text: string) {
+    if (isVoiceMuted()) return;
+    const ctx = voiceContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    if (now - lastVoiceAt < 0.15) return;
+
+    // Los golpes de voz se aproximan por grupos de vocales. En español da un
+    // recuento razonable y no depende de la longitud en caracteres.
+    const silabas = (text.match(/[aeiouáéíóúü]+/gi) || []).length;
+    const golpes = Math.max(2, Math.min(14, Math.round(silabas * 0.55)));
+    const hueco = 0.092;
+    lastVoiceAt = now + golpes * hueco;
+
+    const pregunta = /[?¿]/.test(text);
+    for (let i = 0; i < golpes; i++) {
+      const p = golpes > 1 ? i / (golpes - 1) : 0;
+      // Cae hacia el final como una frase enunciativa. Si es pregunta, los
+      // últimos golpes suben.
+      let curva = 1 - p * 0.16;
+      if (pregunta && p > 0.72) curva = 1 + (p - 0.72) * 0.9;
+      voiceBlip(
+        ctx,
+        now + i * hueco,
+        (172 + Math.random() * 46) * curva,
+        0.13 + Math.random() * 0.03,
+        0.19,
+        600 + Math.random() * 200,
+        21 + Math.random() * 9,
+        'cae',
+      );
+    }
+  }
+
+  /** Queja: un solo golpe, más agudo y más corto, cuando le pegan. */
+  function playHurt() {
+    if (isVoiceMuted()) return;
+    const ctx = voiceContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    // Aporrear al robot encadenaba osciladores y se acumulaba el volumen.
+    if (now - lastVoiceAt < 0.09) return;
+    lastVoiceAt = now;
+    voiceBlip(
+      ctx,
+      now,
+      296 + Math.random() * 88,
+      0.21 + Math.random() * 0.07,
+      0.22,
+      880 + Math.random() * 220,
+      30 + Math.random() * 9,
+      'sube',
+    );
   }
 
   function pathKey(): string {
@@ -1082,12 +1253,16 @@
     registerProp('fratelli', pizza, pizzaMats, (hold, t, s, showoff) => {
       const wobble = Math.sin(t * 8) * 0.08;
       const playful = s > 3.35 ? Math.sin(t * 3.2) * 0.18 : 0;
-      pizza.position.set(0.02, -0.21, 0.34);
+      // A la altura de la mano, como el resto de props. Antes iba en -0.21,
+      // a mitad del antebrazo, y parecía pegada al brazo en vez de agarrada.
+      pizza.position.set(0.03, -0.36, 0.3);
       pizza.scale.setScalar(0.74 * hold);
+      // Media vuelta en Z: la corteza queda abajo, dentro de la mano, y la
+      // punta hacia arriba, como quien enseña una porción.
       pizza.rotation.set(
-        0.25 + wobble * 0.4 + playful * 0.35,
-        -0.25 + wobble + playful + showoff * 0.15,
-        -0.35 + Math.sin(t * 5) * 0.06 + playful * 0.7,
+        0.2 + wobble * 0.35 + playful * 0.3,
+        -0.22 + wobble * 0.7 + playful * 0.7 + showoff * 0.15,
+        Math.PI - 0.3 + Math.sin(t * 5) * 0.05 + playful * 0.5,
       );
       setPropOpacity(pizzaMats, hold);
     });
@@ -1122,19 +1297,35 @@
 
     const chefApron = new THREE.Group();
     chefApron.visible = false;
+    // El robot está hecho de cajas redondeadas, esferas y cápsulas, así que
+    // un trapecio de cuatro rectas con las esquinas en pico desentonaba.
+    // Mismo volumen, pero con esquinas redondeadas, los lados algo abombados
+    // y el bajo con una caída suave en el centro.
     const apronShape = new THREE.Shape();
-    apronShape.moveTo(-0.17, 0.17);
-    apronShape.lineTo(0.17, 0.17);
-    apronShape.lineTo(0.27, -0.27);
-    apronShape.lineTo(-0.27, -0.27);
+    const tY = 0.17;    // borde superior
+    const bY = -0.27;   // bajo
+    const tX = 0.155;   // medio ancho arriba
+    const bX = 0.262;   // medio ancho abajo
+
+    apronShape.moveTo(-tX, tY - 0.04);
+    apronShape.quadraticCurveTo(-tX, tY, -tX + 0.045, tY);
+    apronShape.lineTo(tX - 0.045, tY);
+    apronShape.quadraticCurveTo(tX, tY, tX, tY - 0.04);
+    apronShape.quadraticCurveTo(tX + 0.055, -0.06, bX, bY + 0.05);
+    apronShape.quadraticCurveTo(bX, bY, bX - 0.055, bY - 0.01);
+    apronShape.quadraticCurveTo(0, bY - 0.028, -bX + 0.055, bY - 0.01);
+    apronShape.quadraticCurveTo(-bX, bY, -bX, bY + 0.05);
+    apronShape.quadraticCurveTo(-tX - 0.055, -0.06, -tX, tY - 0.04);
     apronShape.closePath();
+
     const apron = new THREE.Mesh(
       trackPropGeo(new THREE.ExtrudeGeometry(apronShape, {
         depth: 0.025,
+        curveSegments: 14,
         bevelEnabled: true,
-        bevelSize: 0.008,
-        bevelThickness: 0.006,
-        bevelSegments: 1,
+        bevelSize: 0.013,
+        bevelThickness: 0.01,
+        bevelSegments: 2,
       })),
       chefWhiteMat,
     );
@@ -1147,7 +1338,7 @@
     apronBelt.position.set(0, -0.01, 0.238);
 
     const apronPocket = new THREE.Mesh(
-      trackPropGeo(new RoundedBoxGeometry(0.18, 0.11, 0.025, 3, 0.018)),
+      trackPropGeo(new RoundedBoxGeometry(0.18, 0.11, 0.025, 4, 0.032)),
       chefRedMat,
     );
     apronPocket.position.set(0.08, -0.14, 0.244);
@@ -1239,7 +1430,7 @@
               clearTimeout(workPopDelayTimer);
               clearTimeout(workPopTimer);
               workPopDelayTimer = window.setTimeout(() => {
-                playCuteWorkSound();
+                playSpeech(workLine);
                 root.classList.add('rg--work-speaking');
                 workPop?.classList.add('rg__work-pop--visible');
                 workPopTimer = window.setTimeout(() => {
@@ -1253,6 +1444,7 @@
             hitVel = -7;
             hitCount++;
             showingHit = true;
+            playHurt();
             clearTimeout(restoreTimer);
             setMessage(HIT_LINES[(hitCount - 1) % HIT_LINES.length], { instant: true });
             restoreTimer = window.setTimeout(() => {
@@ -1822,6 +2014,40 @@
     outline: none;
   }
 
+  .rg__chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rg__chat-mute span {
+    display: block;
+    width: 13px;
+    height: 13px;
+    background: currentColor;
+    /* Altavoz dibujado con clip-path: sin iconos ni fuentes extra. */
+    clip-path: polygon(0 34%, 34% 34%, 66% 4%, 66% 96%, 34% 66%, 0 66%);
+  }
+
+  .rg__chat-mute[aria-pressed='true'] {
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .rg__chat-mute[aria-pressed='true'] span {
+    position: relative;
+  }
+
+  .rg__chat-mute[aria-pressed='true'] span::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -3px;
+    width: 19px;
+    height: 1.5px;
+    background: currentColor;
+    transform: rotate(-45deg);
+  }
+
   .rg__chat-messages {
     display: flex;
     flex-direction: column;
@@ -2049,6 +2275,31 @@
     border-bottom: 0;
     border-top: inherit;
   }
+
+  /* El chat cuelga a la izquierda del robot y tiene más z-index que el
+     mensaje, que en grafismo va también a la izquierda: lo tapaba. Con el
+     chat abierto el mensaje se pasa al lado libre. */
+  .rg--grafismo-setup.rg--chat-open .rg__work-pop {
+    left: auto;
+    /* 0 y no un negativo: el canvas del robot ocupa solo la parte izquierda
+       del root, así que a la derecha queda hueco libre, y así el globo no
+       puede salirse de la pantalla. */
+    right: 0;
+    transform-origin: 0 70%;
+  }
+
+  .rg--grafismo-setup.rg--chat-open .rg__work-pop::after {
+    right: auto;
+    left: -7px;
+    border-left: inherit;
+    border-top: inherit;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  /* El chat se queda anclado al borde izquierdo del marco. Se probó a
+     traerlo hacia la derecha para reducir el margen, pero en grafismo el
+     decorado ocupa el marco entero y el panel acababa tapando al robot. */
 
   .rg--grafismo-setup .rg__bubble {
     display: none;
