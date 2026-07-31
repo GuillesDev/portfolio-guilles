@@ -1,13 +1,12 @@
 ---
 import SectionLayout from '../layouts/SectionLayout.astro';
-import ProjectCTA from '../components/global/ProjectCTA.astro';
 import { automatizacionVisualisers } from '../data/projects';
+import { social } from '../data/site';
 
 const cases = automatizacionVisualisers.map((item) => ({
   name: item.title.replace('Plantilla ', ''),
   video: item.video,
   poster: item.poster,
-  holo: item.video.replace('.mp4', '-holo.mp4'),
 }));
 ---
 
@@ -17,67 +16,59 @@ const cases = automatizacionVisualisers.map((item) => ({
   theme="automatizacion"
 >
   <div class="automation-page">
-    <section class="auto-hero">
-      <div class="auto-hero__stage" aria-hidden="true">
-        {cases.map((item, index) => (
-          <video
-            class="auto-hero__clip"
-            data-hero-clip={index}
-            preload="none"
-            playsinline
-            muted
-            loop
-            poster={item.poster}
-          >
-            <source data-src={item.holo} type="video/mp4" />
-          </video>
-        ))}
-        <span class="auto-hero__scrim"></span>
-      </div>
+    <div class="auto-bg" aria-hidden="true"></div>
 
+    <!-- El primer encargo se escribe solo y genera las piezas -->
+    <section class="auto-hero">
       <div class="container auto-hero__inner">
         <span class="auto-kicker mono">Automatización</span>
         <h1>
           <span>Lo repetitivo,</span>
           <em>automático.</em>
         </h1>
-        <p>Grafismo que se monta solo. Sistemas que gestionan trabajo real.</p>
-        <nav class="auto-hero__jump" aria-label="Ir a un bloque">
-          <a href="#after-effects">After Effects</a>
-          <a href="#empresas">Negocio</a>
-        </nav>
-      </div>
-    </section>
+        <p class="auto-hero__sub">Se pide una vez. Se hace solo para siempre.</p>
 
-    <section class="auto-block section" id="after-effects">
-      <div class="container">
-        <header class="auto-head">
-          <span class="auto-kicker mono">After Effects</span>
-          <h2>Un máster.<br />Todas las versiones.</h2>
-        </header>
-      </div>
-
-      <div class="case-stack">
-        {cases.map((item) => (
-          <figure class="case">
-            <div class="case__media">
-              <video
-                class="case__video"
-                preload="none"
-                playsinline
-                muted
-                loop
-                poster={item.poster}
+        <div class="pzone" id="auto-zone-master">
+          <div class="pzone__in">
+            <div
+              class="prompt"
+              data-text="Guille, necesito todas las versiones de las cartelas para esta tarde."
+            >
+              <span class="prompt__text mono"
+                ><span class="caret" aria-hidden="true"></span></span
               >
-                <source data-src={item.video} type="video/mp4" />
-              </video>
+              <span class="prompt__send" aria-hidden="true">↑</span>
             </div>
-            <figcaption class="case__name">{item.name}</figcaption>
-          </figure>
-        ))}
+            <p class="prompt__state mono" aria-hidden="true"></p>
+          </div>
+        </div>
+
+        <div class="gen-stack">
+          {cases.map((item) => (
+            <figure class="gen">
+              <figcaption class="gen__name">
+                <strong>{item.name}</strong>
+                <span class="mono">✓ generado</span>
+              </figcaption>
+              <div class="gen__media">
+                <video
+                  class="gen__video"
+                  preload="none"
+                  playsinline
+                  muted
+                  loop
+                  poster={item.poster}
+                >
+                  <source data-src={item.video} type="video/mp4" />
+                </video>
+              </div>
+            </figure>
+          ))}
+        </div>
       </div>
     </section>
 
+    <!-- Fratelli: segundo encargo -->
     <section class="auto-block section" id="empresas">
       <div class="container">
         <header class="auto-head">
@@ -85,7 +76,22 @@ const cases = automatizacionVisualisers.map((item) => ({
           <h2>De un mensaje<br />a una reserva.</h2>
         </header>
 
-        <div class="flow">
+        <div class="pzone" id="auto-zone-fratelli">
+          <div class="pzone__in">
+            <div
+              class="prompt"
+              data-text="Guille, el WhatsApp de la pizzería no da abasto con las reservas."
+            >
+              <span class="prompt__text mono"
+                ><span class="caret" aria-hidden="true"></span></span
+              >
+              <span class="prompt__send" aria-hidden="true">↑</span>
+            </div>
+            <p class="prompt__state mono" aria-hidden="true"></p>
+          </div>
+        </div>
+
+        <div class="flow" id="automation-flow">
           <div class="phone">
             <div class="phone__bar">
               <span class="phone__avatar" aria-hidden="true">FP</span>
@@ -125,13 +131,30 @@ const cases = automatizacionVisualisers.map((item) => ({
       </div>
     </section>
 
-    <ProjectCTA
-      eyebrow="Menos tareas manuales"
-      title="¿Qué repites cada semana?"
-      text="Cuéntamelo y vemos si puede ocurrir solo."
-      subject="Quiero automatizar un proceso"
-      label="Contarme el proceso"
-    />
+    <!-- El último prompt lo escribe el visitante -->
+    <section class="auto-cta section">
+      <div class="container">
+        <span class="auto-kicker mono">Menos tareas manuales</span>
+        <h2>Este prompt es tuyo.</h2>
+        <p>Los dos de arriba ya funcionan solos. Escribe el siguiente.</p>
+        <form
+          class="prompt prompt--live"
+          id="auto-cta-form"
+          data-email={social.email}
+        >
+          <input
+            type="text"
+            id="auto-cta-input"
+            name="proceso"
+            placeholder="Guille, necesito…"
+            autocomplete="off"
+            aria-label="Cuéntame qué quieres automatizar"
+          />
+          <button class="prompt__send" type="submit" aria-label="Enviar">↑</button>
+        </form>
+        <p class="auto-cta__hint mono">se abre tu correo con el proceso ya escrito</p>
+      </div>
+    </section>
   </div>
 </SectionLayout>
 
@@ -149,9 +172,13 @@ const cases = automatizacionVisualisers.map((item) => ({
     const reduced = () =>
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    let timers = [];
     let chatTimer = 0;
-    let chatObserver;
-    let heroTimer = 0;
+    let detachScroll;
+
+    const later = (fn, ms) => {
+      timers.push(window.setTimeout(fn, ms));
+    };
 
     function loadVideo(video) {
       const source = video.querySelector('source[data-src]');
@@ -159,65 +186,6 @@ const cases = automatizacionVisualisers.map((item) => ({
         source.setAttribute('src', source.dataset.src);
         video.load();
       }
-    }
-
-    /* ── Hero: los tres clips se turnan con fundido ── */
-    function initHero() {
-      const clips = Array.from(document.querySelectorAll('.auto-hero__clip'));
-      if (!clips.length || clips[0].dataset.heroReady === '1') return;
-      clips.forEach((clip) => {
-        clip.dataset.heroReady = '1';
-      });
-
-      loadVideo(clips[0]);
-      clips[0].classList.add('is-active');
-
-      if (reduced() || clips.length < 2) return;
-
-      let index = 0;
-      const advance = () => {
-        const next = (index + 1) % clips.length;
-        loadVideo(clips[next]);
-        clips[next].classList.add('is-active');
-        clips[next].play().catch(() => {});
-        clips[index].classList.remove('is-active');
-        const leaving = clips[index];
-        window.setTimeout(() => {
-          if (!leaving.classList.contains('is-active')) leaving.pause();
-        }, 1200);
-        index = next;
-      };
-
-      clips[0].play().catch(() => {});
-      window.clearInterval(heroTimer);
-      heroTimer = window.setInterval(advance, 5200);
-    }
-
-    /* ── Vídeos de plantilla: cargan y se pausan según viewport ── */
-    function initCaseVideos() {
-      const videos = document.querySelectorAll('.case__video');
-      if (!videos.length) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const video = entry.target;
-            if (entry.isIntersecting) {
-              loadVideo(video);
-              if (!reduced()) video.play().catch(() => {});
-            } else {
-              video.pause();
-            }
-          });
-        },
-        { rootMargin: '200px 0px', threshold: 0.1 },
-      );
-
-      videos.forEach((video) => {
-        if (video.dataset.caseReady === '1') return;
-        video.dataset.caseReady = '1';
-        observer.observe(video);
-      });
     }
 
     /* ── Conversación sincronizada con las cuatro acciones ── */
@@ -281,40 +249,184 @@ const cases = automatizacionVisualisers.map((item) => ({
       step();
     }
 
-    function initChat() {
-      const box = document.getElementById('automation-chat-messages');
-      if (!box || box.dataset.ready === '1') return;
-      box.dataset.ready = '1';
+    /* ── El prompt se escribe solo, se envía y el resultado nace ── */
+    function typePrompt(prompt, done) {
+      const textEl = prompt.querySelector('.prompt__text');
+      const full = prompt.dataset.text || '';
+      prompt.classList.add('is-typing');
+      textEl.innerHTML = '<span class="caret" aria-hidden="true"></span>';
+      const caret = textEl.querySelector('.caret');
+      let i = 0;
+      const tick = () => {
+        if (!textEl.isConnected) return;
+        caret.insertAdjacentText('beforebegin', full[i]);
+        i += 1;
+        if (i < full.length) later(tick, 24 + Math.random() * 40);
+        else later(done, 350);
+      };
+      later(tick, 500);
+    }
 
-      if (reduced()) {
-        SCRIPT.forEach((message) => addMessage(box, message));
-        setStage(3);
-        return;
+    function sendPrompt(prompt, zone, reveal) {
+      prompt.classList.remove('is-typing');
+      prompt.classList.add('is-sent');
+      const state = zone.querySelector('.prompt__state');
+      if (state) {
+        state.textContent = '⏺ generando…';
+        state.classList.add('is-gen');
       }
+      later(() => zone.classList.add('is-out'), 950);
+      later(reveal, 1300);
+    }
 
-      chatObserver?.disconnect();
-      chatObserver = new IntersectionObserver(
+    function revealGens() {
+      document.querySelectorAll('.gen').forEach((gen, i) => {
+        later(() => {
+          gen.classList.add('is-in');
+          const video = gen.querySelector('video');
+          if (video) {
+            loadVideo(video);
+            if (!reduced()) video.play().catch(() => {});
+          }
+        }, i * 520);
+      });
+    }
+
+    function revealFlow() {
+      document.getElementById('automation-flow')?.classList.add('is-in');
+      const box = document.getElementById('automation-chat-messages');
+      if (box && box.dataset.ready !== '1') {
+        box.dataset.ready = '1';
+        runChat(box);
+      }
+    }
+
+    /* ── Vídeos: pausa fuera del viewport ── */
+    function initVideoPause() {
+      const videos = document.querySelectorAll('.gen__video');
+      if (!videos.length) return;
+      const observer = new IntersectionObserver(
         (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          chatObserver.disconnect();
-          runChat(box);
+          entries.forEach((entry) => {
+            const video = entry.target;
+            if (!video.closest('.gen')?.classList.contains('is-in')) return;
+            if (entry.isIntersecting) {
+              if (!reduced()) video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
         },
-        { threshold: 0.28 },
+        { rootMargin: '150px 0px', threshold: 0.1 },
       );
-      chatObserver.observe(box);
+      videos.forEach((video) => {
+        if (video.dataset.pauseReady === '1') return;
+        video.dataset.pauseReady = '1';
+        observer.observe(video);
+      });
+    }
+
+    function initCta() {
+      const form = document.getElementById('auto-cta-form');
+      if (!form || form.dataset.ready === '1') return;
+      form.dataset.ready = '1';
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const text = (document.getElementById('auto-cta-input')?.value || '').trim();
+        const subject = text
+          ? `Quiero automatizar: ${text}`
+          : 'Quiero automatizar un proceso';
+        window.location.href = `mailto:${form.dataset.email}?subject=${encodeURIComponent(subject)}`;
+      });
     }
 
     function initAll() {
-      initHero();
-      initCaseVideos();
-      initChat();
+      const page = document.querySelector('.automation-page');
+      if (!page || page.dataset.ready === '1') return;
+      page.dataset.ready = '1';
+
+      initCta();
+      initVideoPause();
+
+      const zones = [
+        { zone: document.getElementById('auto-zone-master'), reveal: revealGens },
+        { zone: document.getElementById('auto-zone-fratelli'), reveal: revealFlow },
+      ].filter((entry) => entry.zone);
+
+      if (reduced()) {
+        zones.forEach(({ zone }) => {
+          const prompt = zone.querySelector('.prompt');
+          prompt.querySelector('.prompt__text').textContent =
+            prompt.dataset.text || '';
+          prompt.classList.add('is-sent');
+        });
+        document.querySelectorAll('.gen').forEach((gen) => {
+          gen.classList.add('is-in');
+          const video = gen.querySelector('video');
+          if (video) loadVideo(video);
+        });
+        document.getElementById('automation-flow')?.classList.add('is-in');
+        const box = document.getElementById('automation-chat-messages');
+        if (box && box.dataset.ready !== '1') {
+          box.dataset.ready = '1';
+          SCRIPT.forEach((message) => addMessage(box, message));
+          setStage(3);
+        }
+        return;
+      }
+
+      // Solo con JS activo se ocultan los resultados pendientes; sin él,
+      // todo queda visible desde el principio.
+      page.classList.add('prompt-armed');
+
+      // Disparo por posición en vez de IntersectionObserver: un scroll rápido
+      // o una ancla pueden saltarse el elemento entre frame y frame.
+      const pending = new Set(zones);
+      let ticking = false;
+
+      const check = () => {
+        const limit = window.innerHeight * 0.8;
+        pending.forEach((entry) => {
+          if (entry.zone.getBoundingClientRect().top < limit) {
+            pending.delete(entry);
+            typePrompt(entry.zone.querySelector('.prompt'), () =>
+              sendPrompt(entry.zone.querySelector('.prompt'), entry.zone, entry.reveal),
+            );
+          }
+        });
+        if (!pending.size) detachScroll?.();
+      };
+
+      const onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          ticking = false;
+          check();
+        });
+      };
+
+      detachScroll?.();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      detachScroll = () => {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      };
+
+      check();
+      later(check, 400);
+      later(check, 1200);
     }
 
     initAll();
     document.addEventListener('astro:page-load', initAll);
     document.addEventListener('astro:before-swap', () => {
-      window.clearInterval(heroTimer);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers = [];
       window.clearTimeout(chatTimer);
+      detachScroll?.();
+      detachScroll = undefined;
     });
   })();
 </script>
@@ -324,6 +436,7 @@ const cases = automatizacionVisualisers.map((item) => ({
     --accent: var(--auto-accent);
     --muted: var(--auto-text-secondary);
     --line: var(--auto-border);
+    --overshoot: cubic-bezier(0.22, 1.3, 0.36, 1);
     overflow-x: clip;
   }
 
@@ -335,64 +448,209 @@ const cases = automatizacionVisualisers.map((item) => ({
     font-size: var(--step--2);
   }
 
+  /* ═══════════ FONDO: retícula + brillos que respiran ═══════════ */
+
+  .auto-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--auto-text) 7%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 26px 26px;
+    mask-image: radial-gradient(130% 100% at 50% 40%, #000 40%, transparent 100%);
+  }
+
+  .auto-bg::before,
+  .auto-bg::after {
+    content: '';
+    position: absolute;
+    width: 55vmax;
+    height: 55vmax;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent) 13%, transparent),
+      transparent 65%
+    );
+    animation:
+      auto-drift 20s ease-in-out infinite alternate,
+      auto-pulse 4.5s ease-in-out infinite alternate;
+  }
+
+  .auto-bg::before {
+    top: -18vmax;
+    left: -12vmax;
+  }
+
+  .auto-bg::after {
+    right: -16vmax;
+    bottom: -20vmax;
+    animation-duration: 29s, 6.5s;
+    animation-direction: alternate-reverse, alternate;
+    animation-delay: 0s, 1.6s;
+  }
+
+  @keyframes auto-drift {
+    to {
+      transform: translate(9vmax, 7vmax) scale(1.18);
+    }
+  }
+
+  @keyframes auto-pulse {
+    from {
+      opacity: 0.4;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ═══════════ BARRA DE PROMPT ═══════════ */
+
+  .prompt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    width: min(100%, 720px);
+    margin-inline: auto;
+    padding: var(--space-s) var(--space-s) var(--space-s) var(--space-m);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--auto-surface);
+    text-align: left;
+    transition:
+      border-color var(--duration-base) var(--ease-out),
+      box-shadow var(--duration-base) var(--ease-out);
+  }
+
+  .prompt.is-typing,
+  .prompt--live {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  .prompt.is-sent {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .prompt__text {
+    flex: 1;
+    min-height: 1.5em;
+    font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+    word-break: break-word;
+  }
+
+  .prompt__text :global(.caret) {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.15em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    background: var(--accent);
+    animation: caret-blink 1s steps(1) infinite;
+  }
+
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .prompt__send {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--muted);
+    font-size: 1.1rem;
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .prompt.is-typing .prompt__send {
+    color: var(--auto-text);
+  }
+
+  .prompt.is-sent .prompt__send,
+  .prompt--live .prompt__send {
+    background: var(--accent);
+    color: var(--auto-bg);
+  }
+
+  .prompt.is-sent .prompt__send {
+    transform: scale(0.88);
+  }
+
+  .prompt__state {
+    margin-top: var(--space-xs);
+    min-height: 1.2em;
+    text-align: center;
+    color: var(--muted);
+    font-size: var(--step--2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .prompt__state.is-gen {
+    color: #e3b341;
+  }
+
+  /* La zona del prompt se funde y colapsa cuando el encargo está enviado */
+  .pzone {
+    display: grid;
+    grid-template-rows: 1fr;
+    width: 100%;
+    transition:
+      opacity 550ms var(--ease-out),
+      transform 550ms var(--ease-out),
+      grid-template-rows 650ms var(--ease-out) 120ms;
+  }
+
+  .pzone__in {
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: 4px;
+  }
+
+  .pzone.is-out {
+    opacity: 0;
+    transform: translateY(-16px);
+    grid-template-rows: 0fr;
+    pointer-events: none;
+  }
+
   /* ═══════════ HERO ═══════════ */
 
   .auto-hero {
     position: relative;
     display: flex;
-    align-items: flex-end;
-    min-height: min(92svh, 780px);
-    padding-block: var(--space-3xl) var(--space-2xl);
-    isolation: isolate;
-    overflow: hidden;
-  }
-
-  .auto-hero__stage {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-  }
-
-  .auto-hero__clip {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1200ms var(--ease-out);
-  }
-
-  .auto-hero__clip.is-active {
-    opacity: 1;
-  }
-
-  .auto-hero__scrim {
-    position: absolute;
-    inset: 0;
-    /* Viñeteado simétrico: el contraste para el texto lo da la base, no un
-       degradado lateral, que hacía leer el vídeo como desplazado a la derecha. */
-    background:
-      linear-gradient(
-        to top,
-        var(--auto-bg) 3%,
-        rgba(13, 17, 23, 0.8) 34%,
-        rgba(13, 17, 23, 0.42) 72%,
-        rgba(13, 17, 23, 0.5) 100%
-      ),
-      radial-gradient(
-        125% 95% at 50% 42%,
-        transparent 28%,
-        rgba(13, 17, 23, 0.58) 100%
-      );
+    align-items: center;
+    min-height: 100svh;
+    padding-block: var(--space-2xl);
   }
 
   .auto-hero__inner {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .auto-hero h1 {
     display: grid;
+    justify-items: center;
     margin-block: var(--space-xs) var(--space-s);
     /* --step-5 no baja de 4.21rem y parte el titular en móvil */
     font-size: clamp(2.6rem, 10.5vw, 5.26rem);
@@ -406,40 +664,81 @@ const cases = automatizacionVisualisers.map((item) => ({
     color: var(--accent);
   }
 
-  .auto-hero p {
+  .auto-hero__sub {
     max-width: 34ch;
+    margin-bottom: var(--space-xl);
     color: var(--muted);
     font-size: var(--step-0);
   }
 
-  .auto-hero__jump {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    margin-top: var(--space-l);
+  /* ═══════════ RESULTADOS ═══════════ */
+
+  .gen-stack {
+    display: grid;
+    gap: var(--space-2xl);
+    width: 100%;
+    padding-top: var(--space-2xs);
   }
 
-  .auto-hero__jump a {
-    padding: 0.55em 1.1em;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: rgba(22, 27, 34, 0.65);
-    backdrop-filter: blur(6px);
-    font-size: var(--step--1);
+  .gen {
+    width: 100%;
+    max-width: 900px;
+    margin-inline: auto;
+    text-align: left;
     transition:
-      border-color var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out);
+      opacity 700ms ease,
+      transform 950ms var(--overshoot);
   }
 
-  .auto-hero__jump a:hover {
-    border-color: var(--accent);
+  .prompt-armed .gen {
+    opacity: 0;
+    transform: translateY(90px) scale(0.94);
+  }
+
+  .prompt-armed .gen.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .gen__name {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-bottom: var(--space-xs);
+  }
+
+  .gen__name strong {
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+  }
+
+  .gen__name span {
     color: var(--accent);
+    font-size: var(--step--2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .gen__media {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--auto-surface);
+  }
+
+  .gen__video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
   }
 
   /* ═══════════ CABECERAS ═══════════ */
 
   .auto-head {
     margin-bottom: var(--space-xl);
+    text-align: center;
   }
 
   .auto-head h2 {
@@ -449,62 +748,27 @@ const cases = automatizacionVisualisers.map((item) => ({
     letter-spacing: -0.02em;
   }
 
-  /* ═══════════ PLANTILLAS ═══════════ */
-
-  .case-stack {
-    display: grid;
-    gap: var(--space-xl);
-    width: 100%;
-    max-width: 1600px;
-    margin-inline: auto;
-    padding-inline: var(--gutter);
-  }
-
-  .case__media {
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--auto-surface);
-  }
-
-  .case__video {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-
-  .case__name {
-    margin-top: var(--space-xs);
-    font-size: var(--step-1);
-    letter-spacing: -0.01em;
-  }
-
-  @media (min-width: 900px) {
-    .case-stack {
-      gap: var(--space-2xl);
-    }
-
-    .case {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: end;
-      gap: var(--space-m);
-    }
-
-    .case__name {
-      margin: 0 0 var(--space-2xs);
-      writing-mode: vertical-rl;
-      font-size: var(--step-2);
-      color: var(--muted);
-    }
-  }
-
   /* ═══════════ FLUJO DE NEGOCIO ═══════════ */
 
   .flow {
     display: grid;
     gap: var(--space-xl);
+    width: min(100%, 900px);
+    margin-inline: auto;
+    margin-top: var(--space-l);
+    transition:
+      opacity 700ms ease,
+      transform 950ms var(--overshoot);
+  }
+
+  .prompt-armed .flow {
+    opacity: 0;
+    transform: translateY(70px) scale(0.97);
+  }
+
+  .prompt-armed .flow.is-in {
+    opacity: 1;
+    transform: none;
   }
 
   @media (min-width: 900px) {
@@ -681,6 +945,47 @@ const cases = automatizacionVisualisers.map((item) => ({
     box-shadow: 0 0 0 4px rgba(57, 211, 83, 0.16);
   }
 
+  /* ═══════════ CTA ═══════════ */
+
+  .auto-cta {
+    text-align: center;
+  }
+
+  .auto-cta h2 {
+    margin-block: var(--space-2xs) var(--space-2xs);
+    font-size: var(--step-3);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .auto-cta p {
+    margin-bottom: var(--space-l);
+    color: var(--muted);
+  }
+
+  .auto-cta input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--auto-text);
+    font: inherit;
+    font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+    outline: none;
+  }
+
+  .auto-cta input::placeholder {
+    color: var(--muted);
+  }
+
+  .auto-cta__hint {
+    margin-top: var(--space-xs);
+    color: var(--muted);
+    font-size: var(--step--2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
   @keyframes bubble-in {
     from {
       opacity: 0;
@@ -696,11 +1001,20 @@ const cases = automatizacionVisualisers.map((item) => ({
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .auto-hero__clip,
+    .gen,
+    .flow,
+    .pzone,
+    .prompt,
     .flow__rail i,
     .flow__dot,
     .flow__step {
       transition: none;
+    }
+
+    .auto-bg::before,
+    .auto-bg::after,
+    .prompt__text :global(.caret) {
+      animation: none;
     }
 
     .phone__messages :global(.bubble),
