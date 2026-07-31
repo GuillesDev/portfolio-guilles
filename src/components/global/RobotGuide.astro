@@ -321,13 +321,21 @@
       ];
       return { text: jokes[Math.floor(Math.random() * jokes.length)] };
     }
-    // Va antes que las temáticas: "¿cuándo estuvo en Mediaset?" contiene
-    // "mediaset" y si no, caería en la respuesta de experiencia sin responder.
+    // Van antes que las temáticas: "¿cuándo estuvo en Mediaset?" contiene
+    // "mediaset" y si no, caería en la respuesta de experiencia sin responder
+    // a la fecha, que sí está disponible en la trayectoria de la portada.
+    if (/(trayectoria)/.test(q)) {
+      return {
+        text: 'Su trayectoria completa está en la portada, con fechas: Producciones Mandarina (mar 2022–actualidad), Fratelli Pazzi (2022–actualidad), Catorce Comunicación (oct 2023–mar 2024), ABC Live Experience, Miss Motion y Telefónica, entre otras.',
+        href: '/#sobre-mi',
+        action: 'Ver trayectoria',
+      };
+    }
     if (/(cuando|en que ano|que ano|cuanto tiempo|desde cuando|hasta cuando|en que fecha|que fecha)/.test(q)) {
       return {
-        text: 'Las fechas no están en el portfolio, así que no te las puedo concretar. Sí puedo contarte qué hizo en cada proyecto, o se lo preguntas a él directamente.',
-        href: '/#contacto',
-        action: 'Preguntar a Guille',
+        text: 'Sí hay fechas: la sección Trayectoria de la portada tiene cada empresa con su periodo exacto. Échale un vistazo, o pregúntame por una empresa en concreto.',
+        href: '/#sobre-mi',
+        action: 'Ver trayectoria',
       };
     }
 
