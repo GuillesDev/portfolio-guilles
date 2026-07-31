@@ -37,21 +37,23 @@ como variable sensible para Production y Preview.
 
 ## Estado actual de Git
 
-El trabajo general anterior ya está en producción:
+Todo lo anterior está ya en producción:
 
-- PR `#2`: `Mejora el portfolio e integra el asistente NVIDIA`
-- Commit de `master`: `211e8e8`
-- Estado: fusionado y desplegado.
+- PR `#2`: `Mejora el portfolio e integra el asistente NVIDIA`.
+- PR `#3`: `Rediseña Automatización, Desarrollo y Grafismo`. Fusionado con
+  squash el 30 de julio de 2026 y desplegado.
+- 31 de julio de 2026: rediseño de `/automatizacion` como página de prompts
+  más la voz y el carácter del robot, publicados directamente en `master`
+  desde la rama `agent/automatizacion-prompts`, a petición expresa de
+  Guillermo. No hubo PR porque `gh` no está instalado en esta máquina; la
+  rama quedó subida por si hace falta revisar el diff.
+- Las ramas `agent/*` siguen existiendo en GitHub. El repositorio no borra
+  ramas al fusionar.
 
-Trabajo actual pendiente de revisión:
-
-- Rama: `agent/redisenar-automatizacion`
-- Commit: `13e0b4a`
-- PR: <https://github.com/GuillesDev/portfolio-guilles/pull/3>
-- Estado: abierto como borrador, mergeable y con Vercel en verde.
-- Preview:
-  <https://portfolio-guilles-795551tjk-guille008rm-blips-projects.vercel.app/automatizacion>
-- No fusionar el PR `#3` sin que Guillermo lo pida.
+El PR `#3` se publicó sin revisión visual de la preview, a petición expresa
+de Guillermo. Quedaron sin ver en movimiento el vídeo de Black Gum y el
+glitch de Grafismo. El rediseño del 31 de julio sí se revisó en local,
+escritorio y móvil, antes de publicar.
 
 ## Comandos útiles
 
@@ -104,6 +106,11 @@ La salida de Astro es híbrida y usa `@astrojs/vercel/serverless`.
 - Cada proyecto debe tener una identidad visual propia.
 - Usar datos o métricas solo cuando sean reales.
 - Revisar siempre escritorio y móvil.
+- Heroes y cabeceras de sección van centrados en todas las páginas. Es la
+  convención del portfolio y Automatización se salía de ella.
+- Un vídeo o una imagen deben compartir borde con su propio título. Si el
+  bloque de medios cuelga fuera del `.container`, sobresale por los lados y
+  se ve descolgado del texto.
 
 ### Evitar
 
@@ -165,10 +172,7 @@ Regla de copy:
 
 ## Automatización
 
-La versión de producción todavía contiene la sección anterior. El PR `#3`
-propone el nuevo diseño.
-
-Cambios del PR `#3`:
+Cambios que trajo el PR `#3`:
 
 - Nuevo hero:
   `Lo repetitivo, automático.`
@@ -192,8 +196,7 @@ Cambios del PR `#3`:
   `¿Qué repites cada semana?`
 - `ProjectCTA` acepta ahora una prop opcional `label`.
 
-Antes de fusionar el PR `#3`, revisar visualmente la preview en escritorio y
-móvil, especialmente:
+Puntos que conviene mirar cada vez que se toque esta página:
 
 - Ritmo y tamaño del hero.
 - Reproducción de los tres vídeos.
@@ -217,7 +220,44 @@ La página se reescribió por completo, de 1360 a 704 líneas:
 
 Aviso técnico que costó encontrar: las burbujas del chat las crea el JS con
 `createElement`, así que no reciben el atributo de scope de Astro y sus
-estilos se pierden. Van con `:global()` colgando del contenedor.
+estilos se pierden. Van con `:global()` colgando del contenedor. Lo mismo
+aplica al carácter de escritura (`.caret`) del rediseño de prompts.
+
+### Tercera pasada: la página como prompts (publicada el 31/7/2026)
+
+Concepto elegido por Guillermo tras descartar otros: la página se pide sola.
+Cada bloque es un encargo que se escribe solo en una barra de prompt, se
+envía, y el resultado se genera delante del visitante.
+
+- Hero a pantalla completa (`100svh`), sin vídeo de fondo, con el prompt
+  centrado: `Guille, necesito todas las versiones de las cartelas para esta
+  tarde.` Al enviarse, la zona del prompt se funde y colapsa
+  (`grid-template-rows: 1fr → 0fr`) y los tres vídeos nacen en su lugar,
+  escalonados 520 ms, con curva overshoot `cubic-bezier(0.22, 1.3, 0.36, 1)`
+  y `✓ generado`.
+- Fratelli: segundo prompt (`Guille, el WhatsApp de la pizzería no da
+  abasto…`) que al enviarse despliega el teléfono y los cuatro estados.
+  El guion del chat es el mismo de la segunda pasada.
+- CTA propio en la página: `Este prompt es tuyo.` con una barra de prompt
+  real (placeholder `Guille, necesito…`) que abre mailto con el asunto
+  rellenado. `ProjectCTA` ya no se usa aquí; el componente compartido sigue
+  intacto para el resto de páginas.
+- Fondo: retícula de puntos y dos brillos con el acento que derivan y laten
+  en opacidad, desfasados. Colores desde los tokens de la sección.
+- Los disparos van por posición (`getBoundingClientRect` en scroll/resize
+  con rAF), no por `IntersectionObserver`: un scroll rápido o una ancla
+  pueden saltarse el elemento entre frame y frame y el observer no dispara.
+  También hay recomprobaciones a los 400 y 1200 ms de cargar, porque el
+  viewport puede medirse tarde.
+- Con `prefers-reduced-motion`, la página se muestra completa y estática con
+  los prompts ya escritos. Sin JS no se oculta nada (la clase `prompt-armed`
+  la pone el JS antes de armar los estados).
+
+Direcciones que Guillermo rechazó para esta página, no reintentar: línea de
+proceso con nodos y estados, estética de editor de nodos con cables y LEDs,
+vídeo de fondo en el hero, y diseñar antes en Stitch. Lo que funcionó fue
+maquetar la idea en un HTML suelto en `public/` servido por el dev server
+(vídeos reales incluidos) y afinarla con él antes de tocar la página.
 
 ## Desarrollo
 
@@ -352,6 +392,22 @@ Saludos y cortesía:
   puntuación, para que `hola` salude pero `hola, ¿qué hace Guillermo?` siga
   cayendo en la respuesta temática.
 
+Voz, precisión y carácter (publicado el 31/7/2026, venía de una sesión
+anterior y estaba sin commitear en el working tree):
+
+- El robot tiene voz y un botón de silencio junto al de cerrar el chat. El
+  silencio se guarda en `localStorage` (`rg-voice-muted`), no en
+  `sessionStorage`: quien lo silencia quiere que siga callado en la próxima
+  visita.
+- El prompt lleva bloques `PRECISIÓN` y `GRUPOS Y CADENAS`: sin fechas (no
+  constan en el portfolio), sin atribuir proyectos a cadenas que no los
+  llevan al lado, y Telecinco/Cuatro cuentan como Mediaset. De RTVE y
+  Movistar+ no consta proyecto concreto.
+- Bloque `CARÁCTER Y LIBERTAD`: puede bromear y opinar, pero el humor nunca
+  toca los datos. La base local tiene chistes propios y la comprobación de
+  fechas va antes que las temáticas, para que `¿cuándo estuvo en Mediaset?`
+  no caiga en la respuesta de experiencia.
+
 Seguridad y límites:
 
 - La API key solo existe en servidor.
@@ -402,7 +458,8 @@ explica el *cómo* vive en el código. Conviene podarlo, no solo ampliarlo.
 1. Ejecutar `git status -sb`.
 2. Confirmar la rama actual.
 3. Leer este archivo antes de proponer cambios.
-4. Si se continúa Automatización, abrir la preview del PR `#3`.
+4. Si se continúa Automatización, revisar en local la secuencia de prompts
+   completa antes de tocarla: hero, fundido, vídeos, Fratelli y CTA.
 5. No rehacer trabajo ya terminado.
 6. Antes de editar, explicar brevemente el diagnóstico y la dirección.
 7. Compilar antes de cerrar.
