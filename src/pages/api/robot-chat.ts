@@ -273,10 +273,16 @@ function navigationFor(question: string): Pick<RobotReply, 'destination' | 'acti
   if (/(contact|email|correo|escribir|hablar|contrat|presupuesto|precio)/.test(q)) {
     return { destination: '/#contacto', action: 'Contactar' };
   }
+  // Antes que el catch-all de fechas: "¿cuándo trabajó en RTVE?" no tiene
+  // trayectoria que enseñar (RTVE y Movistar+ no aparecen en ella), así que
+  // "Ver trayectoria" sería un destino engañoso.
+  if (/(rtve|movistar)/.test(q)) {
+    return { destination: '/grafismo#experiencia', action: 'Ver experiencia' };
+  }
   if (/(trayectoria|fecha|cuando|que ano|en que ano|cuanto tiempo|desde cuando)/.test(q)) {
     return { destination: '/#sobre-mi', action: 'Ver trayectoria' };
   }
-  if (/(experiencia|cadena|mediaset|rtve|movistar)/.test(q)) {
+  if (/(experiencia|cadena|mediaset)/.test(q)) {
     return { destination: '/grafismo#experiencia', action: 'Ver experiencia' };
   }
   if (/(herramienta|software|tecnologia|stack)/.test(q)) {

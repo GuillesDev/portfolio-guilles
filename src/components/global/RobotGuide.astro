@@ -42,6 +42,13 @@
         >
           <span aria-hidden="true"></span>
         </button>
+        <button
+          class="rg__chat-close rg__chat-clear"
+          id="rg-chat-clear"
+          type="button"
+          aria-label="Limpiar la conversación"
+          title="Limpiar la conversación"
+        >↺</button>
         <button class="rg__chat-close" id="rg-chat-close" type="button" aria-label="Cerrar asistente">×</button>
       </div>
     </header>
@@ -331,6 +338,17 @@
         action: 'Ver trayectoria',
       };
     }
+    // Va antes que el catch-all de fechas: "¿cuándo trabajó en RTVE?" no
+    // tiene fecha porque no hay ningún proyecto concreto de RTVE ni
+    // Movistar+ en el portfolio (no aparecen en la Trayectoria de la
+    // portada), así que la respuesta genérica de fechas sería engañosa.
+    if (/(rtve|movistar)/.test(q)) {
+      return {
+        text: 'De RTVE y Movistar+ no consta ningún proyecto concreto en el portfolio, así que tampoco hay una fecha para eso. Si te interesa, pregúntaselo directamente a Guillermo.',
+        href: '/#contacto',
+        action: 'Preguntar a Guille',
+      };
+    }
     if (/(cuando|en que ano|que ano|cuanto tiempo|desde cuando|hasta cuando|en que fecha|que fecha)/.test(q)) {
       return {
         text: 'Sí hay fechas: la sección Trayectoria de la portada tiene cada empresa con su periodo exacto. Échale un vistazo, o pregúntame por una empresa en concreto.',
@@ -516,6 +534,21 @@
     history.forEach((record) => appendChatMessage(record, false));
   }
 
+  function clearChat() {
+    try {
+      sessionStorage.removeItem(CHAT_HISTORY_KEY);
+    } catch {
+      // Sin almacenamiento simplemente no persiste; el chat en pantalla
+      // igualmente se limpia más abajo.
+    }
+    const messages = document.getElementById('rg-chat-messages');
+    if (!messages) return;
+    messages.replaceChildren();
+    appendChatMessage(CHAT_GREETING, false);
+    const input = document.getElementById('rg-chat-input') as HTMLInputElement | null;
+    input?.focus();
+  }
+
   function shouldNavigate(question: string): boolean {
     const q = question
       .normalize('NFD')
@@ -627,6 +660,9 @@
     });
     close?.addEventListener('click', closeChat);
 
+    const clear = document.getElementById('rg-chat-clear');
+    clear?.addEventListener('click', clearChat);
+
     const mute = document.getElementById('rg-chat-mute');
     if (mute) {
       const paint = () => {
@@ -653,6 +689,9 @@
       const action = (event.target as HTMLElement).closest<HTMLAnchorElement>('[data-rg-route]');
       if (!action?.dataset.rgRoute) return;
       event.preventDefault();
+      // Minimiza el chat a pantalla completa al navegar: el robot queda
+      // visible abajo y la conversación se conserva para cuando se reabra.
+      closeChat();
       navigate(action.dataset.rgRoute);
     });
     prompts?.addEventListener('click', (event) => {
@@ -2496,6 +2535,31 @@
     }
   }
 
+  /* Chat a pantalla completa en móvil, como un chat de WhatsApp: ocupa casi
+     toda la pantalla y deja el robot visible en el hueco que reserva su
+     propio "bottom", justo debajo. Se minimiza (closeChat) al navegar desde
+     un botón de acción, así vuelve a ser solo el robot.
+     El z-index de .rg__chat no basta: .rg (position:fixed, z-index:11000)
+     es su propio contexto de apilamiento y el header vive fuera de él con
+     z-index:12000 (Header.astro), así que un hijo nunca lo supera. Hay que
+     subir el z-index de .rg--chat-open en sí para que el chat tape el
+     header en vez de que el header tape la cabecera del chat. */
+  @media (max-width: 768px) {
+    .rg--chat-open {
+      z-index: 12500;
+    }
+
+    .rg__chat {
+      top: max(0.6rem, env(safe-area-inset-top, 0px) + 0.4rem);
+      max-height: none;
+      border-radius: 20px;
+    }
+
+    .rg__chat-messages {
+      max-height: none;
+    }
+  }
+
   @media (max-width: 359px) {
     .rg {
       width: 100px;
@@ -2510,10 +2574,11 @@
     }
 
     .rg__chat {
+      top: 0.6rem;
       right: 0.65rem;
       bottom: 7.2rem;
       left: 0.65rem;
-      max-height: min(410px, calc(100dvh - 8rem));
+      max-height: none;
     }
   }
 

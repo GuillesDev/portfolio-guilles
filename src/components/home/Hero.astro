@@ -186,7 +186,10 @@ import Button from '../global/Button.astro';
     }
 
     .hero__title {
-      font-size: clamp(2.4rem, 14vw, 4.5rem);
+      /* 14vw hacía que "Guillermo" desbordara la caja que recorta la
+         animación de entrada (.hero__line, overflow:hidden) y se comía la
+         última "o". 12vw dejo margen de sobra en cualquier móvil real. */
+      font-size: clamp(2.4rem, 12vw, 4.5rem);
       line-height: 0.95;
       letter-spacing: -0.04em;
     }
