@@ -301,12 +301,14 @@ const cases = automatizacionVisualisers.map((item) => ({
             loadVideo(video);
             if (!reduced()) video.play().catch(() => {});
           }
+          window.dispatchEvent(new CustomEvent('rg:automation-spark'));
         }, i * 520);
       });
     }
 
     function revealFlow() {
       document.getElementById('automation-flow')?.classList.add('is-in');
+      window.dispatchEvent(new CustomEvent('rg:automation-spark'));
       const box = document.getElementById('automation-chat-messages');
       if (box && box.dataset.ready !== '1') {
         box.dataset.ready = '1';

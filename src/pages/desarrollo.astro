@@ -400,7 +400,7 @@ const stack = [
     const mount = document.getElementById('editor-bot');
     if (!mount) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (window.innerWidth < 1025) return;
+    if (window.innerWidth < 320) return;
 
     const probe = document.createElement('canvas');
     if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) return;
@@ -856,6 +856,33 @@ const stack = [
   }
 
   @media (max-width: 1024px) {
+    /* En una columna, el robot ya no tiene su propia mitad de grid: reserva
+       hueco real encima del editor para que no pise las pastillas de stack,
+       que pueden ocupar una fila más o menos según el ancho disponible. */
+    .editor-tilt {
+      margin-top: 84px;
+    }
+
+    .editor-bot {
+      width: 170px;
+      height: 153px;
+      top: -108px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .editor-tilt {
+      margin-top: 64px;
+    }
+
+    .editor-bot {
+      width: 140px;
+      height: 126px;
+      top: -88px;
+    }
+  }
+
+  @media (max-width: 319px) {
     .editor-bot {
       display: none;
     }

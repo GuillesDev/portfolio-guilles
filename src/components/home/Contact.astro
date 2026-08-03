@@ -18,13 +18,6 @@ const projectMail = `mailto:${social.email}?subject=${encodeURIComponent('Proyec
         Grafismo, motion o automatización. Cuéntame el proyecto y vemos si encaja.
       </p>
 
-      <div class="contact__services" data-animate="fade-up" aria-label="Servicios">
-        <span>Grafismo y motion</span>
-        <span>Automatización</span>
-        <span>Desarrollo web</span>
-        <span>Marca y contenido</span>
-      </div>
-
       <div class="contact__actions" data-animate="fade-up">
         <Button href={projectMail} variant="primary" size="lg">
           Contar mi proyecto
@@ -99,23 +92,6 @@ const projectMail = `mailto:${social.email}?subject=${encodeURIComponent('Proyec
     gap: var(--space-s);
     flex-wrap: wrap;
     margin-bottom: var(--space-l);
-  }
-
-  .contact__services {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    margin: calc(var(--space-xl) * -0.45) auto var(--space-l);
-  }
-
-  .contact__services span {
-    padding: 0.45rem 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    color: var(--color-text-secondary);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: var(--step--2);
   }
 
   .contact__email {

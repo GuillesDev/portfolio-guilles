@@ -133,7 +133,6 @@
   let accentHex = 0xf1a93a;
   const PAGE_PROPS: Record<string, string> = {
     '/grafismo': 'grafismo',
-    '/automatizacion': 'automatizacion',
     '/desarrollo': 'desarrollo',
     '/fratelli-pazzi': 'fratelli',
   };
@@ -1201,40 +1200,6 @@
       setPropOpacity(slateMats, hold);
     });
 
-    // Automatizacion: a neon bolt with circuit nodes.
-    const bolt = new THREE.Group();
-    const boltShape = new THREE.Shape();
-    boltShape.moveTo(-0.03, 0.16);
-    boltShape.lineTo(0.12, 0.0);
-    boltShape.lineTo(0.035, 0.005);
-    boltShape.lineTo(0.09, -0.17);
-    boltShape.lineTo(-0.12, 0.045);
-    boltShape.lineTo(-0.035, 0.038);
-    boltShape.closePath();
-    const boltMat = standardPropMat(0x39d353, 0.4);
-    const boltGlowMat = basicPropMat(0xa8f0b0);
-    const boltMesh = new THREE.Mesh(trackPropGeo(new THREE.ExtrudeGeometry(boltShape, { depth: 0.035, bevelEnabled: true, bevelSize: 0.005, bevelThickness: 0.005, bevelSegments: 1 })), boltMat);
-    boltMesh.position.z = -0.018;
-    bolt.add(boltMesh);
-    const nodeGeo = trackPropGeo(new THREE.SphereGeometry(0.018, 12, 12));
-    [
-      [-0.13, 0.06],
-      [0.12, 0.045],
-      [0.0, -0.18],
-    ].forEach(([x, y]) => {
-      const node = new THREE.Mesh(nodeGeo, boltGlowMat);
-      node.position.set(x, y, 0.04);
-      bolt.add(node);
-    });
-    const boltMats = [boltMat, boltGlowMat];
-    registerProp('automatizacion', bolt, boltMats, (hold, t, _s, showoff) => {
-      const pulse = 1 + Math.sin(t * 7.5) * 0.08;
-      bolt.position.set(0.04, -0.33, 0.36);
-      bolt.scale.setScalar(1.08 * hold * pulse);
-      bolt.rotation.set(0.12, -0.18 + showoff * 0.34, -0.18 + Math.sin(t * 6) * 0.08);
-      setPropOpacity(boltMats, hold);
-    });
-
     // Desarrollo: a mini laptop with code lines.
     const laptop = new THREE.Group();
     const laptopShellMat = standardPropMat(0xe8e2d6, 0.5);
@@ -1416,6 +1381,14 @@
       lastPointerMs = performance.now();
     }
     window.addEventListener('pointermove', onPointer, { passive: true });
+
+    // Automatización: cada vez que la página "genera" algo (un vídeo, el
+    // flujo de Fratelli), el robot da un pequeño salto de reacción.
+    function onAutomationSpark() {
+      if (pathKey() !== '/automatizacion') return;
+      api?.hop();
+    }
+    window.addEventListener('rg:automation-spark', onAutomationSpark);
 
     // Spring state: hit knock-back + hop bounce
     let hitRot = 0, hitVel = 0, lastHit = -10;
@@ -1758,6 +1731,7 @@
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener('pointermove', onPointer);
+      window.removeEventListener('rg:automation-spark', onAutomationSpark);
       mount.removeEventListener('click', onMountClick);
       document.removeEventListener('visibilitychange', onVisibility);
       flameGeoIn.dispose();
