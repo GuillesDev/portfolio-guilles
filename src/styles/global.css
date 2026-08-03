@@ -13,13 +13,18 @@
   padding: 0;
 }
 
+/* `overflow-x` distinto de `visible` en html/body hace que Safari de iOS
+   ancle mal los `position: fixed` cuando la barra de direcciones se contrae:
+   el header se despega y deja ver la página por encima. Aquí era redundante,
+   porque todo el desborde decorativo vive dentro de `main`, que sí lo
+   recorta. Si algo vuelve a desbordar en horizontal, arreglarlo en su
+   elemento; no devolver el clip a html/body. */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   width: 100%;
-  overflow-x: clip;
 }
 
 body {
@@ -30,7 +35,6 @@ body {
   color: var(--color-text);
   background-color: var(--color-bg);
   width: 100%;
-  overflow-x: clip;
 }
 
 main {

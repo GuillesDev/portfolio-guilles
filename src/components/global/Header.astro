@@ -45,14 +45,10 @@ import { nav } from '../../data/site';
     padding-block: var(--space-xs);
     transition: background-color var(--duration-base) var(--ease-out),
                 backdrop-filter var(--duration-base) var(--ease-out);
-    /* Fuerza su propia capa de composición: en iOS, un `position: fixed`
-       sin esto puede quedarse un frame atrás cuando la barra de
-       direcciones se contrae al hacer scroll, dejando ver la página
-       por encima durante ese instante. */
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    /* Ojo: no poner aquí `transform` (ni will-change: transform). Un ancestro
+       transformado pasa a ser el bloque contenedor de sus descendientes
+       `position: fixed`, y `.header__nav` (el menú a pantalla completa en
+       móvil) lo es: quedaría atado a los 68px del header. */
   }
 
   .header.scrolled {
