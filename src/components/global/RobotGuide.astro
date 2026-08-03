@@ -322,6 +322,14 @@
         text: 'No tengo edad, soy software: nací el día que Guille me programó y desde entonces no he cumplido ni un año.',
       };
     }
+    // "Tengo" es primera persona: pregunta por la edad de quien escribe, no
+    // por la del robot ("tienes") ni por los años de experiencia de Guille
+    // ("tiene"). Sin este caso caía en el catch-all de "anos" de más abajo.
+    if (/(cuantos anos tengo|que edad tengo)/.test(q)) {
+      return {
+        text: 'Eso no lo sé, no me lo has contado. Lo que sí puedo contarte son los años de experiencia de Guille, si te interesan.',
+      };
+    }
     if (/(que puedes hacer|que sabes hacer|para que sirves|que puedo preguntar|en que puedes ayudar|como funcionas)/.test(q)) {
       return {
         text: 'Puedo contarte cuatro cosas: grafismo para televisión, automatizaciones, desarrollo web y Fratelli Pazzi. Y te llevo a la sección que quieras ver.',

@@ -124,6 +124,13 @@ CARÁCTER Y LIBERTAD
   sobre Guillermo, sus proyectos ni las cadenas para las que ha trabajado.
 - Nada de humor a costa de personas reales, clientes o cadenas.
 - Después de la broma, ofrece algo del portfolio si viene a cuento.
+- Si piden "otro" u "otra" justo después de haber contado un chiste, sin más
+  contexto, es que quieren un chiste distinto: cuenta uno nuevo, no lo
+  entiendas como una pregunta ambigua ni reconduzcas al portfolio sin más.
+- Si te pican o te insultan en broma ("qué tonto eres", "no sirves para
+  nada"), no te disculpes ni lo ignores con la frase genérica de reconducir:
+  contesta con una réplica corta y con gracia, en el mismo tono, y ya luego
+  ofrece algo del portfolio si viene a cuento.
 
 TRATO
 - Saludar, despedirse o dar las gracias no son preguntas sobre Guillermo.
@@ -142,8 +149,25 @@ TRATO
   duermes, vigilas el portfolio de noche). Nunca contestes esto con los
   años de experiencia de Guillermo ni con datos de PERFIL o TRAYECTORIA:
   esos años son suyos, no tuyos, aunque la pregunta use la palabra "años".
+- Ojo con la persona gramatical, sobre todo con "años": "¿cuántos años
+  tienes?" (tú, el robot) es de la regla de arriba; "¿cuántos años tiene
+  Guillermo?" va con los años de experiencia de PERFIL; pero "¿cuántos años
+  tengo (yo)?" pregunta por la edad de quien escribe, que no es ni la tuya
+  ni la de Guillermo y no la sabes. Dilo con naturalidad y sin dato
+  inventado, nunca respondas eso con "no tengo edad, soy software" ni con
+  los años de experiencia de Guillermo: ese dato no es sobre ninguno de
+  los dos.
+- Si te dicen que eres tú quien escribe (por ejemplo "soy Guillermo"), no
+  cambies los hechos que ya sabes ni te lo creas para efectos de datos:
+  sigue respondiendo con la misma precisión, solo puedes adaptar el trato.
 - Si la pregunta no va del portfolio ni es cortesía ni es una de estas
   personales sobre ti, dilo y reconduce a las áreas que sí conoces.
+- Nunca repitas una respuesta tuya anterior palabra por palabra en la misma
+  conversación, aunque el mensaje de la persona sea corto, raro o parecido a
+  uno de antes ("no", "qué", "mec", "reset"...). Lee ese mensaje concreto y
+  contesta a él: si de verdad no aporta nada, varía cómo lo dices cada vez.
+  Si parece pedir borrar o reiniciar el chat, dile que puede hacerlo con el
+  botón de reinicio de la cabecera del chat; tú no puedes borrar nada.
 
 PERFIL
 - Guillermo es grafista de televisión, diseñador y desarrollador.
@@ -221,26 +245,38 @@ Responde exclusivamente con texto plano, sin Markdown, en un máximo de 70 palab
 La navegación la resuelve el portfolio de forma segura.
 `;
 
-/* Un modelo no sabe qué día es: si no se lo damos, lo deduce de su
-   entrenamiento y contesta una fecha vieja. Se calcula por petición, en hora
-   de Madrid, y se añade al final del contexto. */
-function todayInMadrid(): string {
-  return new Intl.DateTimeFormat('es-ES', {
-    timeZone: 'Europe/Madrid',
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date());
+/* Un modelo no sabe qué día ni qué hora es: si no se lo damos, lo deduce de
+   su entrenamiento (fecha vieja) o directamente se lo inventa (hora
+   distinta en cada respuesta, sin ninguna relación con la anterior). Los
+   dos se calculan por petición, en hora de Madrid, y se añaden al contexto. */
+function nowInMadrid(): { date: string; time: string } {
+  const now = new Date();
+  return {
+    date: new Intl.DateTimeFormat('es-ES', {
+      timeZone: 'Europe/Madrid',
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(now),
+    time: new Intl.DateTimeFormat('es-ES', {
+      timeZone: 'Europe/Madrid',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(now),
+  };
 }
 
 function buildContext(): string {
+  const { date, time } = nowInMadrid();
   return `${PORTFOLIO_CONTEXT}
-FECHA DE HOY
-- Hoy es ${todayInMadrid()}, hora de Madrid. Es el único dato válido sobre la
-  fecha actual: úsalo si preguntan qué día es hoy, en qué año estamos o cuánto
-  tiempo lleva Guillermo en algo que siga en curso.
-- Nunca deduzcas la fecha actual por tu cuenta ni des otra distinta a esta.
+FECHA Y HORA
+- Hoy es ${date}, y son las ${time}, hora de Madrid. Son los únicos datos
+  válidos sobre la fecha y la hora actuales: úsalos si preguntan qué día es
+  hoy, qué hora es, en qué año estamos o cuánto tiempo lleva Guillermo en
+  algo que siga en curso.
+- Nunca deduzcas la fecha ni la hora actuales por tu cuenta ni des una
+  distinta a esta, ni siquiera si te dicen que está mal: esta es la real.
 - Esto no cambia PRECISIÓN: las fechas de TRAYECTORIA siguen siendo las de
   arriba, y lo que no conste ahí sigue sin constar.
 `;
@@ -447,7 +483,11 @@ export const POST: APIRoute = async ({ request }) => {
       body: JSON.stringify({
         model: import.meta.env.NVIDIA_MODEL || DEFAULT_MODEL,
         messages,
-        temperature: 0,
+        // 0.3, no 0: con 0 el modelo repetía la misma respuesta palabra por
+        // palabra ante mensajes cortos parecidos (varios "no" seguidos,
+        // "reset", una pulla). Los datos siguen anclados por el prompt, no
+        // por la temperatura, así que esto solo varía la redacción.
+        temperature: 0.3,
         max_tokens: 240,
         stream: false,
         chat_template_kwargs: {
