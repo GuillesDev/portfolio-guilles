@@ -22,7 +22,7 @@ export const experience: Experience[] = [
     role: 'Grafista',
     period: 'Oct 2023 – Mar 2024',
     description:
-      'Producción gráfica y motion design en régimen de jornada parcial y formato remoto.',
+      'Producción gráfica y motion design en régimen de jornada parcial y formato remoto, compaginándolo con En Boca de Todos, el programa de Producciones Mandarina en Cuatro.',
     tags: ['Motion Graphics', 'Remoto', 'Diseño Gráfico'],
     logo: '/media/companies/catorce.png',
   },
@@ -49,8 +49,8 @@ export const experience: Experience[] = [
     role: 'Grafista',
     period: 'Jun 2021 – Dic 2021',
     description:
-      'Grafismo y motion design para proyectos audiovisuales.',
-    tags: ['Motion Graphics', 'After Effects', 'Diseño'],
+      'Grafismo y motion design para proyectos audiovisuales de RTVE.',
+    tags: ['Motion Graphics', 'After Effects', 'Diseño', 'RTVE'],
     logo: '/media/companies/miss-motion.png',
   },
   {

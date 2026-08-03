@@ -312,12 +312,33 @@
         text: 'Soy el robot guía de este portfolio: una IA pequeña que conoce el trabajo de Guille y te lleva a la parte que te interese.',
       };
     }
+    // Antes que el catch-all de "experiencia": ese regex incluye "anos" para
+    // pillar "¿cuántos años lleva...?" sobre Guille, pero "¿cuántos años
+    // tienes (tú)?" también contiene "anos" y preguntaba por el robot, no por
+    // él. Sin esto devolvía los años de experiencia de Guille como si fueran
+    // los del robot.
+    if (/(cuantos anos tienes|que edad tienes|tu edad|cuantos anos eres|cuantos anos tienes tu)/.test(q)) {
+      return {
+        text: 'No tengo edad, soy software: nací el día que Guille me programó y desde entonces no he cumplido ni un año.',
+      };
+    }
     if (/(que puedes hacer|que sabes hacer|para que sirves|que puedo preguntar|en que puedes ayudar|como funcionas)/.test(q)) {
       return {
         text: 'Puedo contarte cuatro cosas: grafismo para televisión, automatizaciones, desarrollo web y Fratelli Pazzi. Y te llevo a la sección que quieras ver.',
         href: '/#areas',
         action: 'Ver sus áreas',
       };
+    }
+    // El navegador sí sabe la fecha; el modelo no. En local no hay clave y
+    // responde esta base, así que aquí también tiene que salir bien.
+    if (/(que dia es|dia es hoy|dia de hoy|fecha de hoy|que fecha es|en que ano estamos|que ano es|en que mes estamos)/.test(q)) {
+      const hoy = new Date().toLocaleDateString('es-ES', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+      return { text: `Hoy es ${hoy}. Y si quieres, te cuento en qué anda Guille estos días.` };
     }
     if (/(chiste|una broma|hazme reir|algo gracioso|cuentame algo divertido)/.test(q)) {
       const jokes = [
@@ -332,18 +353,24 @@
     // a la fecha, que sí está disponible en la trayectoria de la portada.
     if (/(trayectoria)/.test(q)) {
       return {
-        text: 'Su trayectoria completa está en la portada, con fechas: Producciones Mandarina (mar 2022–actualidad), Fratelli Pazzi (2022–actualidad), Catorce Comunicación (oct 2023–mar 2024), ABC Live Experience, Miss Motion y Telefónica, entre otras.',
+        text: 'Su trayectoria completa está en la portada, con fechas: Producciones Mandarina (mar 2022–actualidad), Fratelli Pazzi (2022–actualidad), Catorce Comunicación (oct 2023–mar 2024), ABC Live Experience, Miss Motion (RTVE) y Telefónica, entre otras.',
         href: '/#sobre-mi',
         action: 'Ver trayectoria',
       };
     }
-    // Va antes que el catch-all de fechas: "¿cuándo trabajó en RTVE?" no
-    // tiene fecha porque no hay ningún proyecto concreto de RTVE ni
-    // Movistar+ en el portfolio (no aparecen en la Trayectoria de la
-    // portada), así que la respuesta genérica de fechas sería engañosa.
-    if (/(rtve|movistar)/.test(q)) {
+    // Va antes que el catch-all de fechas: RTVE sí tiene proyecto y fecha
+    // (Miss Motion), pero Movistar+ no tiene ninguno en el portfolio, así
+    // que necesitan dos respuestas distintas, no una compartida.
+    if (/rtve/.test(q)) {
       return {
-        text: 'De RTVE y Movistar+ no consta ningún proyecto concreto en el portfolio, así que tampoco hay una fecha para eso. Si te interesa, pregúntaselo directamente a Guillermo.',
+        text: 'Con RTVE trabajó a través de Miss Motion: grafismo y motion design para proyectos audiovisuales, de junio a diciembre de 2021.',
+        href: '/#sobre-mi',
+        action: 'Ver trayectoria',
+      };
+    }
+    if (/movistar/.test(q)) {
+      return {
+        text: 'De Movistar+ no consta ningún proyecto concreto en el portfolio. Si te interesa, pregúntaselo directamente a Guillermo.',
         href: '/#contacto',
         action: 'Preguntar a Guille',
       };
