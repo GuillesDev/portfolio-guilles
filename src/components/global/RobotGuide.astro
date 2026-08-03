@@ -330,6 +330,18 @@
         text: 'Eso no lo sé, no me lo has contado. Lo que sí puedo contarte son los años de experiencia de Guille, si te interesan.',
       };
     }
+    // "Tiene" es tercera persona sobre Guille: aquí sí hay dato real (nació
+    // el 12 de abril de 1999), y es distinto de sus años de experiencia.
+    // Se calcula, no se escribe fija, para que no se quede parada en 27.
+    if (/(cuantos anos tiene guille|cuantos anos tiene guillermo|que edad tiene guille|que edad tiene guillermo)/.test(q)) {
+      const today = new Date();
+      let age = today.getFullYear() - 1999;
+      const pastBirthday = today.getMonth() + 1 > 4 || (today.getMonth() + 1 === 4 && today.getDate() >= 12);
+      if (!pastBirthday) age -= 1;
+      return {
+        text: `Guille tiene ${age} años, cumple el 12 de abril. Si preguntas por su carrera, lleva más de cinco años de experiencia en grafismo de televisión, que es otro dato distinto.`,
+      };
+    }
     if (/(que puedes hacer|que sabes hacer|para que sirves|que puedo preguntar|en que puedes ayudar|como funcionas)/.test(q)) {
       return {
         text: 'Puedo contarte cuatro cosas: grafismo para televisión, automatizaciones, desarrollo web y Fratelli Pazzi. Y te llevo a la sección que quieras ver.',
