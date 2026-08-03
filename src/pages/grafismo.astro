@@ -1380,24 +1380,48 @@ const generativePieces = [
   }
 
   @media (max-width: 640px) {
-    /* Cuatro columnas no caben en un teléfono: la tira pasa a 2x2. */
+    /* En vertical la tira se lee como una lista de canales: una fila por
+       canal. En 2x2 el filete encendido medía toda la columna mientras la
+       palabra ocupaba media, y se leía descolgado. A todo el ancho, el
+       filete pertenece claramente a su fila. */
     .channel-switch {
-      grid-template-columns: 1fr 1fr;
-      gap: var(--space-s) var(--space-m);
+      grid-template-columns: 1fr;
+      gap: 0;
       padding-inline: 0;
+      margin-block: var(--space-l);
+    }
+
+    /* Saca número y punto REC del envoltorio para colocarlos en los dos
+       extremos de la fila. */
+    .channel-switch__meta {
+      display: contents;
     }
 
     .channel-switch__btn {
-      min-height: 48px;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-s);
+      min-height: 56px;
+      padding: var(--space-s) var(--space-2xs);
     }
 
-    .channel-switch__label {
+    .channel-switch__btn:last-child {
+      border-bottom: 1px solid var(--grafismo-border);
+    }
+
+    .channel-switch__num {
+      order: 1;
       font-size: var(--step--1);
     }
 
+    .channel-switch__label {
+      order: 2;
+      font-size: var(--step-0);
+    }
+
     .channel-switch__signal {
-      width: 6px;
-      height: 6px;
+      order: 3;
+      margin-left: auto;
     }
 
     /* El tamaño ya lo fijan .channel-glitch__num y __name con su propio

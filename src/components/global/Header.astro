@@ -45,6 +45,14 @@ import { nav } from '../../data/site';
     padding-block: var(--space-xs);
     transition: background-color var(--duration-base) var(--ease-out),
                 backdrop-filter var(--duration-base) var(--ease-out);
+    /* Fuerza su propia capa de composición: en iOS, un `position: fixed`
+       sin esto puede quedarse un frame atrás cuando la barra de
+       direcciones se contrae al hacer scroll, dejando ver la página
+       por encima durante ese instante. */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 
   .header.scrolled {
@@ -149,11 +157,17 @@ import { nav } from '../../data/site';
   .header__burger {
     display: none;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 5px;
     background: none;
     border: none;
     cursor: pointer;
-    padding: 4px;
+    /* Único acceso a la navegación en móvil: el área táctil llega a 44px.
+       Las tres líneas suman 16px de alto, de ahí el padding vertical mayor.
+       El margen negativo mantiene el icono donde estaba. */
+    padding: 14px 10px;
+    margin-right: -10px;
     z-index: 1001;
   }
 

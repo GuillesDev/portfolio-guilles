@@ -978,11 +978,16 @@ const cases = automatizacionVisualisers.map((item) => ({
   .auto-cta input {
     flex: 1;
     min-width: 0;
+    /* Se estira a lo alto de la barra: si no, solo respondían los 26px de la
+       línea de texto y tocar el resto de la barra no enfocaba nada. */
+    align-self: stretch;
     border: 0;
     background: transparent;
     color: var(--auto-text);
     font: inherit;
-    font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+    /* El mínimo no baja de 16px: por debajo, Safari amplía la página al
+       enfocar el campo. */
+    font-size: clamp(1rem, 2.2vw, 1.12rem);
     outline: none;
   }
 

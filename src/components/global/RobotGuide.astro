@@ -2532,6 +2532,12 @@
     .rg__chat-messages {
       max-height: none;
     }
+
+    /* Safari amplía la página al enfocar un campo de menos de 16px. Escribir
+       es justo para lo que está el chat, así que aquí no puede bajar. */
+    .rg__chat-form input {
+      font-size: 16px;
+    }
   }
 
   @media (max-width: 359px) {

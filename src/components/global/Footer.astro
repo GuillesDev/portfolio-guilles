@@ -82,7 +82,15 @@ const year = new Date().getFullYear();
     gap: var(--space-m);
   }
 
+  /* El icono sigue midiendo 20px, pero el área que responde al dedo llega a
+     44px. El margen negativo compensa el padding, así la separación visual
+     entre iconos no cambia. */
   .footer__social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin: -12px;
     color: var(--color-text-secondary);
     transition: color var(--duration-fast) var(--ease-out);
   }
@@ -94,6 +102,7 @@ const year = new Date().getFullYear();
   .footer__cv {
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
     padding: var(--space-3xs) var(--space-s);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);

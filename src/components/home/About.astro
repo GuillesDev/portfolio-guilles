@@ -212,8 +212,12 @@ import { experience } from '../../data/experience';
   }
 
   @media (max-width: 768px) {
+    /* `1fr` es `minmax(auto, 1fr)`: el mínimo lo fijaba el contenido, y con
+       la identidad en fila (foto 225px + nombre 110px) la columna no podía
+       encoger y se comía los márgenes por los dos lados. `minmax(0, 1fr)`
+       deja que encoja; la foto pasa a ancho de avatar para que quepa. */
     .about__grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--space-xl);
     }
 
@@ -223,9 +227,21 @@ import { experience } from '../../data/experience';
       align-items: center;
     }
 
+    .about__photo {
+      flex: 0 0 clamp(104px, 30vw, 140px);
+    }
+
+    .about__quick {
+      min-width: 0;
+    }
+
+    /* Con nombres de empresa a dos líneas, la fecha no cabe al lado y se
+       montaba encima. Que baje a su propia línea cuando no quepa. */
     .timeline__header {
       flex-direction: row;
+      flex-wrap: wrap;
       align-items: center;
+      gap: var(--space-3xs) var(--space-s);
     }
   }
 </style>
