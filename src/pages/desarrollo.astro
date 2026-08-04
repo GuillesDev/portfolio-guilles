@@ -649,18 +649,48 @@ const stack = [
     video.dataset.ready = '1';
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // En pantalla, pero puede salirse mientras aún descarga.
+    let wanted = false;
+    let waiting = false;
+
+    function start(target: HTMLVideoElement) {
+      wanted = true;
+      let recienAsignado = false;
+      target.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((source) => {
+        if (source.dataset.src && !source.getAttribute('src')) {
+          source.setAttribute('src', source.dataset.src);
+          recienAsignado = true;
+        }
+      });
+      if (recienAsignado) {
+        // preload="none" no descarga nada por su cuenta. Al pedir el vídeo hay
+        // que levantarlo o el elemento se queda sin datos que decodificar.
+        target.preload = 'auto';
+        target.load();
+      }
+
+      // play() apaga el póster en el mismo instante en que se llama, aunque no
+      // haya todavía ni un frame decodificado. Ese hueco es un destello del
+      // fondo. Se espera a tener imagen antes de arrancar.
+      if (target.readyState >= 2) {
+        target.play().catch(() => {});
+        return;
+      }
+      if (waiting) return;
+      waiting = true;
+      target.addEventListener('loadeddata', () => {
+        waiting = false;
+        if (wanted) target.play().catch(() => {});
+      }, { once: true });
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         const target = entry.target as HTMLVideoElement;
         if (entry.isIntersecting) {
-          target.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((source) => {
-            if (source.dataset.src && !source.getAttribute('src')) {
-              source.setAttribute('src', source.dataset.src);
-            }
-          });
-          if (target.readyState === 0) target.load();
-          target.play().catch(() => {});
+          start(target);
         } else {
+          wanted = false;
           target.pause();
         }
       });

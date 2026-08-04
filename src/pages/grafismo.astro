@@ -1,6 +1,12 @@
 ---
 import SectionLayout from '../layouts/SectionLayout.astro';
 import ProjectCTA from '../components/global/ProjectCTA.astro';
+import { hasAudioTrack } from '../lib/hasAudioTrack';
+
+// `process.cwd()` y no `import.meta.url`: el módulo de la página se empaqueta,
+// así que su URL en compilación no apunta a `src/pages/`.
+const esMuda = (carpeta: string, slug: string) =>
+  !hasAudioTrack(`${process.cwd()}/public/media/grafismo/${carpeta}/${slug}.mp4`);
 
 const broadcastPieces = [
   { title: 'Cartela informativa', slug: 'cartela-1' },
@@ -169,7 +175,13 @@ const generativePieces = [
       <!-- Sin IA grid -->
       <div class="video-showcase" id="grid-sin-ia">
         {broadcastPieces.map((piece) => (
-          <figure class="gvideo-card">
+          <figure
+            class="gvideo-card"
+            role="button"
+            tabindex="0"
+            aria-label={`Ver ${piece.title} a pantalla completa`}
+            data-muda={esMuda('sin-ia', piece.slug) ? 'true' : undefined}
+          >
             <video preload="none" playsinline muted poster={`/media/grafismo/sin-ia/${piece.slug}-poster.jpg`}>
               <source data-src={`/media/grafismo/sin-ia/${piece.slug}.mp4`} type="video/mp4" />
             </video>
@@ -183,7 +195,13 @@ const generativePieces = [
       <!-- IA grid -->
       <div class="video-showcase video-showcase--hidden" id="grid-ia">
         {generativePieces.map((piece) => (
-          <figure class="gvideo-card">
+          <figure
+            class="gvideo-card"
+            role="button"
+            tabindex="0"
+            aria-label={`Ver ${piece.title} a pantalla completa`}
+            data-muda={esMuda('ia', piece.slug) ? 'true' : undefined}
+          >
             <video preload="none" playsinline muted poster={`/media/grafismo/ia/${piece.slug}-poster.jpg`}>
               <source data-src={`/media/grafismo/ia/${piece.slug}.mp4`} type="video/mp4" />
             </video>
@@ -355,6 +373,47 @@ const generativePieces = [
     text="Puedo ayudarte con una cabecera, un paquete de rótulos o un sistema de motion completo, desde la idea hasta la entrega."
     subject="Proyecto de grafismo"
   />
+
+  <!-- Visor grande. Uno solo para toda la página; el JS lo rellena con la
+       pieza pulsada.
+
+       Es un <dialog> abierto con showModal() y no un div: `.section-page`
+       lleva `isolation: isolate`, así que cualquier z-index de aquí dentro
+       solo compite dentro de la página, y el robot, que cuelga de <body>,
+       quedaba por encima y se podía pulsar. showModal() lo lleva a la capa
+       superior del navegador, que ignora los contextos de apilamiento. -->
+  <dialog class="gviewer" id="gviewer" aria-label="Pieza a pantalla completa">
+    <div class="gviewer__backdrop" data-gviewer-close></div>
+
+    <div class="gviewer__stage">
+      <div class="gviewer__frame">
+        <div class="cabecera-player__corner cabecera-player__corner--tl"></div>
+        <div class="cabecera-player__corner cabecera-player__corner--tr"></div>
+        <div class="cabecera-player__corner cabecera-player__corner--bl"></div>
+        <div class="cabecera-player__corner cabecera-player__corner--br"></div>
+        <video id="gviewer-video" playsinline controls preload="none"></video>
+      </div>
+
+      <div class="gviewer__bar">
+        <span class="gviewer__title mono" id="gviewer-title"></span>
+        <span class="gviewer__meta">
+          <span class="gviewer__silent" id="gviewer-silent" title="Esta pieza no tiene sonido" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M11 5 6 9H2v6h4l5 4z"/>
+              <line x1="22" y1="9" x2="16" y2="15"/>
+              <line x1="16" y1="9" x2="22" y2="15"/>
+            </svg>
+            <span class="sr-only">Sin sonido</span>
+          </span>
+          <span class="gviewer__count mono" id="gviewer-count"></span>
+        </span>
+      </div>
+    </div>
+
+    <button class="gviewer__btn gviewer__btn--close" id="gviewer-close" type="button" aria-label="Cerrar">✕</button>
+    <button class="gviewer__btn gviewer__btn--prev" id="gviewer-prev" type="button" aria-label="Pieza anterior">‹</button>
+    <button class="gviewer__btn gviewer__btn--next" id="gviewer-next" type="button" aria-label="Pieza siguiente">›</button>
+  </div>
 </SectionLayout>
 
 <style>
@@ -1159,6 +1218,239 @@ const generativePieces = [
     opacity: 0;
   }
 
+  /* ── Visor grande ──
+     Va en la capa superior por `showModal()`, así que no depende del
+     z-index: el robot y el header quedan detrás pase lo que pase. */
+  .gviewer {
+    /* Reset de los estilos propios de <dialog> */
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100svh;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    overflow: hidden;
+
+    padding: clamp(1rem, 4vw, 3rem);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+
+  /* Un <dialog> abierto vuelve a `display: block` por defecto. */
+  .gviewer[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* La capa oscura la pone `.gviewer__backdrop`, que además recoge el click
+     para cerrar. El backdrop nativo se queda transparente. */
+  .gviewer::backdrop {
+    background: transparent;
+  }
+
+  .gviewer.is-open {
+    opacity: 1;
+  }
+
+  .gviewer__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 7, 9, 0.92);
+    backdrop-filter: blur(6px);
+  }
+
+  .gviewer__stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: min(1200px, 100%);
+    transform: scale(0.98);
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .gviewer.is-open .gviewer__stage {
+    transform: scale(1);
+  }
+
+  .gviewer__frame {
+    position: relative;
+    border: 1px solid var(--grafismo-border);
+    background: #000;
+    line-height: 0;
+  }
+
+  .gviewer__frame video {
+    display: block;
+    /* El alto manda: así una pieza vertical no se sale de pantalla y una
+       apaisada tampoco desborda a lo ancho. El descuento cubre el acolchado
+       del visor (6rem como mucho), el rótulo y su hueco. */
+    max-width: 100%;
+    max-height: calc(100svh - 8.5rem);
+    width: auto;
+    margin: 0 auto;
+  }
+
+  /* Chrome agranda sus propios controles según el tamaño del reproductor, y
+     a 1158 px de ancho la barra de volumen queda desproporcionada. Estos
+     pseudo-elementos solo los entienden Chrome y Safari; en Firefox los
+     controles se quedan con su tamaño de siempre, que ya es discreto. */
+  .gviewer__frame video::-webkit-media-controls-volume-slider {
+    width: 56px;
+    max-width: 56px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .gviewer__frame video::-webkit-media-controls-mute-button {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* En una pieza muda el control de volumen no hace nada: fuera entero.
+     El contenedor va aparte del deslizador y del botón; si solo se esconden
+     esos dos, queda su hueco reservado en la barra. */
+  .gviewer__frame video[data-muda='true']::-webkit-media-controls-volume-control-container,
+  .gviewer__frame video[data-muda='true']::-webkit-media-controls-volume-slider,
+  .gviewer__frame video[data-muda='true']::-webkit-media-controls-mute-button {
+    display: none;
+    width: 0;
+  }
+
+  .gviewer__bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .gviewer__title {
+    color: var(--grafismo-primary);
+    font-weight: 600;
+  }
+
+  .gviewer__meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .gviewer__count {
+    color: var(--grafismo-text);
+    opacity: 0.55;
+    white-space: nowrap;
+  }
+
+  /* Muchas piezas de emisión son mudas por naturaleza: el audio lo pone el
+     programa. Un icono basta para que el silencio no parezca un fallo. */
+  .gviewer__silent {
+    display: inline-flex;
+    align-items: center;
+    color: var(--grafismo-text);
+    opacity: 0.45;
+  }
+
+  .gviewer__silent svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .gviewer__silent[hidden] {
+    display: none;
+  }
+
+  .gviewer__btn {
+    position: absolute;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 1px solid var(--grafismo-border);
+    background: rgba(12, 14, 17, 0.75);
+    color: var(--grafismo-primary);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out);
+  }
+
+  .gviewer__btn:hover,
+  .gviewer__btn:focus-visible {
+    border-color: var(--grafismo-primary);
+    background: rgba(12, 14, 17, 0.95);
+  }
+
+  .gviewer__btn--close {
+    top: clamp(1rem, 3vw, 2rem);
+    right: clamp(1rem, 3vw, 2rem);
+  }
+
+  .gviewer__btn--prev {
+    left: clamp(0.5rem, 2vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .gviewer__btn--next {
+    right: clamp(0.5rem, 2vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .gviewer__btn[disabled] {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  /* En móvil las flechas laterales pisarían el vídeo: bajan a una fila
+     bajo el rótulo, donde el pulgar llega sin tapar la pieza. */
+  @media (max-width: 640px) {
+    .gviewer__frame video {
+      max-height: calc(100svh - 14rem);
+    }
+
+    .gviewer__btn {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .gviewer__btn--prev,
+    .gviewer__btn--next {
+      top: auto;
+      bottom: clamp(1rem, 4vw, 2rem);
+      transform: none;
+    }
+
+    .gviewer__btn--prev {
+      left: 50%;
+      margin-left: -3.25rem;
+    }
+
+    .gviewer__btn--next {
+      right: 50%;
+      margin-right: -3.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gviewer,
+    .gviewer__stage {
+      transition: none;
+    }
+  }
+
   /* ── Christmas Cards (CH 04) ── */
   #grid-christmas {
     display: none;
@@ -1592,14 +1884,167 @@ const generativePieces = [
         card.classList.remove('is-playing');
       }, { signal });
 
-      card.addEventListener('click', () => {
-        if (vid.paused) {
-          playPreview(vid, card);
-          return;
-        }
-        vid.muted = !vid.muted;
+      // El click abre el visor grande. El sonido se controla allí, que es
+      // donde hay controles de verdad; antes esto alternaba el mute.
+      card.addEventListener('click', () => openViewer(card), { signal });
+
+      card.addEventListener('keydown', (event) => {
+        const key = (event as KeyboardEvent).key;
+        if (key !== 'Enter' && key !== ' ') return;
+        event.preventDefault();
+        openViewer(card);
       }, { signal });
     });
+
+    /* ── Visor grande ── */
+    const viewer = document.getElementById('gviewer') as HTMLDialogElement | null;
+    const viewerVideo = document.getElementById('gviewer-video') as HTMLVideoElement | null;
+    const viewerTitle = document.getElementById('gviewer-title');
+    const viewerCount = document.getElementById('gviewer-count');
+    const viewerSilent = document.getElementById('gviewer-silent');
+    const viewerPrev = document.getElementById('gviewer-prev') as HTMLButtonElement | null;
+    const viewerNext = document.getElementById('gviewer-next') as HTMLButtonElement | null;
+    const viewerClose = document.getElementById('gviewer-close') as HTMLButtonElement | null;
+
+    let viewerList: HTMLElement[] = [];
+    let viewerIndex = -1;
+    let viewerOpener: HTMLElement | null = null;
+    let closeTimer = 0;
+    // Cambiar de pieza rápido dejaría varios `loadeddata` pendientes, y el de
+    // una pieza ya descartada arrancaría encima de la actual.
+    let playToken = 0;
+
+    function playWhenReady(video: HTMLVideoElement) {
+      const token = ++playToken;
+      const go = () => {
+        if (token !== playToken) return;
+        video.play().catch(() => {
+          // Si la política de autoplay lo rechaza, al menos que se vea.
+          video.muted = true;
+          video.play().catch(() => {});
+        });
+      };
+      // Misma regla que en el resto del sitio: play() apaga el póster nada
+      // más llamarse, así que se espera a tener frame.
+      if (video.readyState >= 2) go();
+      else video.addEventListener('loadeddata', go, { once: true });
+    }
+
+    function showPiece(index: number) {
+      if (!viewerVideo || index < 0 || index >= viewerList.length) return;
+      viewerIndex = index;
+      const card = viewerList[index];
+      const source = card.querySelector<HTMLSourceElement>('source');
+      const cardVideo = card.querySelector('video');
+      const src = source?.dataset.src || source?.getAttribute('src') || '';
+      if (!src) return;
+
+      // La pista de audio se resuelve al compilar (`data-muda`), así que el
+      // aviso ya está puesto antes de que el vídeo cargue un solo byte.
+      const muda = card.dataset.muda === 'true';
+
+      viewerVideo.pause();
+      viewerVideo.poster = cardVideo?.getAttribute('poster') || '';
+      viewerVideo.preload = 'auto';
+      viewerVideo.src = src;
+      viewerVideo.muted = muda;
+      // El CSS esconde el control de volumen cuando no hay nada que oír.
+      if (muda) viewerVideo.dataset.muda = 'true';
+      else delete viewerVideo.dataset.muda;
+      viewerVideo.load();
+      playWhenReady(viewerVideo);
+
+      if (viewerTitle) viewerTitle.textContent = card.querySelector('figcaption strong')?.textContent?.trim() || '';
+      if (viewerCount) viewerCount.textContent = `${index + 1} / ${viewerList.length}`;
+      if (viewerSilent) viewerSilent.hidden = !muda;
+      const solaPieza = viewerList.length < 2;
+      if (viewerPrev) viewerPrev.disabled = solaPieza;
+      if (viewerNext) viewerNext.disabled = solaPieza;
+    }
+
+    function stepPiece(delta: number) {
+      if (viewerList.length < 2) return;
+      showPiece((viewerIndex + delta + viewerList.length) % viewerList.length);
+    }
+
+    function openViewer(card: Element) {
+      if (!viewer || !viewerVideo) return;
+      window.clearTimeout(closeTimer);
+
+      // Las flechas recorren solo la rejilla del canal abierto.
+      const grid = card.closest('.video-showcase');
+      viewerList = grid
+        ? Array.from(grid.querySelectorAll<HTMLElement>('.gvideo-card'))
+        : [card as HTMLElement];
+      viewerOpener = card as HTMLElement;
+
+      // La previsualización de la rejilla se calla al abrir.
+      const preview = card.querySelector('video');
+      if (preview) {
+        preview.pause();
+        preview.currentTime = 0;
+        preview.muted = true;
+      }
+      card.classList.remove('is-playing');
+
+      if (!viewer.open) viewer.showModal();
+      void viewer.offsetWidth; // fuerza reflow para que la transición corra
+      viewer.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+
+      showPiece(viewerList.indexOf(card as HTMLElement));
+      viewerClose?.focus();
+    }
+
+    function closeViewer() {
+      if (!viewer || !viewer.open) return;
+      playToken++;
+      viewer.classList.remove('is-open');
+      document.body.style.overflow = '';
+
+      if (viewerVideo) {
+        viewerVideo.pause();
+        // Sin esto el vídeo sigue descargando con el visor cerrado.
+        viewerVideo.removeAttribute('src');
+        viewerVideo.load();
+      }
+
+      // El cierre se retrasa para que dé tiempo al fundido: un <dialog>
+      // cerrado vuelve a `display: none` de golpe. La transición puede no
+      // disparar `transitionend` con movimiento reducido, así que va por reloj.
+      const volverA = viewerOpener;
+      viewerOpener = null;
+      closeTimer = window.setTimeout(() => {
+        if (viewer.open) viewer.close();
+        volverA?.focus();
+      }, 250);
+    }
+
+    // Al navegar, el <dialog> se va con el contenido, pero el bloqueo del
+    // scroll vive en <body> y se quedaría puesto en la página siguiente.
+    document.addEventListener('astro:before-swap', () => {
+      window.clearTimeout(closeTimer);
+      document.body.style.overflow = '';
+    }, { once: true, signal });
+
+    viewerClose?.addEventListener('click', closeViewer, { signal });
+    viewerPrev?.addEventListener('click', () => stepPiece(-1), { signal });
+    viewerNext?.addEventListener('click', () => stepPiece(1), { signal });
+    viewer?.querySelector('[data-gviewer-close]')?.addEventListener('click', closeViewer, { signal });
+
+    // Escape lo gestiona el propio <dialog>, pero cerraría de golpe y sin
+    // pausar el vídeo ni soltar el scroll. Se intercepta para pasar por
+    // `closeViewer`. El atrapado del foco ya lo hace showModal().
+    viewer?.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      closeViewer();
+    }, { signal });
+
+    document.addEventListener('keydown', (event) => {
+      if (!viewer || !viewer.open) return;
+      if (event.key === 'ArrowLeft') { stepPiece(-1); return; }
+      if (event.key === 'ArrowRight') stepPiece(1);
+    }, { signal });
 
     /* ── Cabecera carousel ── */
     const cabVideo = document.getElementById('cabecera-video') as HTMLVideoElement;

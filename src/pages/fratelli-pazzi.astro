@@ -225,27 +225,58 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 <!-- Hover-play script -->
 <script>
   function initFratelli() {
+    // Vídeos que el visitante quiere ver ahora mismo y vídeos que ya tienen
+    // un `loadeddata` pendiente, para no encadenar arranques duplicados.
+    const wanted = new WeakSet<HTMLVideoElement>();
+    const waiting = new WeakSet<HTMLVideoElement>();
+
     function ensureVideoSource(vid: HTMLVideoElement) {
       const source = vid.querySelector<HTMLSourceElement>('source[data-src]');
       if (!source?.dataset.src || source.getAttribute('src')) return;
       source.src = source.dataset.src;
+      // preload="none" mantiene la descarga parada. Cuando alguien pide el
+      // vídeo hay que levantarlo o el elemento se queda sin datos que decodificar.
+      vid.preload = 'auto';
       vid.load();
     }
 
+    // play() apaga el póster en el mismo instante en que se llama, aunque no
+    // haya todavía ni un frame decodificado. Ese hueco es el frame negro. Se
+    // espera a tener imagen (readyState >= HAVE_CURRENT_DATA) para arrancar.
     function playVideo(vid: HTMLVideoElement) {
-      ensureVideoSource(vid);
       vid.muted = true;
-      vid.play().catch(() => {});
+      wanted.add(vid);
+      ensureVideoSource(vid);
+
+      if (vid.readyState >= 2) {
+        vid.play().catch(() => {});
+        return;
+      }
+      if (waiting.has(vid)) return;
+      waiting.add(vid);
+      vid.addEventListener('loadeddata', () => {
+        waiting.delete(vid);
+        // El ratón puede haberse ido mientras descargaba.
+        if (wanted.has(vid)) vid.play().catch(() => {});
+      }, { once: true });
     }
 
     // Hover autoplay for all video containers (featured + cards)
     document.querySelectorAll('.video-card, .video-featured, .promo-card').forEach((container) => {
       const vid = container.querySelector<HTMLVideoElement>('video');
       if (!vid) return;
+
+      // El póster pasa a ser también el fondo del <video>. Mientras no hay
+      // frame que pintar el elemento es transparente, así que se ve el fondo:
+      // antes era negro y ahora es la misma imagen del póster.
+      const poster = vid.getAttribute('poster');
+      if (poster) vid.style.setProperty('--poster', `url("${poster}")`);
+
       container.addEventListener('mouseenter', () => {
         playVideo(vid);
       });
       container.addEventListener('mouseleave', () => {
+        wanted.delete(vid);
         vid.pause();
         vid.currentTime = 0;
         vid.muted = true;
@@ -263,12 +294,19 @@ import SectionLayout from '../layouts/SectionLayout.astro';
   document.addEventListener('astro:page-load', initFratelli);
 
   /* ── Fratelli Pizza Particle System ── */
+  let particlesAbort: AbortController | null = null;
+
   function initFratelliParticles() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const canvas = document.getElementById('fratelli-particles') as HTMLCanvasElement;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    // Corta el bucle y los listeners de una visita anterior: se apilaban en
+    // cada vuelta a la página y seguían apuntando a un canvas ya desconectado.
+    if (particlesAbort) particlesAbort.abort();
+    particlesAbort = new AbortController();
+    const { signal } = particlesAbort;
 
     const page = document.getElementById('fratelli-page');
     let w = 0, h = 0;
@@ -433,22 +471,25 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     createSlices();
     draw();
 
-    window.addEventListener('resize', () => { resize(); createSlices(); });
+    window.addEventListener('resize', () => { resize(); createSlices(); }, { signal });
 
     document.addEventListener('mousemove', (ev) => {
       mouse.x = ev.clientX;
       mouse.y = ev.clientY;
-    });
+    }, { passive: true, signal });
 
     document.addEventListener('mouseleave', () => {
       mouse.x = -9999;
       mouse.y = -9999;
-    });
+    }, { signal });
 
-    window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
+    window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true, signal });
 
+    // Cleanup on page transition
+    signal.addEventListener('abort', () => cancelAnimationFrame(raf));
     document.addEventListener('astro:before-preparation', () => {
-      cancelAnimationFrame(raf);
+      particlesAbort?.abort();
+      particlesAbort = null;
     }, { once: true });
   }
 
@@ -839,6 +880,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     display: block;
     width: 100%;
     height: auto;
+    background-image: var(--poster);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   .video-featured__main figcaption {
@@ -877,7 +922,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     width: 100%;
     aspect-ratio: 9 / 16;
     object-fit: cover;
-    background: #000;
+    background-color: var(--fratelli-bg);
+    background-image: var(--poster);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   .video-card figcaption {
@@ -916,7 +965,11 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    background: #000;
+    background-color: var(--fratelli-bg);
+    background-image: var(--poster);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   .promo-card figcaption {

@@ -95,6 +95,34 @@ La salida de Astro es híbrida y usa `@astrojs/vercel/serverless`.
 - `src/data/site.ts`
   - Datos generales, contacto y navegación.
 
+## Reglas técnicas transversales
+
+Dos cosas que ya han fallado en más de una página. Merecen mirarse cada vez
+que se toque un vídeo o se escriba un `init` nuevo.
+
+Vídeos con `poster` y carga diferida:
+
+- `play()` apaga el póster en el mismo instante en que se llama, aunque el
+  vídeo no tenga ni un frame decodificado. Con `preload="none"` eso deja un
+  hueco del tamaño de la descarga y se ve el fondo del `<video>`. Ese era el
+  frame negro de los vídeos de redes de Fratelli, y estaba igual en el vídeo
+  de Black Gum.
+- No llamar a `play()` hasta `readyState >= 2`, y subir `preload` a `auto` al
+  asignar el `src` o el elemento no llega a descargar nada.
+- Grafismo lo resuelve distinto, con el póster en un `::before` y el vídeo
+  oculto hasta reproducir, porque allí el primer frame real sí es negro.
+
+Listeners globales en funciones que corren en `astro:page-load`:
+
+- Astro solo cambia el `<body>`, así que lo que se cuelgue de `window` o
+  `document` sobrevive a la navegación y se apila en cada visita. Van siempre
+  con `AbortController` y su `signal`, abortando al principio del `init` y en
+  `astro:before-preparation`. Pasó en Grafismo, se arregló allí, y seguía
+  igual en las partículas de Fratelli.
+- Para comprobarlo: contar callbacks únicos vivos por tipo, no llamadas a
+  `addEventListener`. GSAP registra la misma función compartida muchas veces
+  y el DOM la deduplica, así que contar llamadas da falsos positivos.
+
 ## Dirección visual acordada
 
 ### Principios
@@ -310,6 +338,61 @@ Segunda pasada sobre `/grafismo`:
 - El rótulo va a dos líneas porque en una sola, en monoespaciada al tamaño
   del número, `IA GENERATIVA` se salía del viewport.
 
+### Visor grande de las piezas (4 de agosto de 2026)
+
+Pulsar una pieza la abre a tamaño grande. Antes el click alternaba el mute,
+que era una función escondida y sin pista visual.
+
+- Visor propio, no `requestFullscreen`. El fullscreen nativo abre el
+  reproductor del navegador y en iOS se lleva la pieza a la interfaz del
+  sistema. El visor reutiliza las esquinas de encuadre del reproductor de
+  cabeceras y la tipografía mono, así que se lee como parte de la página.
+- Es un `<dialog>` con `showModal()`, no un `div` con `z-index`. Con `div` el
+  robot se podía pulsar por encima del visor: `.section-page` lleva
+  `isolation: isolate`, así que cualquier `z-index` de dentro de la página
+  solo compite ahí, y el robot cuelga de `<body>`. Subir el número no
+  arreglaba nada de fondo; `showModal()` va a la capa superior del navegador,
+  que ignora los contextos de apilamiento. Comprobación:
+  `document.elementFromPoint` sobre el robot devuelve el vídeo, no su canvas.
+- `showModal()` trae de regalo el atrapado del foco. El `cancel` de Escape se
+  intercepta para pasar por `closeViewer`, que además pausa, quita el `src` y
+  suelta el scroll.
+- El bloqueo del scroll vive en `<body>`, fuera del contenido que Astro
+  intercambia, así que se suelta también en `astro:before-swap`. Si no, salir
+  con el visor abierto dejaba la página siguiente sin scroll.
+- Uno solo para toda la página, que el JS rellena con la pieza pulsada.
+- Las flechas recorren solo la rejilla del canal abierto, no las 22 piezas.
+- El sonido va activo al abrir: el click es gesto del usuario y lo permite.
+  Si la política de autoplay lo rechazara, cae a silenciado y sigue viéndose.
+- Al cerrar se quita el `src`, o el vídeo seguiría descargando de fondo.
+- Las tarjetas son ahora `role="button"` con `tabindex`, y responden a Enter
+  y espacio. Antes no se alcanzaban con teclado, cosa que no se notaba porque
+  el click solo cambiaba el mute; ahora abre algo y sí importa.
+- El reproductor de cabeceras (CH 03) no se tocó: ya tenía su propio botón.
+
+Piezas mudas:
+
+- 14 de las 22 piezas no tienen pista de audio. En las de emisión es lo
+  normal, el audio lo pone el programa; en el canal de IA está mezclado.
+- La detección se hace al compilar, en `src/lib/hasAudioTrack.ts`, que abre
+  el MP4 y busca un manejador `soun` dentro de `moov`. En el navegador no hay
+  forma fiable: `audioTracks` no está en Chrome y
+  `webkitAudioDecodedByteCount` solo dice algo una vez ha decodificado.
+- Sale como `data-muda` en la tarjeta. El visor pinta un icono de altavoz
+  tachado, sin texto, y esconde el control de volumen entero: contenedor,
+  deslizador y botón. Si solo se esconden los dos últimos queda el hueco del
+  contenedor reservado en la barra.
+- La ruta se resuelve con `process.cwd()`, no con `import.meta.url`: el
+  módulo de la página se empaqueta y su URL en compilación no apunta a
+  `src/pages/`. Con `import.meta.url` fallaba en silencio y marcaba cero.
+- Ojo al comprobar la salida: la compilación escribe en
+  `.vercel/output/static/`, no en `dist/`, que puede estar viejo.
+
+`VOX IS COMING` está mudo por importarse el archivo equivocado. El original
+`AA GRAFICA/PORTFOLIO/IA/VOX IS COMING.MP4` (84,7 MB) sí lleva audio; lo que
+entró al repo es `NUEVOS/VOX IS COMING 2.mp4`, mudo de origen (MD5 idéntico
+al del commit `8ca545a`). No se perdió recomprimiendo.
+
 ## Robot global
 
 El robot vive en `src/components/global/RobotGuide.astro`.
@@ -382,7 +465,8 @@ Decisiones tomadas:
 Variables de entorno:
 
 - `NVIDIA_API_KEY`: obligatoria en Vercel, nunca en el repositorio.
-- `NVIDIA_NIM_MODEL`: opcional para cambiar el modelo.
+- `NVIDIA_MODEL`: opcional para cambiar el modelo. Este es el nombre que lee
+  el código y el que está en `.env.example`.
 
 Saludos y cortesía:
 
