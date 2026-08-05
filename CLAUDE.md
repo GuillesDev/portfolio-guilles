@@ -393,6 +393,40 @@ Piezas mudas:
 entró al repo es `NUEVOS/VOX IS COMING 2.mp4`, mudo de origen (MD5 idéntico
 al del commit `8ca545a`). No se perdió recomprimiendo.
 
+## Sonidos de interfaz
+
+Guillermo pidió "una musiquita de fondo muy suave". Se descartó la música y se
+quedó en sonidos de interfaz, con un botón en el header apagado por defecto.
+
+- No hay ningún archivo de audio. Se sintetizan con Web Audio en
+  `src/lib/uiSound.ts`, igual que la voz del robot. Cero bytes de descarga,
+  cero licencias, y cada sonido se afina desde el código.
+- Apagados por defecto y guardados en `localStorage` (`pf-sound-on`). El
+  navegador bloquea el audio hasta que hay un gesto, así que el propio click
+  del botón es lo que abre el contexto. Al encenderlo suena una vez, para que
+  se oiga qué se acaba de activar.
+- Nueve sonidos, repartidos por todo el sitio:
+  - Grafismo: `canal` (golpe más estática al sintonizar, también en las
+    cabeceras), `abrir` y `cerrar` del visor, `paso` al cambiar de pieza.
+  - Automatización: `tecla` mientras los prompts se escriben (ruido cortísimo
+    con tono aleatorio, y solo en ~55 % de los caracteres para que suene a
+    teclado y no a metralleta), `enviar` al salir el prompt, `generado`
+    cuando nacen los vídeos o el flujo (una firma por grupo, no por vídeo),
+    `burbuja` en el chat de Fratelli. El chat va en bucle: los pops solo
+    suenan la primera pasada (`data-chat-sounded`).
+  - Desarrollo: `tecla` por línea del editor y `generado` al "guardado".
+  - Portada y header: `nav` al pulsar tarjetas de área y enlaces del menú.
+  - Fratelli: `paso` al tocar los vídeos.
+- Medidos en el hilo de audio: entre −25 y −38 dBFS, y silencio absoluto en
+  reposo. `tecla` es el más bajo porque es el que más se repite. Si se
+  retocan, mantener ese rango: son avisos, no protagonistas.
+- El script de `/automatizacion` dejó de ser `is:inline` para poder importar
+  el módulo. Su patrón (`dataset.ready` + `astro:page-load` + limpieza en
+  `astro:before-swap`) ya era compatible con módulo; verificado que la
+  secuencia de prompts corre también al entrar por navegación interna.
+- El robot tiene su propia voz y su propio silencio (`rg-voice-muted`). De
+  momento van por separado; si algún día se pisan, unificar los dos controles.
+
 ## Robot global
 
 El robot vive en `src/components/global/RobotGuide.astro`.

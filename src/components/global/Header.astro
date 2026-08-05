@@ -21,17 +21,37 @@ import { nav } from '../../data/site';
       </ul>
     </nav>
 
-    <button
-      class="header__burger"
-      id="burger"
-      aria-label="Abrir menú"
-      aria-expanded="false"
-      aria-controls="nav"
-    >
-      <span class="burger-line"></span>
-      <span class="burger-line"></span>
-      <span class="burger-line"></span>
-    </button>
+    <div class="header__actions">
+      <!-- Sonidos de interfaz. Apagados por defecto: el navegador no deja
+           sonar nada sin un gesto, y nadie quiere una web que suene sola. -->
+      <button
+        class="header__sound"
+        id="sound-toggle"
+        type="button"
+        aria-pressed="false"
+        aria-label="Activar sonidos de la interfaz"
+        title="Sonidos de la interfaz"
+      >
+        <svg class="header__sound-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 5 6 9H2v6h4l5 4z"/>
+          <path class="header__sound-wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+          <line class="header__sound-off" x1="22" y1="9" x2="16" y2="15"/>
+          <line class="header__sound-off" x1="16" y1="9" x2="22" y2="15"/>
+        </svg>
+      </button>
+
+      <button
+        class="header__burger"
+        id="burger"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="nav"
+      >
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -150,6 +170,57 @@ import { nav } from '../../data/site';
   }
 
   /* Burger */
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    z-index: 1001;
+  }
+
+  /* Área táctil de 44px con el icono a su tamaño real. Sin margen negativo:
+     el burger ya trae el suyo y las dos zonas táctiles se solapaban 2px, lo
+     que dejaba el borde ambiguo al tocar. */
+  .header__sound {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .header__sound:hover,
+  .header__sound:focus-visible {
+    opacity: 1;
+  }
+
+  .header__sound-icon {
+    width: 19px;
+    height: 19px;
+  }
+
+  /* Apagado: aspas. Encendido: la onda. */
+  .header__sound-wave {
+    display: none;
+  }
+
+  .header__sound[aria-pressed='true'] {
+    opacity: 0.9;
+  }
+
+  .header__sound[aria-pressed='true'] .header__sound-wave {
+    display: block;
+  }
+
+  .header__sound[aria-pressed='true'] .header__sound-off {
+    display: none;
+  }
+
   .header__burger {
     display: none;
     flex-direction: column;
@@ -309,13 +380,41 @@ import { nav } from '../../data/site';
 </style>
 
 <script>
+  import { isSoundOn, setSoundOn, playSound } from '../../lib/uiSound';
+
   let headerAbort: AbortController | null = null;
+
+  function initSoundToggle(signal: AbortSignal) {
+    const boton = document.getElementById('sound-toggle');
+    if (!boton) return;
+
+    const pintar = () => {
+      const on = isSoundOn();
+      boton.setAttribute('aria-pressed', on ? 'true' : 'false');
+      boton.setAttribute(
+        'aria-label',
+        on ? 'Desactivar sonidos de la interfaz' : 'Activar sonidos de la interfaz',
+      );
+    };
+
+    pintar();
+
+    boton.addEventListener('click', () => {
+      const nuevo = !isSoundOn();
+      setSoundOn(nuevo);
+      pintar();
+      // Al encender suena una vez, para que se oiga qué se acaba de activar.
+      if (nuevo) playSound('abrir');
+    }, { signal });
+  }
 
   function initHeader() {
     // Abort previous listeners to prevent duplicates across View Transitions
     if (headerAbort) headerAbort.abort();
     headerAbort = new AbortController();
     const { signal } = headerAbort;
+
+    initSoundToggle(signal);
 
     const header = document.getElementById('header');
     const burger = document.getElementById('burger');
@@ -368,6 +467,7 @@ import { nav } from '../../data/site';
     // Close on link click
     nav.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
+        playSound('nav');
         closeMenu();
       }, { signal });
     });

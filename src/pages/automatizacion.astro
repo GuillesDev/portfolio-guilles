@@ -171,7 +171,12 @@ const cases = automatizacionVisualisers.map((item) => ({
   </div>
 </SectionLayout>
 
-<script is:inline>
+<script>
+  // Antes era `is:inline`; se procesó para poder importar los sonidos de
+  // interfaz. El patrón initAll + dataset.ready + astro:page-load ya estaba
+  // preparado para módulo, igual que en el resto de páginas.
+  import { playSound } from '../lib/uiSound';
+
   (() => {
     const SCRIPT = [
       { from: 'user', text: 'Hola, ¿podemos reservar este viernes?', stage: 0 },
@@ -234,12 +239,18 @@ const cases = automatizacionVisualisers.map((item) => ({
       const step = () => {
         if (!box.isConnected) return;
         if (index >= SCRIPT.length) {
+          // El chat se repite en bucle: los pops solo suenan la primera vez
+          // o se convierten en un goteo eterno de fondo.
+          box.dataset.chatSounded = '1';
           chatTimer = window.setTimeout(() => runChat(box), 4600);
           return;
         }
 
         const message = SCRIPT[index++];
         setStage(message.stage);
+        const pop = () => {
+          if (box.dataset.chatSounded !== '1') playSound('burbuja');
+        };
 
         if (message.from === 'bot') {
           const typing = document.createElement('div');
@@ -250,12 +261,14 @@ const cases = automatizacionVisualisers.map((item) => ({
           chatTimer = window.setTimeout(() => {
             typing.remove();
             addMessage(box, message);
+            pop();
             chatTimer = window.setTimeout(step, 1250);
           }, 850);
           return;
         }
 
         addMessage(box, message);
+        pop();
         chatTimer = window.setTimeout(step, 1050);
       };
 
@@ -273,6 +286,9 @@ const cases = automatizacionVisualisers.map((item) => ({
       const tick = () => {
         if (!textEl.isConnected) return;
         caret.insertAdjacentText('beforebegin', full[i]);
+        // No en cada carácter: a este ritmo sonaría a metralleta, no a
+        // alguien escribiendo.
+        if (Math.random() < 0.55) playSound('tecla');
         i += 1;
         if (i < full.length) later(tick, 24 + Math.random() * 40);
         else later(done, 350);
@@ -281,6 +297,7 @@ const cases = automatizacionVisualisers.map((item) => ({
     }
 
     function sendPrompt(prompt, zone, reveal) {
+      playSound('enviar');
       prompt.classList.remove('is-typing');
       prompt.classList.add('is-sent');
       const state = zone.querySelector('.prompt__state');
@@ -293,6 +310,9 @@ const cases = automatizacionVisualisers.map((item) => ({
     }
 
     function revealGens() {
+      // Una sola firma para el grupo, no tres: los vídeos nacen escalonados
+      // pero son un mismo resultado.
+      playSound('generado');
       document.querySelectorAll('.gen').forEach((gen, i) => {
         later(() => {
           gen.classList.add('is-in');
@@ -307,6 +327,7 @@ const cases = automatizacionVisualisers.map((item) => ({
     }
 
     function revealFlow() {
+      playSound('generado');
       document.getElementById('automation-flow')?.classList.add('is-in');
       window.dispatchEvent(new CustomEvent('rg:automation-spark'));
       const box = document.getElementById('automation-chat-messages');
@@ -347,6 +368,7 @@ const cases = automatizacionVisualisers.map((item) => ({
       form.dataset.ready = '1';
       form.addEventListener('submit', (event) => {
         event.preventDefault();
+        playSound('enviar');
         const text = (document.getElementById('auto-cta-input')?.value || '').trim();
         const subject = text
           ? `Quiero automatizar: ${text}`

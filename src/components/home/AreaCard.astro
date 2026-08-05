@@ -237,6 +237,17 @@ const isLight = theme === 'desarrollo';
 </style>
 
 <script>
+  import { playSound } from '../../lib/uiSound';
+
+  // Aparte del init de vídeos: aquel se salta táctil y movimiento reducido,
+  // pero el click de navegación debe sonar en cualquier dispositivo. Los
+  // listeners mueren con las tarjetas en cada swap, no se acumulan.
+  function initAreaCardSound() {
+    document.querySelectorAll<HTMLAnchorElement>('.area-card').forEach((card) => {
+      card.addEventListener('click', () => playSound('nav'));
+    });
+  }
+
   function initAreaCardVideos() {
     // Hover-only surface: skip on touch devices and for reduced-motion users
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -260,5 +271,8 @@ const isLight = theme === 'desarrollo';
     });
   }
 
-  document.addEventListener('astro:page-load', initAreaCardVideos);
+  document.addEventListener('astro:page-load', () => {
+    initAreaCardSound();
+    initAreaCardVideos();
+  });
 </script>

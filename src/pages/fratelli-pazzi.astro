@@ -224,6 +224,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
 <!-- Hover-play script -->
 <script>
+  import { playSound } from '../lib/uiSound';
+
   function initFratelli() {
     // Vídeos que el visitante quiere ver ahora mismo y vídeos que ya tienen
     // un `loadeddata` pendiente, para no encadenar arranques duplicados.
@@ -282,6 +284,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         vid.muted = true;
       });
       container.addEventListener('click', () => {
+        playSound('paso');
         if (vid.paused) {
           playVideo(vid);
           return;

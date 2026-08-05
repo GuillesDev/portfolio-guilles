@@ -136,6 +136,8 @@ const stack = [
 </SectionLayout>
 
 <script>
+  import { playSound } from '../lib/uiSound';
+
   // ── Scramble text reveal (original implementation) ──
   // Letters flicker through random glyphs before settling — terminal style.
   const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>/{}[]=+*#';
@@ -201,9 +203,12 @@ const stack = [
         lines.forEach((line, i) => {
           setTimeout(() => {
             line.classList.add('is-visible');
+            // Una pulsación por línea: el editor escribe a golpe de intro.
+            playSound('tecla');
             if (i === lines.length - 1 && status) {
               setTimeout(() => {
                 status.innerHTML = '<span class="editor__status-dot editor__status-dot--done" aria-hidden="true"></span>guardado';
+                playSound('generado');
               }, 400);
             }
           }, 350 + i * 220);

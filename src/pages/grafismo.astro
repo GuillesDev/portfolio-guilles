@@ -1740,6 +1740,8 @@ const generativePieces = [
 </style>
 
 <script>
+  import { playSound } from '../lib/uiSound';
+
   let grafismoAbort: AbortController | null = null;
 
   function initGrafismo() {
@@ -1792,6 +1794,7 @@ const generativePieces = [
         const ch = btn.dataset.channel;
         if (!ch || ch === currentChannel || switching) return;
         switching = true;
+        playSound('canal');
 
         // Update active button
         btns.forEach(b => {
@@ -1964,6 +1967,7 @@ const generativePieces = [
 
     function stepPiece(delta: number) {
       if (viewerList.length < 2) return;
+      playSound('paso');
       showPiece((viewerIndex + delta + viewerList.length) % viewerList.length);
     }
 
@@ -1991,6 +1995,7 @@ const generativePieces = [
       void viewer.offsetWidth; // fuerza reflow para que la transición corra
       viewer.classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      playSound('abrir');
 
       showPiece(viewerList.indexOf(card as HTMLElement));
       viewerClose?.focus();
@@ -1999,6 +2004,7 @@ const generativePieces = [
     function closeViewer() {
       if (!viewer || !viewer.open) return;
       playToken++;
+      playSound('cerrar');
       viewer.classList.remove('is-open');
       document.body.style.overflow = '';
 
@@ -2089,11 +2095,11 @@ const generativePieces = [
     }
 
     cabThumbs.forEach(t => {
-      t.addEventListener('click', () => setCabecera(Number(t.dataset.index)), { signal });
+      t.addEventListener('click', () => { playSound('paso'); setCabecera(Number(t.dataset.index)); }, { signal });
     });
 
-    cabPrev?.addEventListener('click', () => setCabecera((cabIndex - 1 + cabeceraList.length) % cabeceraList.length), { signal });
-    cabNext?.addEventListener('click', () => setCabecera((cabIndex + 1) % cabeceraList.length), { signal });
+    cabPrev?.addEventListener('click', () => { playSound('paso'); setCabecera((cabIndex - 1 + cabeceraList.length) % cabeceraList.length); }, { signal });
+    cabNext?.addEventListener('click', () => { playSound('paso'); setCabecera((cabIndex + 1) % cabeceraList.length); }, { signal });
 
     cabFS?.addEventListener('click', () => {
       if (!cabVideo) return;
