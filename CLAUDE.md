@@ -426,6 +426,13 @@ Empezaron en Grafismo y luego se extendieron a todo el sitio.
     Abrirlo no lleva sonido de interfaz a propósito: el robot ya reacciona
     con su voz (la queja del golpe). La respuesta del bot también la pone su
     voz, así que hay llamada (burbuja) y respuesta (voz) sin pisarse.
+  - Robot grande de /desarrollo (el `editor-bot` que asoma sobre el editor):
+    se queja al pegarle, con `playRobotHurt()`, réplica del `playHurt` del
+    robot global para que los dos gemelos suenen igual. Va por `rg-voice-muted`
+    (la voz del robot, encendida por defecto), NO por el interruptor del
+    header: por eso suena aunque los sonidos de interfaz estén apagados, y se
+    calla con el botón de silencio del robot. El gesto del click abre el
+    contexto de audio.
 - Medidos en el hilo de audio: entre −25 y −38 dBFS, y silencio absoluto en
   reposo. `tecla` es el más bajo porque es el que más se repite. Si se
   retocan, mantener ese rango: son avisos, no protagonistas.

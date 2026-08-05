@@ -11,11 +11,16 @@
  */
 
 const CLAVE = 'pf-sound-on';
+// La queja del robot va por su propio silencio, el mismo que usa la voz del
+// robot global (`RobotGuide.astro`), no por el interruptor del header: los dos
+// gemelos del robot deben comportarse igual y callarse con el mismo botón.
+const VOZ_MUTED = 'rg-voice-muted';
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let activo = false;
 let leido = false;
+let ultimaQueja = 0;
 
 function contexto(): AudioContext | null {
   try {
@@ -195,6 +200,70 @@ export function playSound(nombre: Sonido) {
       tono(c, t, 494, 494, 0.05, 0.03);
       break;
   }
+}
+
+/**
+ * La queja del robot cuando le pegan: un "ay" corto y nasal. Réplica del
+ * `playHurt` del robot global, para que su gemelo grande de /desarrollo suene
+ * igual. Va por `rg-voice-muted`, no por el interruptor del header: es la voz
+ * del robot, encendida por defecto, y el gesto del click abre el contexto.
+ */
+export function playRobotHurt() {
+  try {
+    if (localStorage.getItem(VOZ_MUTED) === '1') return;
+  } catch {
+    // Sin almacenamiento se asume no silenciado, como el robot global.
+  }
+  const c = contexto();
+  if (!c || !master) return;
+
+  const now = c.currentTime;
+  // Aporrearlo encadenaría osciladores y acumularía volumen.
+  if (now - ultimaQueja < 0.09) return;
+  ultimaQueja = now;
+
+  const t = now + 0.005;
+  const base = 300 + Math.random() * 80;
+  const dur = 0.22 + Math.random() * 0.06;
+
+  const osc = c.createOscillator();
+  osc.type = 'sawtooth';
+  // Sube de golpe y se desliza hacia abajo: eso se lee como un "¡ay!".
+  osc.frequency.setValueAtTime(base * 0.92, t);
+  osc.frequency.exponentialRampToValueAtTime(base * 1.34, t + dur * 0.2);
+  osc.frequency.exponentialRampToValueAtTime(base * 0.6, t + dur * 0.92);
+
+  // Vibrato: sin esto suena a nota, no a voz.
+  const lfo = c.createOscillator();
+  const lfoGain = c.createGain();
+  lfo.frequency.value = 32 + Math.random() * 8;
+  lfoGain.gain.value = base * 0.06;
+  lfo.connect(lfoGain);
+  lfoGain.connect(osc.frequency);
+
+  // Banda estrecha para el timbre nasal, y un techo para quitar aspereza.
+  const formant = c.createBiquadFilter();
+  formant.type = 'bandpass';
+  formant.frequency.value = 900 + Math.random() * 220;
+  formant.Q.value = 5.5;
+  const tope = c.createBiquadFilter();
+  tope.type = 'lowpass';
+  tope.frequency.value = 1850;
+
+  const g = c.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.5, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+  osc.connect(formant);
+  formant.connect(tope);
+  tope.connect(g);
+  g.connect(master);
+
+  lfo.start(t);
+  osc.start(t);
+  lfo.stop(t + dur);
+  osc.stop(t + dur);
 }
 
 export function isSoundOn(): boolean {

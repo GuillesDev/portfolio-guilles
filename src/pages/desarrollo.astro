@@ -136,7 +136,7 @@ const stack = [
 </SectionLayout>
 
 <script>
-  import { playSound } from '../lib/uiSound';
+  import { playSound, playRobotHurt } from '../lib/uiSound';
 
   // ── Scramble text reveal (original implementation) ──
   // Letters flicker through random glyphs before settling — terminal style.
@@ -521,6 +521,8 @@ const stack = [
         pendingHit = false;
         lastHit = t;
         hitVel = -7;
+        // Se queja igual que su gemelo pequeño; comparten el mute del robot.
+        playRobotHurt();
       }
       hitVel += (-90 * hitRot - 8 * hitVel) * dt;
       hitRot += hitVel * dt;

@@ -1338,9 +1338,12 @@ const generativePieces = [
     font-weight: 600;
   }
 
+  /* Centrado, no baseline: el icono de silencio es un SVG sin línea base de
+     texto, así que con `baseline` se apoyaba por su borde inferior y quedaba
+     descuadrado respecto al contador. Centrado, icono y "2 / 8" se alinean. */
   .gviewer__meta {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.75rem;
   }
 
