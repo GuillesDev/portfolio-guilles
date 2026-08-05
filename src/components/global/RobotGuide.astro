@@ -82,6 +82,7 @@
 
 <script>
   import { navigate } from 'astro:transitions/client';
+  import { playSound } from '../../lib/uiSound';
 
   // ── Robot guide singleton (survives View Transitions via transition:persist) ──
   const MESSAGES: Record<string, { sel: string; html: string }[]> = {
@@ -614,6 +615,9 @@
   async function askChat(question: string) {
     const cleanQuestion = question.trim();
     if (!cleanQuestion || chatBusy) return;
+    // El envío del usuario suena; la respuesta la pone la voz del robot.
+    // Así hay llamada y respuesta sin que dos sonidos se pisen.
+    playSound('burbuja');
     appendChatMessage({ role: 'user', text: cleanQuestion });
     setChatBusy(true);
 
@@ -704,7 +708,7 @@
       event.preventDefault();
       openChat();
     });
-    close?.addEventListener('click', closeChat);
+    close?.addEventListener('click', () => { playSound('cerrar'); closeChat(); });
 
     const clear = document.getElementById('rg-chat-clear');
     clear?.addEventListener('click', clearChat);

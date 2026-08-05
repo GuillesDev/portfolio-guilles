@@ -98,6 +98,8 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' 
 </style>
 
 <script>
+  import { playSound } from '../../lib/uiSound';
+
   function initMagneticButtons() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -119,5 +121,21 @@ const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' 
     });
   }
 
-  document.addEventListener('astro:page-load', initMagneticButtons);
+  // Aparte del magnético: el click debe sonar en cualquier dispositivo, no
+  // solo con ratón fino. El principal es una acción afirmativa ("enviar"),
+  // el resto un clic neutro. Los botones son contenido de página: sus
+  // listeners mueren en cada swap, así que no se acumulan.
+  function initButtonSounds() {
+    document.querySelectorAll<HTMLElement>('.btn').forEach((btn) => {
+      if (btn.dataset.sndBound) return;
+      btn.dataset.sndBound = '1';
+      const sonido = btn.classList.contains('btn--primary') ? 'enviar' : 'nav';
+      btn.addEventListener('click', () => playSound(sonido));
+    });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    initMagneticButtons();
+    initButtonSounds();
+  });
 </script>

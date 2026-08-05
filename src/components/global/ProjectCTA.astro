@@ -29,6 +29,21 @@ const mailto = `mailto:${social.email}?subject=${encodeURIComponent(subject)}`;
   </div>
 </section>
 
+<script>
+  import { playSound } from '../../lib/uiSound';
+
+  function initProjectCtaSound() {
+    document.querySelectorAll<HTMLElement>('.project-cta__button').forEach((btn) => {
+      if (btn.dataset.sndBound) return;
+      btn.dataset.sndBound = '1';
+      // "Cuéntame el proyecto" es un arranque, no una navegación: firma cálida.
+      btn.addEventListener('click', () => playSound('enviar'));
+    });
+  }
+
+  document.addEventListener('astro:page-load', initProjectCtaSound);
+</script>
+
 <style>
   .project-cta {
     position: relative;

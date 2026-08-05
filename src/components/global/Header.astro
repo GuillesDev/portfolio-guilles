@@ -453,6 +453,7 @@ import { nav } from '../../data/site';
     // Mobile menu
     burger.addEventListener('click', () => {
       const isOpen = burger.getAttribute('aria-expanded') === 'true';
+      playSound('nav');
       burger.setAttribute('aria-expanded', String(!isOpen));
       burger.setAttribute('aria-label', isOpen ? 'Abrir menú' : 'Cerrar menú');
       nav.classList.toggle('open', !isOpen);

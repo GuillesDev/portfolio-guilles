@@ -397,6 +397,7 @@ al del commit `8ca545a`). No se perdió recomprimiendo.
 
 Guillermo pidió "una musiquita de fondo muy suave". Se descartó la música y se
 quedó en sonidos de interfaz, con un botón en el header apagado por defecto.
+Empezaron en Grafismo y luego se extendieron a todo el sitio.
 
 - No hay ningún archivo de audio. Se sintetizan con Web Audio en
   `src/lib/uiSound.ts`, igual que la voz del robot. Cero bytes de descarga,
@@ -415,11 +416,22 @@ quedó en sonidos de interfaz, con un botón en el header apagado por defecto.
     `burbuja` en el chat de Fratelli. El chat va en bucle: los pops solo
     suenan la primera pasada (`data-chat-sounded`).
   - Desarrollo: `tecla` por línea del editor y `generado` al "guardado".
-  - Portada y header: `nav` al pulsar tarjetas de área y enlaces del menú.
+  - Portada y header: `nav` al pulsar tarjetas de área, enlaces del menú y
+    el toggle del menú móvil.
   - Fratelli: `paso` al tocar los vídeos.
+  - Botones (`Button.astro`): el principal (`btn--primary`) suena `enviar`
+    por ser acción afirmativa; el resto (`secondary`, `ghost`, LinkedIn, CV)
+    suena `nav`. `ProjectCTA` suena `enviar` por ser un arranque de proyecto.
+  - Robot: `burbuja` al enviar un mensaje en el chat y `cerrar` al cerrarlo.
+    Abrirlo no lleva sonido de interfaz a propósito: el robot ya reacciona
+    con su voz (la queja del golpe). La respuesta del bot también la pone su
+    voz, así que hay llamada (burbuja) y respuesta (voz) sin pisarse.
 - Medidos en el hilo de audio: entre −25 y −38 dBFS, y silencio absoluto en
   reposo. `tecla` es el más bajo porque es el que más se repite. Si se
   retocan, mantener ese rango: son avisos, no protagonistas.
+- La caché de `isSoundOn()` vive en memoria: escribir `localStorage` a mano
+  no la actualiza, hay que pasar por `setSoundOn`. Solo importa al probar; el
+  botón real ya lo hace.
 - El script de `/automatizacion` dejó de ser `is:inline` para poder importar
   el módulo. Su patrón (`dataset.ready` + `astro:page-load` + limpieza en
   `astro:before-swap`) ya era compatible con módulo; verificado que la
