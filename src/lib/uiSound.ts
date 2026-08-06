@@ -32,8 +32,12 @@ function contexto(): AudioContext | null {
     if (!ctx) {
       ctx = new AudioCtor();
       master = ctx.createGain();
-      // Techo general bajo: son avisos, no protagonistas.
-      master.gain.value = 0.5;
+      // Techo general bajo: son avisos, no protagonistas. En móvil el altavoz
+      // es pequeño y el audio web sale más flojo, así que sube bastante: los
+      // picos de los sonidos son ~0.15 como mucho, hay margen de sobra antes
+      // de saturar (el clip está en 1.0).
+      const tactil = window.matchMedia('(pointer: coarse)').matches;
+      master.gain.value = tactil ? 1.35 : 0.5;
       master.connect(ctx.destination);
     }
     // Safari deja el contexto suspendido hasta el primer gesto.
