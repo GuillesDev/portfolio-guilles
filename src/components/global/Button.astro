@@ -16,13 +16,17 @@ const {
 } = Astro.props;
 
 const Tag = href ? 'a' : 'button';
+// `download` va como cadena vacía, no como `true`: al ser <Tag> dinámico, Astro
+// no lo trata como atributo booleano y escribía download="true", que es el
+// nombre con el que el navegador guardaba el archivo. El CV se descargaba
+// llamándose "true".
 const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
 <Tag
   href={href}
   class:list={['btn', `btn--${variant}`, `btn--${size}`]}
-  download={download || undefined}
+  download={download ? '' : undefined}
   {...externalAttrs}
 >
   <slot />
