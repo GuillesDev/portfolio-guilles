@@ -393,6 +393,34 @@ Piezas mudas:
 entró al repo es `NUEVOS/VOX IS COMING 2.mp4`, mudo de origen (MD5 idéntico
 al del commit `8ca545a`). No se perdió recomprimiendo.
 
+## El CV en PDF (19 de agosto de 2026)
+
+Guillermo se quejó de faltas de ortografía y de que faltaban las eñes. No era
+cosa del PDF ni de una fuente sin glifos: el HTML del que sale estaba escrito en
+ASCII puro, sin una sola tilde ni eñe, y el PDF solo lo reflejaba.
+
+- El CV se edita en `cv/*.html` y de ahí sale el PDF. Los de `public/cv/` son
+  copia, y son los que sirve la web. Van juntos o se desincronizan: el HTML ya
+  decía `Fundador` y el PDF de julio seguía diciendo `Cofundador` desde que se
+  aplicó la regla de Fratelli.
+- `cv/generar-pdf.sh` imprime los dos con Chrome y los copia a `public/cv/`. Es
+  el hermano en macOS de `generar-pdf.ps1`, que solo corre en Windows.
+- El script comprueba que las fuentes web están dentro del PDF y falla si no.
+  Sin eso Chrome imprime con las de reserva del sistema cuando Google Fonts
+  tarda, y sale otra tipografía sin avisar: así se generaron los PDF de julio,
+  con Segoe UI y Consolas de Windows en vez de Sora, Source Sans 3, Literata e
+  IBM Plex Mono. Pasó tres veces seguidas mientras se rehacían, así que no basta
+  con mirar el render una vez.
+- Al comprobarlas, ojo: Chrome embebe las variables como Type3, que no llevan
+  `/BaseFont`, y el nombre está en su `/FontDescriptor`. Mirando solo
+  `/BaseFont` parece que no han cargado cuando sí.
+- La foto es `cv/foto-cv.jpg`, del CV y no de la web. Antes tiraba de
+  `public/media/guillermo-lopez.jpeg`, que la auditoría borró al pasar a WebP. Y
+  con el WebP el PDF se iba a 1,3 MB: Chrome solo pasa el JPEG tal cual al PDF y
+  lo demás lo mete como mapa de bits sin comprimir.
+- Con Literata de verdad, el nombre del corporativo ya no cabía a 8,7 mm y
+  partía `Castillo-Olivares` por el guion.
+
 ## Sonidos de interfaz
 
 Guillermo pidió "una musiquita de fondo muy suave". Se descartó la música y se
