@@ -1,0 +1,354 @@
+---
+/**
+ * Emisión — un canal de /grafismo: la pieza en antena a tamaño grande y,
+ * debajo, la parrilla del canal como material, sin un rótulo por pieza.
+ *
+ * Antes cada canal era una rejilla de tarjetas de 380 px con su cartela:
+ * dieciséis imágenes pequeñas y dieciséis títulos compitiendo, y ninguna
+ * pieza llegaba a verse. Aquí solo hay un título en pantalla, el de la que
+ * está en antena.
+ *
+ * El monitor se reproduce solo, pero únicamente con ratón: en táctil no
+ * descarga nada hasta que se pulsa, y quien pide movimiento reducido tampoco
+ * lo tiene. Esa decisión la toma el JS de la página, que es quien sintoniza.
+ *
+ * Pulsar el monitor activa o quita el sonido, no abre nada. Como eso ya fue
+ * una función escondida una vez, el estado se ve siempre: el altavoz en la
+ * esquina y, en el rótulo de abajo, qué pasa si pulsas. Catorce de las
+ * veintidós piezas no tienen pista de audio, así que ahí el altavoz sale
+ * tachado y apagado y el rótulo lo dice, en vez de dejar un click que no
+ * hace nada. Ver la pieza a pantalla completa sigue existiendo, pero en su
+ * propio botón.
+ *
+ * El póster va en `--poster`, sobre una capa detrás del vídeo, y no en el
+ * atributo `poster`: `play()` apaga el póster nada más llamarse, aunque no
+ * haya ni un frame decodificado, y con `preload="none"` eso deja el hueco de
+ * la descarga en negro. El vídeo está oculto hasta que reproduce de verdad.
+ */
+interface Piece {
+  title: string;
+  slug: string;
+  muda: boolean;
+}
+
+interface Props {
+  folder: string;
+  pieces: Piece[];
+  channel: string;
+}
+
+const { folder, pieces, channel } = Astro.props;
+const media = (slug: string, ext: string) => `/media/grafismo/${folder}/${slug}${ext}`;
+const first = pieces[0];
+---
+
+<div class="emision" data-emision>
+  <div
+    class="emision__screen"
+    style={`--poster: url("${media(first.slug, '-poster.jpg')}")`}
+    role="button"
+    tabindex="0"
+    aria-label={first.muda ? `${first.title}: pieza sin audio` : `Activar el sonido de ${first.title}`}
+    aria-pressed="false"
+    data-emision-screen
+    data-canal-pantalla
+  >
+    <video class="emision__video" playsinline muted preload="none" data-emision-video></video>
+
+    <span class="emision__corner emision__corner--tl" aria-hidden="true"></span>
+    <span class="emision__corner emision__corner--tr" aria-hidden="true"></span>
+    <span class="emision__corner emision__corner--bl" aria-hidden="true"></span>
+    <span class="emision__corner emision__corner--br" aria-hidden="true"></span>
+
+    <span class="emision__play" aria-hidden="true">▶</span>
+
+    <span class="emision__sound" data-emision-sound aria-hidden="true"><i></i></span>
+
+    <button
+      class="emision__expand"
+      type="button"
+      aria-label={`Ver ${first.title} a pantalla completa`}
+      data-emision-expand
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+        <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="emision__bar">
+    <strong class="emision__title" data-emision-title>{first.title}</strong>
+    <span class="emision__hint mono" data-emision-hint aria-hidden="true">Pulsa para el sonido</span>
+  </div>
+
+  <div class="emision__grid" aria-label={`Piezas de ${channel}`}>
+    {pieces.map((piece, i) => (
+      <button
+        class:list={['emision__thumb', i === 0 && 'emision__thumb--on']}
+        type="button"
+        aria-label={`Sintonizar ${piece.title}`}
+        aria-pressed={i === 0 ? 'true' : 'false'}
+        data-src={media(piece.slug, '.mp4')}
+        data-poster={media(piece.slug, '-poster.jpg')}
+        data-title={piece.title}
+        data-muda={piece.muda ? 'true' : undefined}
+      >
+        <img src={media(piece.slug, '-poster.jpg')} alt="" width="1280" height="720" loading="lazy" decoding="async" />
+      </button>
+    ))}
+  </div>
+</div>
+
+<style>
+  .emision {
+    display: flex;
+    flex-direction: column;
+    grid-column: 1 / -1;
+  }
+
+  /* ── El monitor ── */
+  .emision__screen {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid var(--grafismo-border);
+    border-radius: var(--radius-md);
+    background-color: #000;
+    background-image: var(--poster);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .emision__screen:hover,
+  .emision__screen:focus-visible {
+    border-color: var(--grafismo-primary);
+    outline: none;
+  }
+
+  .emision__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .emision__screen.is-playing .emision__video {
+    opacity: 1;
+  }
+
+  .emision__corner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 0 solid var(--grafismo-primary);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .emision__corner--tl { top: 14px; left: 14px; border-top-width: 2px; border-left-width: 2px; }
+  .emision__corner--tr { top: 14px; right: 14px; border-top-width: 2px; border-right-width: 2px; }
+  .emision__corner--bl { bottom: 14px; left: 14px; border-bottom-width: 2px; border-left-width: 2px; }
+  .emision__corner--br { bottom: 14px; right: 14px; border-bottom-width: 2px; border-right-width: 2px; }
+
+  /* La pista de que el monitor se pulsa. Sobra en cuanto está en marcha. */
+  .emision__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.6rem;
+    color: #fff;
+    opacity: 0.62;
+    text-shadow: 0 0 24px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .emision__screen.is-playing .emision__play {
+    opacity: 0;
+  }
+
+  /* Estado del sonido, siempre a la vista: es lo que cambia al pulsar el
+     monitor, y una vez ya se escondió esa función sin dar ninguna pista.
+     No recoge clicks: el que manda es el de la pantalla entera. */
+  .emision__sound {
+    position: absolute;
+    left: 48px;
+    bottom: 22px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: rgba(240, 240, 240, 0.82);
+    background: rgba(5, 5, 16, 0.55);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+
+  /* Altavoz dibujado con clip-path: ni iconos ni fuentes de más. */
+  .emision__sound i {
+    display: block;
+    width: 15px;
+    height: 15px;
+    background: currentColor;
+    clip-path: polygon(0 34%, 34% 34%, 66% 4%, 66% 96%, 34% 66%, 0 66%);
+  }
+
+  /* La barra del silencio va en el contenedor, no en el icono: dentro la
+     recortaría el propio clip-path del altavoz. */
+  .emision__sound::after {
+    content: '';
+    position: absolute;
+    width: 21px;
+    height: 2px;
+    background: currentColor;
+    transform: rotate(-45deg);
+  }
+
+  .emision__sound--on {
+    color: var(--grafismo-primary);
+  }
+
+  .emision__sound--on::after {
+    display: none;
+  }
+
+  /* Pieza sin pista de audio: el altavoz se apaga en vez de prometer algo
+     que no va a sonar. */
+  .emision__sound--muda {
+    color: rgba(240, 240, 240, 0.34);
+  }
+
+  .emision__expand {
+    position: absolute;
+    right: 48px;
+    bottom: 22px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: rgba(240, 240, 240, 0.82);
+    background: rgba(5, 5, 16, 0.55);
+    border: 1px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: color var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+  }
+
+  .emision__expand:hover,
+  .emision__expand:focus-visible {
+    color: #fff;
+    border-color: var(--grafismo-primary);
+    outline: none;
+  }
+
+  /* ── El rótulo de lo que hay en antena ── */
+  .emision__bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-top: var(--space-s);
+    padding-bottom: var(--space-xs);
+    border-bottom: 1px solid var(--grafismo-border);
+  }
+
+  .emision__title {
+    font-family: 'Syne Variable', 'Syne', system-ui, sans-serif;
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .emision__hint {
+    flex-shrink: 0;
+    font-size: var(--step--2);
+    color: rgba(240, 240, 240, 0.4);
+  }
+
+  /* ── La parrilla ── */
+  .emision__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 0.6rem;
+    margin-top: var(--space-m);
+  }
+
+  .emision__thumb {
+    position: relative;
+    padding: 0;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: calc(var(--radius-md) / 2);
+    background: var(--grafismo-surface);
+    cursor: pointer;
+    /* Apagadas: la que está en antena es la única a todo color. */
+    filter: saturate(0.5) brightness(0.6);
+    transition: filter var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out);
+  }
+
+  .emision__thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .emision__thumb:hover,
+  .emision__thumb:focus-visible {
+    filter: none;
+    border-color: var(--grafismo-border);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  .emision__thumb--on {
+    filter: none;
+    border-color: var(--grafismo-primary);
+  }
+
+  .emision__thumb--on::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 2px;
+    background: var(--grafismo-primary);
+  }
+
+  @media (max-width: 640px) {
+    .emision__grid {
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      gap: 0.45rem;
+    }
+
+    .emision__corner { width: 16px; height: 16px; }
+    .emision__corner--tl, .emision__corner--tr { top: 10px; }
+    .emision__corner--bl, .emision__corner--br { bottom: 10px; }
+    .emision__corner--tl, .emision__corner--bl { left: 10px; }
+    .emision__corner--tr, .emision__corner--br { right: 10px; }
+
+    .emision__play { font-size: 2rem; }
+
+    .emision__sound { left: 36px; bottom: 15px; width: 30px; height: 30px; }
+    .emision__expand { right: 36px; bottom: 15px; width: 30px; height: 30px; }
+
+    /* En pantalla estrecha el título ya dice bastante; la pista de pulsar
+       cabría partiendo el rótulo en dos líneas. */
+    .emision__hint { display: none; }
+  }
+</style>
