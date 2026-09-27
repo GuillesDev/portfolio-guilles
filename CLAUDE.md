@@ -779,6 +779,15 @@ Seguridad y límites:
   fundir y un salto de tamaño. En Grafismo el del loader se da la vuelta en
   el vuelo (el de la esquina está de espaldas en la silla) y espera encima a
   que la silla y las pantallas se fundan.
+- En móvil (probado con CPU x6 y 4G/3G simulados) el 3D tardaba: unos 2 s
+  sin JS con todo quieto, la barra subía al 85 % y volvía a 0 %, y con mala
+  cobertura el loader llegaba al tope de 8,5 s y salía la web sin robot.
+  Ahora: plano del robot en discontinua con CSS hasta que entra el canvas,
+  barra que nunca retrocede y no llega a pararse, tope de 16 s (a partir de
+  11 s sin 3D, barra sencilla) y el vídeo del hero de la portada no empieza
+  hasta que el robot despega (le quitaba ancho de banda). Para medirlo como
+  en producción: compilar y servir `.vercel/output/static`; el servidor de
+  desarrollo carga 7 MB sin empaquetar y no sirve para esto.
 - Sin WebGL, barra sencilla; con movimiento reducido, sin loader.
 - A Guillermo no le importa que dure: prefiere que sea espectacular.
 

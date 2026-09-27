@@ -276,13 +276,26 @@ import Button from '../global/Button.astro';
 
     heroVideo.addEventListener('ended', playNext);
 
-    // Start first video
-    heroVideo.src = videos[index];
-    index = (index + 1) % videos.length;
-    heroVideo.load();
-    heroVideo.play().then(() => {
-      if (!leaving) heroVideo.classList.add('is-playing');
-    }).catch(() => {});
+    // Start first video. Con la pantalla de carga delante, espera a que el
+    // robot despegue: en móvil el vídeo (hasta 1,4 MB) le quitaba ancho de
+    // banda al 3D del loader y este llegaba tarde.
+    function start() {
+      if (leaving || !heroVideo.isConnected) return;
+      heroVideo.src = videos[index];
+      index = (index + 1) % videos.length;
+      heroVideo.load();
+      heroVideo.play().then(() => {
+        if (!leaving) heroVideo.classList.add('is-playing');
+      }).catch(() => {});
+    }
+    if ((window as unknown as { __glLoaderState?: string }).__glLoaderState === 'pending') {
+      let started = false;
+      const go = () => { if (!started) { started = true; start(); } };
+      window.addEventListener('gl:loader-flight', go, { once: true });
+      window.addEventListener('gl:loader-done', go, { once: true });
+    } else {
+      start();
+    }
     // La espera entre clips sobrevive al cambio de body si no se cancela.
     document.addEventListener('astro:before-preparation', () => {
       leaving = true;

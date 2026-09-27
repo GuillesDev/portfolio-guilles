@@ -60,6 +60,26 @@
   }
   .gl-loader__stage canvas { display: block; width: 100%; height: 100%; }
 
+  /* Mientras llega el 3D (en móvil puede tardar unos segundos): el plano del
+     robot en discontinua, latiendo, para que no parezca colgado. Desaparece
+     solo en cuanto entra el canvas. */
+  .gl-loader__stage:empty::before,
+  .gl-loader__stage:empty::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    height: 19%;
+    border: 1.5px dashed rgba(241, 169, 58, 0.6);
+    transform: translateX(-50%);
+    animation: gl-blueprint 1.3s ease-in-out infinite;
+  }
+  .gl-loader__stage:empty::before { top: 37%; aspect-ratio: 1.33; border-radius: 18%; }
+  .gl-loader__stage:empty::after { top: 60%; height: 18%; aspect-ratio: 1.14; border-radius: 16%; animation-delay: 0.25s; }
+  @keyframes gl-blueprint {
+    0%, 100% { opacity: 0.25; }
+    50% { opacity: 1; }
+  }
+
   .gl-loader__progress {
     position: fixed;
     left: 50%;
@@ -420,7 +440,11 @@
     let mountDuration = 2600;
     const startedAt = flags.__glLoaderStart ?? performance.now();
     const seated = (window.location.pathname.replace(/\/+$/, '') || '/') === '/grafismo';
-    const deadline = startedAt + 8500;
+    // Tope de seguridad por si el 3D no llega nunca. Era de 8,5 s y en móvil,
+    // con el 3D llegando tarde, se rendía y salía la web sin robot.
+    const deadline = startedAt + 16000;
+    // Si el 3D llega después de esto, ya no se monta: barra sencilla.
+    const lateScene = startedAt + 11000;
     const imgs = Array.from(page.querySelectorAll<HTMLImageElement>('img:not([loading="lazy"])'));
     let loaded = 0;
     const imageDone = () => { loaded++; };
@@ -432,8 +456,13 @@
       }
     });
 
+    // La barra nunca retrocede. Antes subía al 85 % esperando al 3D y
+    // volvía a 0 % al empezar el montaje.
+    let shown = 0;
+    let mountBase = 0;
     function paint(value: number) {
-      const number = Math.round(clamp(value) * 100);
+      shown = Math.max(shown, clamp(value));
+      const number = Math.round(shown * 100);
       fill!.style.width = `${number}%`;
       pct!.textContent = `${number}%`;
     }
@@ -521,8 +550,8 @@
         if (loaded >= imgs.length || elapsed >= 3000) { finish(false); return; }
       } else if (scene && mountStart) {
         const assembly = clamp((now - mountStart) / mountDuration);
-        const progress = Math.max(assembly, imageProgress);
-        paint(Math.min(0.99, progress));
+        // El montaje reparte lo que queda de barra desde donde estaba.
+        paint(Math.min(0.99, mountBase + (0.99 - mountBase) * assembly));
         if (phase === 'assembly') {
           render(assembly, 0, 0);
           // Se reserva tiempo para el saludo y el vuelo dentro del límite total.
@@ -588,7 +617,9 @@
           if (scene && p >= 1) { finish(true); return; }
         }
       } else {
-        paint(Math.min(0.95, Math.max(elapsed / 3500, imageProgress * 0.8)));
+        // Esperando al 3D: sigue avanzando, cada vez más despacio, sin llegar
+        // a pararse (con 3G tardaba y la barra se quedaba clavada).
+        paint(0.45 * (1 - Math.exp(-elapsed / 5000)));
       }
       frame = requestAnimationFrame(tick);
     }
@@ -604,10 +635,11 @@
     gl.getExtension('WEBGL_lose_context')?.loseContext();
     void createScene(mount, () => disposed || finished, (piece) => logLine(piece)).then((result) => {
       if (!result || disposed || finished) { result?.dispose(); return; }
-      if (performance.now() > deadline - 3000) { result.dispose(); useSimple(); return; }
+      if (performance.now() > lateScene) { result.dispose(); useSimple(); return; }
       scene = result;
       mountStart = performance.now();
-      mountDuration = Math.min(2600, Math.max(800, deadline - mountStart - 2200));
+      mountBase = shown;
+      mountDuration = Math.min(2600, Math.max(1400, deadline - mountStart - 2600));
       render(0, 0, 0);
     }).catch(() => { if (!disposed && !finished) useSimple(); });
   }
