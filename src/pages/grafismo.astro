@@ -97,7 +97,7 @@ const generativeChannel = conAudio('ia', generativePieces);
       <div class="grafismo-exp__bar" data-animate="fade-up">
         <div class="grafismo-exp__item">
           <span class="grafismo-exp__value">Mediaset</span>
-          <span class="grafismo-exp__label mono">Actual</span>
+          <span class="grafismo-exp__label mono">Cuatro · Telecinco</span>
         </div>
         <div class="grafismo-exp__divider"></div>
         <div class="grafismo-exp__item">
@@ -310,63 +310,6 @@ const generativeChannel = conAudio('ia', generativePieces);
           </figure>
         </div>
       </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tools -->
-  <section class="grafismo-tools section" id="herramientas">
-    <div class="container">
-      <div class="grafismo-tools__header">
-        <span class="mono grafismo-section-label" data-animate="fade-up">Herramientas</span>
-        <h2 class="grafismo-section-title" data-animate="title-reveal">
-          <span class="title-line"><span class="title-line__inner">Stack técnico</span></span>
-        </h2>
-      </div>
-
-      <div class="grafismo-tools__grid" data-animate="stagger">
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/Adobe_After_Effects_CC_icon.svg" alt="After Effects" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">After Effects</span>
-          <span class="tool-card__role mono">Motion & Compositing</span>
-        </div>
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/Adobe_Photoshop_CC_icon.svg" alt="Photoshop" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">Photoshop</span>
-          <span class="tool-card__role mono">Diseño & Retoque</span>
-        </div>
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/Adobe_Illustrator_CC_icon.svg" alt="Illustrator" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">Illustrator</span>
-          <span class="tool-card__role mono">Vectorial & Gráfica</span>
-        </div>
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/Adobe_Premiere_Pro_CC_icon.svg" alt="Premiere Pro" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">Premiere Pro</span>
-          <span class="tool-card__role mono">Edición & Montaje</span>
-        </div>
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/ChatGPT_logo.svg" alt="ChatGPT" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">ChatGPT</span>
-          <span class="tool-card__role mono">IA Generativa</span>
-        </div>
-        <div class="tool-card">
-          <div class="tool-card__icon">
-            <img src="/media/logos/magnific-logo.svg" alt="Magnific" width="48" height="48" loading="lazy" decoding="async" />
-          </div>
-          <span class="tool-card__name">Magnific</span>
-          <span class="tool-card__role mono">IA Generativa</span>
-        </div>
       </div>
     </div>
   </section>
@@ -780,6 +723,11 @@ const generativeChannel = conAudio('ia', generativePieces);
     transform: translateX(-14px);
     pointer-events: none;
     transition: opacity 0.28s var(--ease-out), transform 0.28s var(--ease-out);
+  }
+
+  /* La pista se pinta dentro de ChannelEmision; aquí subimos su contraste. */
+  .video-showcase :global(.emision__hint) {
+    color: #bfc5cb;
   }
 
   .canal-mando--abierto .channel-switch {
@@ -1584,90 +1532,6 @@ const generativeChannel = conAudio('ia', generativePieces);
     }
   }
 
-  /* ── Tools Grid ── */
-  .grafismo-tools__header {
-    margin-bottom: var(--space-xl);
-    text-align: center;
-  }
-
-  .grafismo-tools__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-m);
-  }
-
-  .tool-card {
-    padding: var(--space-l) var(--space-m);
-    border: 1px solid var(--grafismo-border);
-    border-radius: var(--radius-md);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-2xs);
-    transition: border-color var(--duration-fast) var(--ease-out),
-                background var(--duration-fast) var(--ease-out),
-                transform var(--duration-fast) var(--ease-out);
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .tool-card:hover {
-    border-color: var(--grafismo-primary);
-    background: rgba(0, 212, 255, 0.04);
-    transform: translateY(-4px);
-  }
-
-  .tool-card__icon {
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: var(--space-3xs);
-    border-radius: var(--radius-sm);
-    transition: transform var(--duration-fast) var(--ease-out);
-  }
-
-  .tool-card:hover .tool-card__icon {
-    transform: scale(1.1);
-  }
-
-  .tool-card__icon img {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.15));
-  }
-
-  .tool-card:hover .tool-card__icon img {
-    filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.3));
-  }
-
-  .tool-card__icon--text {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #9999FF 0%, #00005B 100%);
-    border-radius: 10px;
-    font-family: 'Syne Variable', sans-serif;
-    font-weight: 800;
-    font-size: 1.3rem;
-    color: #fff;
-  }
-
-  .tool-card__name {
-    font-family: 'Syne Variable', sans-serif;
-    font-size: var(--step-0);
-    font-weight: 600;
-    color: var(--grafismo-text);
-  }
-
-  .tool-card__role {
-    font-size: var(--step--2);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--grafismo-primary);
-  }
-
   /* ── Particle canvas ── */
   .grafismo-particles {
     position: fixed;
@@ -1681,18 +1545,13 @@ const generativeChannel = conAudio('ia', generativePieces);
   /* Ensure all sections sit above the canvas */
   .grafismo-hero,
   .grafismo-exp,
-  .grafismo-showcase,
-  .grafismo-tools {
+  .grafismo-showcase {
     position: relative;
     z-index: 1;
   }
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
-    .grafismo-tools__grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
     .grafismo-hero__labels {
       flex-wrap: wrap;
       gap: var(--space-xs);
@@ -1965,6 +1824,11 @@ const generativeChannel = conAudio('ia', generativePieces);
         // Pause cabecera video if leaving CH 03
         const cabVid = document.getElementById('cabecera-video') as HTMLVideoElement;
         if (cabVid) { cabVid.pause(); cabVid.currentTime = 0; }
+        // El iframe sigue reproduciendo audio aunque el canal se oculte.
+        if (cabYoutube && currentChannel === 'cabeceras') {
+          cabYoutube.src = 'about:blank';
+          cabYoutube.classList.add('cabecera-player__youtube--hidden');
+        }
 
         // Switch grids during the glitch peak
         setTimeout(() => {
@@ -2426,11 +2290,13 @@ const generativeChannel = conAudio('ia', generativePieces);
       if (item.youtube) {
         cabVideo.pause();
         cabVideo.style.display = 'none';
+        if (cabFS) cabFS.style.display = 'none';
         if (cabYoutube) {
           cabYoutube.src = `https://www.youtube-nocookie.com/embed/${item.src}?rel=0`;
           cabYoutube.classList.remove('cabecera-player__youtube--hidden');
         }
       } else {
+        if (cabFS) cabFS.style.display = '';
         if (cabYoutube) {
           cabYoutube.classList.add('cabecera-player__youtube--hidden');
           cabYoutube.src = 'about:blank';

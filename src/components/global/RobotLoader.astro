@@ -1,0 +1,550 @@
+<div class="gl-loader" id="gl-loader" aria-hidden="true">
+  <div class="gl-loader__grid"></div>
+  <div class="gl-loader__stage" id="gl-loader-stage"></div>
+  <ol class="gl-loader__log" id="gl-loader-log"></ol>
+  <div class="gl-loader__progress">
+    <span class="gl-loader__label">Montando el robot</span>
+    <div class="gl-loader__bar"><div class="gl-loader__fill" id="gl-loader-fill"></div></div>
+    <span class="gl-loader__pct" id="gl-loader-pct">0%</span>
+  </div>
+</div>
+
+<style is:global>
+  .gl-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    background: #0a0a0f;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  html.gl-intro .gl-loader { display: block; pointer-events: auto; }
+  html.gl-intro.gl-loader--flight .gl-loader {
+    background: transparent;
+    pointer-events: none;
+    transition: background 0.7s ease;
+  }
+  .gl-loader--simple-done { opacity: 0; pointer-events: none !important; transition: opacity 0.35s ease; }
+
+  .gl-loader__grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(241, 169, 58, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(241, 169, 58, 0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center;
+    mask-image: radial-gradient(ellipse 70% 62% at 50% 56%, black 25%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 56%, black 25%, transparent 78%);
+  }
+  .gl-loader__grid::after {
+    content: '';
+    position: absolute;
+    top: 22%;
+    bottom: 16%;
+    left: 50%;
+    border-left: 1px dashed rgba(241, 169, 58, 0.22);
+  }
+
+  .gl-loader__stage {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: min(94vw, 980px);
+    height: min(80svh, 820px);
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+    pointer-events: none;
+  }
+  .gl-loader__stage canvas { display: block; width: 100%; height: 100%; }
+
+  .gl-loader__progress {
+    position: fixed;
+    left: 50%;
+    bottom: max(7vh, 24px);
+    width: min(220px, 62vw);
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px 16px;
+    color: rgba(255, 255, 255, 0.65);
+    font: 400 11px/1.2 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .gl-loader__label { grid-column: 1 / -1; }
+
+  /* Registro de montaje: cada pieza que encaja deja su línea. */
+  .gl-loader__log {
+    position: fixed;
+    left: max(5vw, 24px);
+    bottom: max(7vh, 24px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font: 400 11px/1.2 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+  }
+  .gl-loader__log li {
+    animation: gl-log-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .gl-loader__log li::before {
+    content: '✓ ';
+    color: #f1a93a;
+  }
+  .gl-loader__log li.gl-loader__log--ready {
+    color: #fafafa;
+  }
+  .gl-loader__log li.gl-loader__log--ready::before {
+    content: '● ';
+    color: var(--gl-accent, #f1a93a);
+  }
+  @keyframes gl-log-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: none; }
+  }
+  html.gl-loader--flight .gl-loader__log { opacity: 0; transition: opacity 0.25s ease; }
+  .gl-loader__bar { height: 2px; align-self: center; background: rgba(255, 255, 255, 0.14); }
+  .gl-loader__fill { width: 0; height: 100%; background: #f1a93a; }
+  .gl-loader__pct { min-width: 4ch; text-align: right; }
+  html.gl-loader--flight .gl-loader__grid,
+  html.gl-loader--flight .gl-loader__progress { opacity: 0; transition: opacity 0.25s ease; }
+
+  @media (max-width: 768px) {
+    .gl-loader__stage { width: 100vw; height: min(66svh, 600px); top: 46%; }
+    .gl-loader__log {
+      left: 50%;
+      right: auto;
+      bottom: calc(max(7vh, 24px) + 58px);
+      transform: translateX(-50%);
+      width: min(260px, 80vw);
+      align-items: center;
+      text-align: center;
+    }
+    .gl-loader__log li:nth-last-child(n + 4) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gl-loader { display: none !important; }
+  }
+</style>
+
+<script>
+  type LoaderFlags = Window & { __glLoaderState?: string; __glLoaderStart?: number };
+  type SceneHandle = {
+    update: (assembled: number, power: number, wave: number) => void;
+    dispose: () => void;
+  };
+  const flags = window as LoaderFlags;
+  let activeCleanup: (() => void) | null = null;
+
+  const clamp = (n: number) => Math.max(0, Math.min(1, n));
+  const smooth = (n: number) => { const p = clamp(n); return p * p * (3 - 2 * p); };
+
+  async function createScene(
+    mount: HTMLElement,
+    cancelled: () => boolean,
+    onLock: (label: string) => void,
+  ): Promise<SceneHandle | null> {
+    const THREE = await import('three');
+    const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+    const { buildRobotRig } = await import('../../lib/robotRig');
+    if (cancelled()) return null;
+
+    let renderer: InstanceType<typeof THREE.WebGLRenderer> | null = null;
+    let rig: ReturnType<typeof buildRobotRig> | null = null;
+    let edgeMat: InstanceType<typeof THREE.LineBasicMaterial> | null = null;
+    const edgeGeos: { dispose(): void }[] = [];
+    let resizeObserver: ResizeObserver | null = null;
+    try {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 40);
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: window.innerWidth > 768 });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth <= 768 ? 1.5 : 2));
+      mount.appendChild(renderer.domElement);
+      scene.add(new THREE.AmbientLight(0xfff4e0, 1.05));
+      const key = new THREE.DirectionalLight(0xffffff, 2.1);
+      key.position.set(2.5, 3.5, 4);
+      scene.add(key);
+      const rim = new THREE.PointLight(0xf1a93a, 10, 12);
+      rim.position.set(-2.4, 1.2, 1.5);
+      scene.add(rim);
+
+      rig = buildRobotRig(THREE, RoundedBoxGeometry);
+      scene.add(rig.robot);
+      const { parts } = rig;
+      const path = window.location.pathname.replace(/\/+$/, '') || '/';
+      const accents: Record<string, number> = {
+        '/': 0x3b82f6, '/grafismo': 0x00d4ff, '/automatizacion': 0x39d353,
+        '/desarrollo': 0xf1a93a, '/fratelli-pazzi': 0xd56858,
+      };
+      const accent = accents[path] ?? 0xf1a93a;
+      // El "Sistema listo" del registro lleva el mismo color que los ojos.
+      (mount.closest('.gl-loader') as HTMLElement | null)?.style.setProperty('--gl-accent', `#${accent.toString(16).padStart(6, '0')}`);
+      const offColor = new THREE.Color(0x26262a);
+      const onColor = new THREE.Color(accent);
+
+      // Las aristas siguen a cada malla; así el despiece conserva el aspecto de plano técnico.
+      edgeMat = new THREE.LineBasicMaterial({ color: 0xf1a93a, transparent: true, opacity: 0.85 });
+      [parts.body, parts.neck, parts.head, parts.screen, parts.chest, parts.antenna,
+        parts.armL, parts.armR, parts.earL, parts.earR].forEach((mesh) => {
+        const geo = new THREE.EdgesGeometry(mesh.geometry, 28);
+        edgeGeos.push(geo);
+        mesh.add(new THREE.LineSegments(geo, edgeMat));
+      });
+
+      // Cada pieza entra desde fuera del plano, girando, y encaja por turnos:
+      // primero el cuerpo desde abajo, luego brazos, cabeza y los detalles.
+      // Offset y giro de salida van en coordenadas del padre de cada pieza.
+      type Piece = {
+        obj: any;
+        label: string;
+        delay: number;
+        from: [number, number, number];
+        spin: [number, number, number];
+        basePos: any;
+        baseRot: any;
+        locked: boolean;
+      };
+      const PIECE_TIME = 0.34;
+      const pieces: Piece[] = ([
+        [parts.body, 'Cuerpo', 0.0, [0, -3.4, 0.6], [0.9, -1.4, 0.2]],
+        [parts.neck, 'Cuello', 0.1, [0, -1.6, 2.4], [1.6, 0, 0]],
+        [rig.armLPivot, 'Brazo izquierdo', 0.18, [-3.6, 0.8, 0.8], [0.4, 0.8, -2.4]],
+        [rig.armRPivot, 'Brazo derecho', 0.24, [3.6, 0.8, 0.8], [0.4, -0.8, 2.4]],
+        [rig.headGroup, 'Cabeza', 0.32, [0, 3.8, 0.9], [0.7, 2.4, 0.5]],
+        [parts.earL, 'Oreja izquierda', 0.44, [-2.6, 0.5, 0.4], [0, 0, 3]],
+        [parts.earR, 'Oreja derecha', 0.47, [2.6, 0.5, 0.4], [0, 0, -3]],
+        [parts.screen, 'Pantalla', 0.5, [0, 0.4, 3.4], [0, 0, 1.2]],
+        [parts.antenna, 'Antena', 0.56, [0, 2.6, 0], [0, 0, 2.2]],
+        [rig.antennaTip, 'Punta de la antena', 0.6, [0, 3.2, 0.2], [0, 0, 0]],
+        [rig.eyeL, 'Ojo izquierdo', 0.63, [-1.4, 0.8, 3.8], [0, 0, 0]],
+        [rig.eyeR, 'Ojo derecho', 0.65, [1.4, 0.8, 3.8], [0, 0, 0]],
+        [parts.chest, 'Luz del pecho', 0.66, [0, -0.8, 3.6], [0, 0, 0]],
+      ] as [any, string, number, [number, number, number], [number, number, number]][]).map(
+        ([obj, label, delay, from, spin]) => ({
+          obj, label, delay, from, spin,
+          basePos: obj.position.clone(),
+          baseRot: obj.rotation.clone(),
+          locked: false,
+        }),
+      );
+
+      // Aros de luz que marcan el encaje de cada pieza.
+      const sparkGeo = new THREE.RingGeometry(0.16, 0.2, 40);
+      const sparks: { mesh: any; mat: any; born: number }[] = [];
+      const worldPos = new THREE.Vector3();
+      function spark(obj: any) {
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0xf1a93a, transparent: true, opacity: 1, depthWrite: false,
+          blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+        });
+        const mesh = new THREE.Mesh(sparkGeo, mat);
+        obj.getWorldPosition(worldPos);
+        mesh.position.copy(worldPos);
+        mesh.lookAt(camera.position);
+        scene.add(mesh);
+        sparks.push({ mesh, mat, born: performance.now() });
+      }
+      function updateSparks(now: number) {
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const s = sparks[i];
+          const k = (now - s.born) / 420;
+          if (k >= 1) {
+            scene.remove(s.mesh);
+            s.mat.dispose();
+            sparks.splice(i, 1);
+            continue;
+          }
+          s.mesh.scale.setScalar(0.6 + k * 2.4);
+          s.mat.opacity = (1 - k) * (1 - k);
+        }
+      }
+      const white = new THREE.Color(0xffffff);
+      const armRBaseZ = rig.armRPivot.rotation.z;
+      function resize() {
+        if (!renderer) return;
+        const w = Math.max(1, mount.clientWidth);
+        const h = Math.max(1, mount.clientHeight);
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+      resize();
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(mount);
+
+      const dispose = () => {
+        sparks.forEach((spk) => { scene.remove(spk.mesh); spk.mat.dispose(); });
+        sparks.length = 0;
+        sparkGeo.dispose();
+        resizeObserver?.disconnect();
+        edgeGeos.forEach((geo) => geo.dispose());
+        edgeMat?.dispose();
+        rig?.dispose();
+        renderer?.dispose();
+        renderer?.forceContextLoss();
+        renderer?.domElement.remove();
+      };
+      if (cancelled()) { dispose(); return null; }
+
+      return {
+        update(assembled, power, wave) {
+          if (!rig || !renderer || !edgeMat) return;
+          const now = performance.now();
+          for (const p of pieces) {
+            const k = smooth((assembled - p.delay) / PIECE_TIME);
+            // Llega rápido y frena al encajar.
+            const e = (1 - k) * (1 - k);
+            p.obj.position.set(
+              p.basePos.x + p.from[0] * e,
+              p.basePos.y + p.from[1] * e,
+              p.basePos.z + p.from[2] * e,
+            );
+            p.obj.rotation.set(
+              p.baseRot.x + p.spin[0] * e,
+              p.baseRot.y + p.spin[1] * e,
+              p.baseRot.z + p.spin[2] * e,
+            );
+            p.obj.visible = assembled >= p.delay - 0.04;
+            if (!p.locked && k >= 0.985) {
+              p.locked = true;
+              spark(p.obj);
+              onLock(p.label);
+            }
+          }
+          // Saludo: el brazo derecho se abre hacia fuera (ver robotRig.ts).
+          if (wave > 0) {
+            rig.armRPivot.rotation.z = armRBaseZ + (2.35 + Math.sin(now * 0.014) * 0.3) * wave;
+            rig.armRPivot.rotation.x = -0.22 * wave;
+          }
+          // Gira despacio mientras se monta y queda de frente al terminar.
+          const done = smooth(assembled);
+          rig.robot.rotation.y = -0.6 * (1 - done) + Math.sin(now * 0.0012) * 0.05 * power;
+          rig.robot.position.y = Math.sin(now * 0.002) * 0.025 * power;
+          edgeMat.opacity = 0.85 * (1 - smooth((assembled - 0.82) / 0.18));
+
+          // Encendido: los ojos pasan de apagados a un destello blanco y se
+          // quedan en el color de la página; los halos dan un golpe de luz.
+          const flash = Math.sin(Math.PI * clamp(power * 1.4));
+          rig.eyesMat.color.copy(offColor).lerp(white, smooth(power * 2)).lerp(onColor, smooth((power - 0.45) / 0.55));
+          rig.chestMat.color.copy(offColor).lerp(onColor, smooth(power));
+          rig.glows.eyeL.material.opacity = rig.glows.eyeR.material.opacity = 0.5 * power + 0.7 * flash;
+          rig.glows.chest.material.opacity = (0.35 + Math.sin(now * 0.012) * 0.12) * power + 0.5 * flash;
+          rig.glows.antenna.material.opacity = (0.38 + Math.sin(now * 0.015) * 0.16) * power + 0.5 * flash;
+          const blink = (power > 0.62 && power < 0.72) ||
+            (power > 0.95 && Math.sin(now * 0.011) > 0.995) ? 0.12 : 1;
+          rig.eyeL.scale.y = rig.eyeR.scale.y = blink;
+
+          // Encuadre fijo del robot montado (las piezas entran desde fuera
+          // del plano) y un pequeño acercamiento al encenderse.
+          const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+          const halfH = 1.12;
+          const halfW = 0.82;
+          const d = Math.max(halfH / (tan * 0.82), halfW / (tan * camera.aspect * 0.82)) * (1 - 0.1 * smooth(power));
+          camera.position.set(0, 0.62, d);
+          camera.lookAt(0, 0.62, 0);
+          updateSparks(now);
+          renderer.render(scene, camera);
+        },
+        dispose,
+      };
+    } catch (error) {
+      resizeObserver?.disconnect();
+      edgeGeos.forEach((geo) => geo.dispose());
+      edgeMat?.dispose();
+      rig?.dispose();
+      renderer?.dispose();
+      renderer?.forceContextLoss();
+      renderer?.domElement.remove();
+      throw error;
+    }
+  }
+
+  function initLoader() {
+    activeCleanup?.();
+    const loader = document.getElementById('gl-loader');
+    const page = document.getElementById('gl-page');
+    const mount = document.getElementById('gl-loader-stage');
+    const fill = document.getElementById('gl-loader-fill');
+    const pct = document.getElementById('gl-loader-pct');
+    const label = loader?.querySelector<HTMLElement>('.gl-loader__label');
+    const log = document.getElementById('gl-loader-log');
+    const logLine = (text: string, ready = false) => {
+      if (!log) return;
+      const li = document.createElement('li');
+      li.textContent = text;
+      if (ready) li.className = 'gl-loader__log--ready';
+      log.appendChild(li);
+    };
+    if (!loader || !page || !mount || !fill || !pct) return;
+    if (!document.documentElement.classList.contains('gl-intro') || flags.__glLoaderState !== 'pending') {
+      loader.remove();
+      return;
+    }
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    let disposed = false;
+    let finished = false;
+    let frame = 0;
+    let removeTimer = 0;
+    let safetyTimer = 0;
+    let scene: SceneHandle | null = null;
+    let simple = false;
+    let phase: 'assembly' | 'ignition' | 'flight' = 'assembly';
+    let phaseStart = 0;
+    let mountStart = 0;
+    let mountDuration = 2600;
+    const startedAt = flags.__glLoaderStart ?? performance.now();
+    const deadline = startedAt + 8500;
+    const imgs = Array.from(page.querySelectorAll<HTMLImageElement>('img:not([loading="lazy"])'));
+    let loaded = 0;
+    const imageDone = () => { loaded++; };
+    imgs.forEach((img) => {
+      if (img.complete) imageDone();
+      else {
+        img.addEventListener('load', imageDone, { once: true, signal });
+        img.addEventListener('error', imageDone, { once: true, signal });
+      }
+    });
+
+    function paint(value: number) {
+      const number = Math.round(clamp(value) * 100);
+      fill!.style.width = `${number}%`;
+      pct!.textContent = `${number}%`;
+    }
+    function useSimple() {
+      simple = true;
+      if (label) label.textContent = 'Cargando';
+    }
+    function render(assembled: number, power: number, wave: number) {
+      try {
+        scene?.update(assembled, power, wave);
+      } catch (_) {
+        // Si WebGL se pierde durante la animación, queda la barra sencilla.
+        scene?.dispose();
+        scene = null;
+        useSimple();
+        if (phase === 'flight') finish(false);
+      }
+    }
+    function cleanup() {
+      if (disposed) return;
+      disposed = true;
+      controller.abort();
+      cancelAnimationFrame(frame);
+      clearTimeout(removeTimer);
+      clearTimeout(safetyTimer);
+      scene?.dispose();
+      scene = null;
+    }
+    activeCleanup = cleanup;
+    document.addEventListener('astro:before-preparation', cleanup, { once: true, signal });
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (event) => {
+      if (event.matches) finish(false);
+    }, { signal });
+
+    function finish(handoff: boolean) {
+      if (finished || disposed) return;
+      finished = true;
+      paint(1);
+      page!.classList.add('gl-page--visible');
+      flags.__glLoaderState = handoff ? 'done-handoff' : 'done';
+      try { sessionStorage.setItem('gl-loader-seen', '1'); } catch (_) { /* La navegación sigue visible. */ }
+      window.dispatchEvent(new CustomEvent('gl:loader-done', { detail: { handoff } }));
+      cancelAnimationFrame(frame);
+      clearTimeout(safetyTimer);
+      scene?.dispose();
+      scene = null;
+      if (handoff) {
+        controller.abort();
+        loader!.remove();
+        document.documentElement.classList.remove('gl-intro', 'gl-loader--flight');
+      } else {
+        loader!.classList.add('gl-loader--simple-done');
+        removeTimer = window.setTimeout(() => {
+          loader!.remove();
+          document.documentElement.classList.remove('gl-intro', 'gl-loader--flight');
+          cleanup();
+        }, 360);
+      }
+    }
+
+    function tick(now: number) {
+      if (disposed || finished) return;
+      const elapsed = now - startedAt;
+      const imageProgress = imgs.length ? loaded / imgs.length : 0;
+      if (now >= deadline) { finish(false); return; }
+      if (simple) {
+        paint(Math.min(0.99, Math.max(elapsed / 3000, imageProgress)));
+        if (loaded >= imgs.length || elapsed >= 3000) { finish(false); return; }
+      } else if (scene && mountStart) {
+        const assembly = clamp((now - mountStart) / mountDuration);
+        const progress = Math.max(assembly, imageProgress);
+        paint(Math.min(0.99, progress));
+        if (phase === 'assembly') {
+          render(assembly, 0, 0);
+          // Se reserva tiempo para el saludo y el vuelo dentro del límite total.
+          if (scene && assembly >= 1 && (loaded >= imgs.length || now >= deadline - 2200)) {
+            phase = 'ignition';
+            phaseStart = now;
+            logLine('Sistema listo', true);
+          }
+        } else if (phase === 'ignition') {
+          const p = clamp((now - phaseStart) / 1150);
+          render(1, p, smooth((p - 0.45) / 0.55));
+          if (scene && p >= 1) {
+            phase = 'flight';
+            phaseStart = now;
+            document.documentElement.classList.add('gl-loader--flight');
+          }
+        } else {
+          const p = smooth((now - phaseStart) / 900);
+          const target = window.innerWidth > 768
+            ? document.getElementById('robot-guide')
+            : document.getElementById('header-robot');
+          const rect = target?.getBoundingClientRect();
+          if (rect && rect.width && rect.height) {
+            const dx = rect.left + rect.width / 2 - window.innerWidth / 2;
+            const dy = rect.top + rect.height / 2 - window.innerHeight / 2;
+            const scale = Math.min(0.5, rect.height / Math.max(1, mount.clientHeight));
+            mount.style.transform = `translate(-50%, -50%) translate(${(dx * p).toFixed(1)}px, ${(dy * p).toFixed(1)}px) scale(${(1 + (scale - 1) * p).toFixed(3)})`;
+          }
+          render(1, 1, 1 - p);
+          if (scene && p >= 1) { finish(true); return; }
+        }
+      } else {
+        paint(Math.min(0.95, Math.max(elapsed / 3500, imageProgress * 0.8)));
+      }
+      frame = requestAnimationFrame(tick);
+    }
+
+    safetyTimer = window.setTimeout(() => finish(false), Math.max(0, deadline - performance.now()));
+    frame = requestAnimationFrame(tick);
+    const probe = document.createElement('canvas');
+    const gl = probe.getContext('webgl2') || probe.getContext('webgl');
+    if (!gl) {
+      useSimple();
+      return;
+    }
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    void createScene(mount, () => disposed || finished, (piece) => logLine(piece)).then((result) => {
+      if (!result || disposed || finished) { result?.dispose(); return; }
+      if (performance.now() > deadline - 3000) { result.dispose(); useSimple(); return; }
+      scene = result;
+      mountStart = performance.now();
+      mountDuration = Math.min(2600, Math.max(800, deadline - mountStart - 2200));
+      render(0, 0, 0);
+    }).catch(() => { if (!disposed && !finished) useSimple(); });
+  }
+
+  document.addEventListener('astro:page-load', initLoader);
+</script>

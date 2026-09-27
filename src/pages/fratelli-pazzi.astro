@@ -19,7 +19,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
       <div class="fratelli-hero__content container">
         <h1 class="fratelli-hero__brand hero-anim hero-anim--1">
           <img
-            src="/media/fratelli/logos/logo-definitivo.png"
+            src="/media/fratelli/logos/logo-definitivo.webp"
             alt="Fratelli Pazzi"
             width="1400"
             height="1364"
@@ -56,7 +56,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
             <figcaption class="mono">Fondo blanco</figcaption>
           </figure>
           <figure class="media-tile">
-            <img src="/media/fratelli/logos/logo-definitivo.png" alt="Logo definitivo de Fratelli Pazzi" loading="lazy" decoding="async" />
+            <img src="/media/fratelli/logos/logo-definitivo.webp" alt="Logo definitivo de Fratelli Pazzi" loading="lazy" decoding="async" />
             <figcaption class="mono">Logo definitivo</figcaption>
           </figure>
         </div>
@@ -94,7 +94,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
 
         <div class="media-grid media-grid--brand">
           <figure class="media-tile">
-            <img src="/media/fratelli/menu/menu-fratelli.jpg" alt="Carta / menú de Fratelli Pazzi" loading="lazy" decoding="async" />
+            <img src="/media/fratelli/menu/menu-fratelli.webp" alt="Carta / menú de Fratelli Pazzi" loading="lazy" decoding="async" />
             <figcaption class="mono">Carta del restaurante</figcaption>
           </figure>
           <figure class="media-tile">
@@ -264,9 +264,27 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     }
 
     // Hover autoplay for all video containers (featured + cards)
-    document.querySelectorAll('.video-card, .video-featured, .promo-card').forEach((container) => {
+    document.querySelectorAll<HTMLElement>('.video-card, .video-featured, .promo-card').forEach((container) => {
       const vid = container.querySelector<HTMLVideoElement>('video');
       if (!vid) return;
+      const title = container.querySelector('figcaption')?.textContent?.trim() ?? 'vídeo';
+      // El mismo control debe poder activarse con teclado y anunciar su estado.
+      // Un <figure> no puede hacer de botón (Lighthouse, aria-allowed-role):
+      // va dentro un botón transparente que lo cubre entero. Su click sube
+      // hasta el contenedor, y Enter y Espacio ya los da el propio botón.
+      const hit = document.createElement('button');
+      hit.type = 'button';
+      hit.className = 'video-hit';
+      container.appendChild(hit);
+      const updateControl = () => {
+        const action = vid.paused ? 'Reproducir vídeo' : vid.muted ? 'Activar sonido' : 'Silenciar sonido';
+        hit.setAttribute('aria-label', `${action}: ${title}`);
+        hit.setAttribute('aria-pressed', String(!vid.paused && !vid.muted));
+      };
+      updateControl();
+      vid.addEventListener('play', updateControl);
+      vid.addEventListener('pause', updateControl);
+      vid.addEventListener('volumechange', updateControl);
 
       // El póster pasa a ser también el fondo del <video>. Mientras no hay
       // frame que pintar el elemento es transparente, así que se ve el fondo:
@@ -282,6 +300,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         vid.pause();
         vid.currentTime = 0;
         vid.muted = true;
+        updateControl();
       });
       container.addEventListener('click', () => {
         playSound('paso');
@@ -290,6 +309,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
           return;
         }
         vid.muted = !vid.muted;
+        updateControl();
       });
     });
   }
@@ -314,6 +334,8 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     const page = document.getElementById('fratelli-page');
     let w = 0, h = 0;
     let raf = 0;
+    let running = false;
+    let onScreen = false;
     let mouse = { x: -9999, y: -9999 };
     let scrollY = 0;
     let pageBottom = Infinity;
@@ -414,13 +436,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     function draw() {
       ctx!.clearRect(0, 0, w, h);
 
-      // Don't draw if we've scrolled past the page into footer
       updatePageBounds();
-      const visible = pageBottom > 0;
-      if (!visible) {
-        raf = requestAnimationFrame(draw);
-        return;
-      }
 
       for (const s of slices) {
         s.phase += s.speed;
@@ -467,12 +483,30 @@ import SectionLayout from '../layouts/SectionLayout.astro';
         drawPizzaSlice(drawX, drawY, s.size, s.rotation, s.color, s.crustColor, alpha);
       }
 
-      raf = requestAnimationFrame(draw);
+      if (running) raf = requestAnimationFrame(draw);
     }
+
+    function updateRunning() {
+      const shouldRun = onScreen && !document.hidden && !signal.aborted;
+      if (shouldRun === running) return;
+      running = shouldRun;
+      if (running) draw();
+      else {
+        cancelAnimationFrame(raf);
+        ctx!.clearRect(0, 0, w, h);
+      }
+    }
+
+    // El observer despierta las partículas al volver desde el pie de página.
+    const visibility = new IntersectionObserver((entries) => {
+      onScreen = entries[0]?.isIntersecting ?? false;
+      updateRunning();
+    });
+    if (page) visibility.observe(page);
 
     resize();
     createSlices();
-    draw();
+    scrollY = window.scrollY;
 
     window.addEventListener('resize', () => { resize(); createSlices(); }, { signal });
 
@@ -487,9 +521,10 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     }, { signal });
 
     window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true, signal });
+    document.addEventListener('visibilitychange', updateRunning, { signal });
 
     // Cleanup on page transition
-    signal.addEventListener('abort', () => cancelAnimationFrame(raf));
+    signal.addEventListener('abort', () => { running = false; cancelAnimationFrame(raf); visibility.disconnect(); });
     document.addEventListener('astro:before-preparation', () => {
       particlesAbort?.abort();
       particlesAbort = null;
@@ -752,7 +787,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--fratelli-text);
-    opacity: 0.6;
+    opacity: 0.82;
     text-align: center;
   }
 
@@ -781,7 +816,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--fratelli-text);
-    opacity: 0.6;
+    opacity: 0.82;
     text-align: center;
   }
 
@@ -906,6 +941,30 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     gap: var(--space-m);
   }
 
+  /* Botón que cubre cada vídeo (lo crea el JS, de ahí el :global). */
+  .video-card,
+  .video-featured,
+  .promo-card {
+    position: relative;
+  }
+
+  :global(.video-hit) {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  :global(.video-hit:focus-visible) {
+    outline: 2px solid var(--fratelli-primary, #d56858);
+    outline-offset: -2px;
+  }
+
   .video-card {
     margin: 0;
     border: 1px solid var(--fratelli-border);
@@ -938,7 +997,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--fratelli-text);
-    opacity: 0.6;
+    opacity: 0.82;
     text-align: center;
   }
 
@@ -981,7 +1040,7 @@ import SectionLayout from '../layouts/SectionLayout.astro';
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--fratelli-text);
-    opacity: 0.6;
+    opacity: 0.82;
     text-align: center;
   }
 

@@ -4,7 +4,7 @@ import { nav } from '../../data/site';
 
 <header class="header" id="header">
   <div class="header__inner container">
-    <a href="/" class="header__logo" aria-label="Inicio">
+    <a href="/" class="header__logo">
       <span class="logo-text">G<span class="logo-expand">uillermo</span> L<span class="logo-expand">ópez</span></span>
     </a>
 
@@ -40,6 +40,25 @@ import { nav } from '../../data/site';
         </svg>
       </button>
 
+      <!-- En móvil, el robot se guarda aquí; la cabeza abre su chat. -->
+      <button
+        class="header__robot"
+        id="header-robot"
+        data-header-robot
+        type="button"
+        aria-label="Abrir el asistente de Guillermo"
+        aria-controls="rg-chat"
+        aria-expanded="false"
+        title="Pregúntame sobre Guille"
+      >
+        <span class="header__robot-head" aria-hidden="true">
+          <span class="header__robot-face">
+            <span class="header__robot-eye"></span>
+            <span class="header__robot-eye"></span>
+          </span>
+        </span>
+      </button>
+
       <button
         class="header__burger"
         id="burger"
@@ -54,6 +73,16 @@ import { nav } from '../../data/site';
     </div>
   </div>
 </header>
+
+<!-- Fuera del header: su blur puede anclar un hijo fixed a la franja superior. -->
+<button class="header__robot header__robot--desktop" data-header-robot type="button" aria-label="Abrir el asistente de Guillermo" aria-controls="rg-chat" aria-expanded="false" title="Pregúntame sobre Guille">
+  <span class="header__robot-head" aria-hidden="true">
+    <span class="header__robot-face">
+      <span class="header__robot-eye"></span>
+      <span class="header__robot-eye"></span>
+    </span>
+  </span>
+</button>
 
 <style>
   .header {
@@ -221,6 +250,105 @@ import { nav } from '../../data/site';
     display: none;
   }
 
+  /* Cabeza del robot: los mismos colores que el 3D (hueso, pantalla negra,
+     antena con la punta roja) y los ojos del color de la página, que
+     RobotGuide deja en --rg-accent. */
+  .header__robot {
+    display: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header__robot-head {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 21px;
+    margin-top: 6px;
+    background: #e8e2d6;
+    border-radius: 7px;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Antena y su punta */
+  .header__robot-head::before,
+  .header__robot-head::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .header__robot-head::before {
+    top: -7px;
+    width: 2px;
+    height: 7px;
+    background: #141416;
+  }
+
+  .header__robot-head::after {
+    top: -11px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c7422e;
+    animation: robot-antenna 2.4s ease-in-out infinite;
+  }
+
+  .header__robot-face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 20px;
+    height: 12px;
+    background: #141416;
+    border-radius: 4px;
+  }
+
+  .header__robot-eye {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--rg-accent, #f1a93a);
+    box-shadow: 0 0 4px var(--rg-accent, #f1a93a);
+    animation: robot-blink 4.2s infinite;
+  }
+
+  .header__robot:active .header__robot-head {
+    transform: scale(0.88) rotate(-6deg);
+  }
+
+  @keyframes robot-blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.15); }
+  }
+
+  @keyframes robot-antenna {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.25); }
+  }
+
+  @media (max-width: 768px) {
+    .header__robot--received .header__robot-head {
+      animation: header-robot-received 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  @keyframes header-robot-received {
+    0% { transform: scale(0.7) translateY(-5px); }
+    55% { transform: scale(1.18) translateY(2px); }
+    100% { transform: scale(1) translateY(0); }
+  }
+
   .header__burger {
     display: none;
     flex-direction: column;
@@ -287,6 +415,12 @@ import { nav } from '../../data/site';
     .header__burger {
       display: flex;
     }
+
+    .header__robot {
+      display: grid;
+    }
+
+    .header__robot--desktop { display: none; }
 
     .header__nav {
       position: fixed;
@@ -377,12 +511,40 @@ import { nav } from '../../data/site';
       border-color: rgba(0, 0, 0, 0.3);
     }
   }
+
+  /* En escritorio sin 3D, la misma cabeza abre el chat desde una esquina. */
+  @media (min-width: 769px) {
+    .header__robot--desktop {
+      position: fixed;
+      right: clamp(0.8rem, 2vw, 1.6rem);
+      bottom: clamp(0.8rem, 2vw, 1.6rem);
+      z-index: 12500;
+      width: 54px;
+      height: 54px;
+      background: #202223;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    :global(html.rg-motionless) .header__robot--desktop { display: grid; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header__robot-head,
+    .header__robot-head::after,
+    .header__robot-eye {
+      animation: none;
+      transition: none;
+    }
+  }
 </style>
 
 <script>
   import { isSoundOn, setSoundOn, playSound } from '../../lib/uiSound';
 
   let headerAbort: AbortController | null = null;
+  let loaderReceived = false;
 
   function initSoundToggle(signal: AbortSignal) {
     const boton = document.getElementById('sound-toggle');
@@ -414,7 +576,30 @@ import { nav } from '../../data/site';
     headerAbort = new AbortController();
     const { signal } = headerAbort;
 
+    const receiveLoader = () => {
+      if (loaderReceived) return;
+      loaderReceived = true;
+      if (window.innerWidth > 768) return;
+      const robot = document.getElementById('header-robot');
+      if (!robot) return;
+      robot.classList.remove('header__robot--received');
+      void robot.offsetWidth;
+      robot.classList.add('header__robot--received');
+    };
+    // Si el evento se adelantó al init, la marca global conserva el relevo.
+    if ((window as unknown as { __glLoaderState?: string }).__glLoaderState === 'done-handoff') receiveLoader();
+    window.addEventListener('gl:loader-done', (event) => {
+      if ((event as CustomEvent<{ handoff: boolean }>).detail?.handoff) receiveLoader();
+    }, { signal });
+
     initSoundToggle(signal);
+
+    // Ambas cabezas abren el mismo chat; en escritorio se usa la fija sin 3D.
+    document.querySelectorAll('[data-header-robot]').forEach((button) => {
+      button.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('rg:open-chat'));
+      }, { signal });
+    });
 
     const header = document.getElementById('header');
     const burger = document.getElementById('burger');

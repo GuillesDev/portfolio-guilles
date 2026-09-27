@@ -255,18 +255,21 @@ import Button from '../global/Button.astro';
     ];
 
     let index = Math.floor(Math.random() * videos.length);
+    let nextTimer = 0;
+    let leaving = false;
 
     function playNext() {
       // Fade out
       heroVideo.classList.remove('is-playing');
 
-      setTimeout(() => {
+      nextTimer = window.setTimeout(() => {
+        if (leaving) return;
         heroVideo.src = videos[index];
         index = (index + 1) % videos.length;
 
         heroVideo.load();
         heroVideo.play().then(() => {
-          heroVideo.classList.add('is-playing');
+          if (!leaving) heroVideo.classList.add('is-playing');
         }).catch(() => {});
       }, 1500); // wait for fade-out
     }
@@ -278,8 +281,15 @@ import Button from '../global/Button.astro';
     index = (index + 1) % videos.length;
     heroVideo.load();
     heroVideo.play().then(() => {
-      heroVideo.classList.add('is-playing');
+      if (!leaving) heroVideo.classList.add('is-playing');
     }).catch(() => {});
+    // La espera entre clips sobrevive al cambio de body si no se cancela.
+    document.addEventListener('astro:before-preparation', () => {
+      leaving = true;
+      clearTimeout(nextTimer);
+      heroVideo.pause();
+      heroVideo.removeEventListener('ended', playNext);
+    }, { once: true });
   }
 
   document.addEventListener('astro:page-load', initHeroReel);

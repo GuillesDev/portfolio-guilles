@@ -23,9 +23,9 @@ const themeColors: Record<string, { gradient: string; accent: string; glow: stri
     glow: 'rgba(57, 211, 83, 0.15)',
   },
   desarrollo: {
-    gradient: 'linear-gradient(135deg, #F0EDE8 0%, #E8E4DF 100%)',
-    accent: '#5B7B9A',
-    glow: 'rgba(91, 123, 154, 0.1)',
+    gradient: 'linear-gradient(135deg, #0d0d0e 0%, #1c150d 100%)',
+    accent: '#f1a93a',
+    glow: 'rgba(241, 169, 58, 0.16)',
   },
   fratelli: {
     gradient: 'linear-gradient(135deg, #171B17 0%, #293320 100%)',
@@ -35,12 +35,11 @@ const themeColors: Record<string, { gradient: string; accent: string; glow: stri
 };
 
 const colors = themeColors[theme];
-const isLight = theme === 'desarrollo';
 ---
 
 <a
   href={href}
-  class:list={['area-card', `area-card--${theme}`, { 'area-card--light': isLight }]}
+  class:list={['area-card', `area-card--${theme}`]}
   style={`
     --card-gradient: ${colors.gradient};
     --card-accent: ${colors.accent};
@@ -82,10 +81,6 @@ const isLight = theme === 'desarrollo';
     text-decoration: none;
     transition: transform var(--duration-base) var(--ease-out),
                 border-color var(--duration-base) var(--ease-out);
-  }
-
-  .area-card--light {
-    border-color: rgba(0, 0, 0, 0.06);
   }
 
   .area-card:hover {
@@ -140,22 +135,6 @@ const isLight = theme === 'desarrollo';
     background: linear-gradient(180deg, rgba(4, 4, 12, 0) 0%, rgba(4, 4, 12, 0.55) 55%, rgba(4, 4, 12, 0.92) 100%);
   }
 
-  /* The light card (desarrollo) flips dark on hover instead of showing dim media */
-  .area-card--light .area-card__media {
-    opacity: 0;
-    transition: opacity var(--duration-base) var(--ease-out);
-    background: #060606;
-  }
-
-  .area-card--light:hover .area-card__media {
-    opacity: 1;
-  }
-
-  .area-card--light .area-card__poster {
-    filter: grayscale(0);
-    opacity: 0.9;
-  }
-
   .area-card__content {
     position: relative;
     z-index: 1;
@@ -178,29 +157,11 @@ const isLight = theme === 'desarrollo';
     line-height: 1.15;
   }
 
-  .area-card--light .area-card__title {
-    color: #1A1A2E;
-    transition: color var(--duration-base) var(--ease-out);
-  }
-
-  .area-card--light:hover .area-card__title {
-    color: #FAFAFA;
-  }
-
   .area-card__desc {
     font-size: var(--step--1);
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.6);
     max-width: 38ch;
-  }
-
-  .area-card--light .area-card__desc {
-    color: rgba(0, 0, 0, 0.55);
-    transition: color var(--duration-base) var(--ease-out);
-  }
-
-  .area-card--light:hover .area-card__desc {
-    color: rgba(255, 255, 255, 0.65);
   }
 
   .area-card__cta {

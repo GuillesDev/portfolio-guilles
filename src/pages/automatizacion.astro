@@ -113,6 +113,7 @@ const cases = automatizacionVisualisers.map((item) => ({
             <div
               class="phone__messages"
               id="automation-chat-messages"
+              role="log"
               aria-label="Conversación de ejemplo con el sistema de reservas"
             ></div>
             <div class="phone__input mono" aria-hidden="true">
@@ -202,6 +203,8 @@ const cases = automatizacionVisualisers.map((item) => ({
       const source = video.querySelector('source[data-src]');
       if (source?.dataset.src && !source.getAttribute('src')) {
         source.setAttribute('src', source.dataset.src);
+        // preload="none" deja la fuente sin descargar incluso después de asignarla.
+        video.preload = 'auto';
         video.load();
       }
     }
@@ -319,11 +322,27 @@ const cases = automatizacionVisualisers.map((item) => ({
           const video = gen.querySelector('video');
           if (video) {
             loadVideo(video);
-            if (!reduced()) video.play().catch(() => {});
+            if (!reduced()) playWhenReady(video);
           }
           window.dispatchEvent(new CustomEvent('rg:automation-spark'));
         }, i * 520);
       });
+    }
+
+    const wantedVideos = new WeakSet();
+    const waitingVideos = new WeakSet();
+    function playWhenReady(video) {
+      wantedVideos.add(video);
+      // play() retira el póster; esperamos a tener al menos un fotograma.
+      if (video.readyState >= 2) {
+        video.play().catch(() => {});
+      } else if (!waitingVideos.has(video)) {
+        waitingVideos.add(video);
+        video.addEventListener('loadeddata', () => {
+          waitingVideos.delete(video);
+          if (wantedVideos.has(video) && video.closest('.gen')?.classList.contains('is-in') && !reduced()) video.play().catch(() => {});
+        }, { once: true });
+      }
     }
 
     function revealFlow() {
@@ -347,8 +366,9 @@ const cases = automatizacionVisualisers.map((item) => ({
             const video = entry.target;
             if (!video.closest('.gen')?.classList.contains('is-in')) return;
             if (entry.isIntersecting) {
-              if (!reduced()) video.play().catch(() => {});
+              if (!reduced()) playWhenReady(video);
             } else {
+              wantedVideos.delete(video);
               video.pause();
             }
           });
@@ -455,6 +475,11 @@ const cases = automatizacionVisualisers.map((item) => ({
     initAll();
     document.addEventListener('astro:page-load', initAll);
     document.addEventListener('astro:before-swap', () => {
+      // Un loadeddata tardío no debe reactivar un vídeo de la página saliente.
+      document.querySelectorAll('.gen__video').forEach((video) => {
+        wantedVideos.delete(video);
+        video.pause();
+      });
       timers.forEach((timer) => window.clearTimeout(timer));
       timers = [];
       window.clearTimeout(chatTimer);

@@ -12,6 +12,7 @@ Portfolio personal de Guillermo Lopez construido con Astro y componentes 3D en T
 ## Preferencias de trabajo
 
 - No hacer `git push` sin permiso explicito del usuario.
+- Ante una petición de implementación, completar los cambios locales necesarios y las verificaciones pertinentes sin pedir confirmaciones sobre decisiones rutinarias y reversibles. Antes de solicitar permiso para `git push`, dejar el cambio concreto y revisable y comunicar el resultado de las verificaciones. No repetir la solicitud si el usuario ya autorizó ese envío concreto y no ha cambiado su alcance. Si una aprobación o dato imprescindible bloquea una parte, continuar el trabajo independiente y describir exactamente lo pendiente; no presentar la tarea como completada.
 - Mantener el tono de la web cercano, humano y directo. Evitar copy que suene generico, corporativo o escrito por IA.
 - En Fratelli Pazzi usar siempre `fundé` / `fundador`; no usar `cofundé` ni `cofundador`.
 - En la seccion de desarrollo no usar etiquetas tipo `en produccion`, `+40 paginas generadas`, `100% TypeScript` o `0 CMS` como reclamos.

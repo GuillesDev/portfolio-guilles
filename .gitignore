@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # agent-local files
 .claude/
+
+# resultados de scripts/probar-robot.mjs
+scripts/resultados-*.json

@@ -315,8 +315,39 @@ maquetar la idea en un HTML suelto en `public/` servido por el dev server
 - La sección `Por qué un grafista puede ser tu desarrollador` se redujo a una
   línea sobre el mantenimiento continuo, lo único que no se demostraba ya en
   el resto de la página.
-- El `CinematicReveal` antiguo sigue en Remotion y en la tarjeta de la
-  portada. Solo se sustituyó en el caso de estudio.
+- El `CinematicReveal` antiguo sigue en Remotion, pero ya no en la web: la
+  tarjeta de la portada salía como un recuadro beige vacío (su póster es casi
+  todo negro y la tarjeta era la única clara). Ahora es oscura, con el acento
+  naranja de la página y el vídeo de producto de Black Gum. Sus archivos en
+  `public/` se borraron.
+
+### Caso "Este portfolio": despiece del robot (27 de septiembre de 2026)
+
+- Segundo caso de `/desarrollo`, `#este-portfolio`, entre Black Gum y la
+  línea de mantenimiento. La propia web como proyecto, enseñada y no contada.
+- Sección alta (330vh; 300vh en móvil) con un escenario `sticky`. Lo avanzado
+  por ella desmonta el robot como un plano técnico, lo deja quieto y lo vuelve
+  a montar; al final saluda y aparecen los botones.
+- Es el mismo `buildRobotRig` del robot global, que ahora devuelve también
+  `parts` (cada pieza suelta).
+- Las etiquetas cuentan decisiones de diseño de Guillermo (te sigue con la
+  mirada, cambian de color en cada sección, se viste de pizzero…), no
+  medidas. Una primera versión decía "ni un modelo 3D descargado" y daba las
+  medidas de cada pieza: a Guillermo le pareció que vendía que lo había hecho
+  la IA y que él no hacía nada. En toda la web el protagonista es él y lo que
+  decide; no presumir de técnica, código o IA como mérito en sí. Cada
+  etiqueta tiene que ser cierta en el robot de verdad: si se cambia un gesto
+  en RobotGuide, revisarlas.
+- Etiquetas HTML con línea SVG hasta la pieza. Cada fotograma se proyecta el
+  punto de anclaje de cada pieza y se reparten por lado sin solaparse. El lado
+  de cada una (`data-side`) está elegido para que su línea no cruce otra pieza
+  con el giro del desmontaje; si se cambia el giro, revisarlo. En móvil se
+  ocultan las dos menores (`part--minor`) y las medidas van cortas.
+- El botón («Pregúntale por mi trabajo») lanza `rg:open-chat` con `¿Qué hace
+  Guille?`: se cambió desde "¿Cómo estás hecho?" al reorientar la sección
+  hacia la autoría de Guillermo. El robot global abre su chat y se la hace.
+- Primera versión descartada por Guillermo por poco visual: dos tarjetas (código
+  del robot y pads de sonido con osciloscopio). No volver a ella.
 
 ## Grafismo
 
@@ -337,6 +368,18 @@ Segunda pasada sobre `/grafismo`:
   decían `Grafismos` e `IA Generativa`.
 - El rótulo va a dos líneas porque en una sola, en monoespaciada al tamaño
   del número, `IA GENERATIVA` se salía del viewport.
+
+### Limpieza del 27 de septiembre de 2026
+
+- Fuera la sección `Stack técnico` (seis tarjetas con logos de Adobe, ChatGPT
+  y Magnific): era justo la lista de herramientas en tarjetas que esta guía
+  pide evitar. Las herramientas siguen en el contexto del robot, que las
+  cuenta si se le pregunta. Los logos se borraron de `public/media/logos/`.
+- En la franja de experiencia, Mediaset decía `Actual` y la trayectoria de la
+  portada `Puntual`. Las dos cosas son ciertas (En Boca de Todos, de
+  Mandarina, se emite en Cuatro; lo puntual son las colaboraciones directas),
+  pero juntas parecían una contradicción. Ahora la etiqueta es
+  `Cuatro · Telecinco`.
 
 ### Visor grande de las piezas (4 de agosto de 2026)
 
@@ -490,6 +533,27 @@ Características:
 - El historial se conserva durante la sesión al cambiar de página.
 - Puede llevar al visitante a una sección concreta sin perder el hilo.
 
+Anatomía y brazos (27 de septiembre de 2026):
+
+- `robotRig.ts` es el robot de los tres sitios (global, gemelo del editor y
+  despiece). Tiene cuello, hombros (articulaciones oscuras metidas en el
+  costado), brazo, puño y mano, laca en el plástico, pantalla de cristal y
+  halos en ojos, pecho y antena. `rig.look(x, y)` mueve los ojos dentro de
+  la pantalla.
+- Antes saludaba y sujetaba los objetos girando el brazo hacia DENTRO: cruzaba
+  la cara y el cuerpo, y se tapaba adelantándolo en Z. Guillermo lo vio
+  ("el brazo pasa por detrás"). Regla: fuera de Grafismo, los brazos solo se
+  abren hacia fuera (z positiva en el derecho, negativa en el izquierdo) o
+  van hacia delante (x negativa). Saludo: z ≈ 2.45; queja: los dos arriba;
+  objeto: brazo hacia delante (x ≈ -1.2).
+- Los objetos de cada sección van en `propSocket`, en la mano derecha, que
+  deshace el giro del brazo cada fotograma: dentro, "arriba" es arriba y
+  "delante" es la cámara. Sus posiciones son pequeñas, relativas a la mano.
+- Grafismo conserva sus poses propias (de espaldas en la silla y los brazos
+  cruzados al enfadarse).
+- Para revisar poses: fotogramas del `#robot-guide` a deviceScaleFactor 3
+  con Playwright al entrar en cada página y al pegarle.
+
 Reglas técnicas importantes:
 
 - Cualquier estado que mueva el robot fuera de pantalla debe resetearse al
@@ -498,6 +562,23 @@ Reglas técnicas importantes:
   incluyendo `x = 0`, para no heredar la salida lateral de Grafismo.
 - Cada sección tiene un prop propio en la mano salvo Grafismo.
 - En Fratelli usa el prop y la ropa de pizzero.
+
+En móvil vive en la cabecera (27 de septiembre de 2026):
+
+- Flotando en la esquina tapaba títulos, textos y botones en todas las
+  páginas. Se probó que se escondiera por el borde al tener algo debajo y
+  Guillermo lo descartó: quedaba raro. No volver a esa idea.
+- Hasta 768px el robot no flota: es una cabeza dibujada con CSS en la cabecera
+  (`#header-robot`, Header.astro), con los ojos del color de la página
+  (`--rg-accent` en `<html>`, lo pone RobotGuide). Al tocarla lanza
+  `rg:open-chat`, y el robot entra volando debajo del chat. Al cerrar el chat
+  se vuelve a guardar.
+- Guardado no se pinta el canvas (`renderer.render` se salta) y en Grafismo
+  va el robot normal: la silla con pantallas no cabe bajo el chat.
+- Con el chat abierto, las páginas que esperan a pasar su hero ya no lo
+  esconden (`setOffstage` lo respeta): en móvil se puede abrir en el hero.
+- En escritorio sigue flotando. Lo único que tapaba era el botón del CV del
+  pie, y los enlaces del pie van ahora junto al nombre, lejos de su esquina.
 
 Cambios responsive del PR `#3`:
 
@@ -520,34 +601,89 @@ Cambios responsive del PR `#3`:
 
 ## Asistente de IA
 
-Modelo actual:
+Estado tras la auditoría del 27 de septiembre de 2026 (42/42 en la batería,
+~1 s de respuesta típica):
 
-- `nvidia/nemotron-3-nano-30b-a3b`
-- NVIDIA NIM mediante endpoint compatible con Chat Completions.
-- El razonamiento largo está desactivado.
-- Temperatura `0`.
-- Respuestas breves, normalmente hasta unas 70 palabras.
+- Modelos: `nvidia/nemotron-3.5-lightning-30b-a3b` y
+  `nvidia/nemotron-3-super-120b-a12b` (`DEFAULT_MODELS`). Son los dos únicos
+  del catálogo que contestan rápido con la clave del portfolio; el resto da
+  404 con esta clave o tarda más de 14 s.
+- `nvidia/nemotron-3-nano-30b-a3b` llegó a su fin de vida el 1/9/2026. Desde
+  ese día cada pregunta devolvía 410 y el robot contestaba siempre con la base
+  local sin que nadie lo notara: el fallo es silencioso. Para comprobar si la
+  IA contesta, un POST a `/api/robot-chat` debe dar 200 y la cabecera
+  `X-Robot-Model`; un 502/504 es que ha caído a la base local.
+- El servicio gratuito de NVIDIA es muy irregular: el mismo modelo tarda 0,6 s
+  o más de 30 según el momento, y Super responde 503 ("saturado") la mitad de
+  las veces, aunque al instante. Por eso los modelos compiten: se lanzan a la
+  vez, gana la primera respuesta buena y al resto se le corta. Los 503/429 se
+  reintentan con pausas cortas. La carrera dura 12 s como mucho; el navegador
+  espera 15 antes de usar su base local.
+- Temperatura 0.3, `max_tokens` 220, razonamiento desactivado en Nemotron.
+- Si hace falta más fiabilidad o calidad que la del servicio gratuito, la
+  opción es un proveedor de pago (se habló con Guillermo; decisión suya).
 
 Funcionamiento:
 
-1. El navegador envía pregunta e historial a `/api/robot-chat`.
-2. El endpoint añade contexto cerrado sobre Guillermo y sus proyectos.
-3. NVIDIA genera solo el texto de la respuesta.
-4. El servidor calcula de forma determinista el enlace y CTA seguros.
-5. Si NVIDIA falla o tarda demasiado, se usa la base local de respuestas.
+1. El navegador envía pregunta, historial y la página en la que está.
+2. El endpoint añade el contexto cerrado sobre Guillermo, la fecha, su edad y
+   qué hay en esa página (`PAGE_CONTEXT`).
+3. El modelo solo redacta. El servidor limpia cualquier Markdown o lista,
+   corta en el último punto si pasa de ~75 palabras y decide él el enlace y su
+   botón (`navigationFor`), nunca el modelo.
+4. Cada respuesta sale firmada (HMAC con la clave). El historial vuelve del
+   navegador y solo se aceptan las respuestas del robot con firma válida: así
+   nadie puede inventarse "lo que dijo el robot antes" para manipularlo.
+5. Si la IA falla o tarda, el navegador usa la base local (`chatAnswer`).
 
-Decisiones tomadas:
+Seguridad del endpoint: exige cabecera `Origin` del propio sitio, limita el
+tamaño leído del cuerpo (24 KB, no se fía de Content-Length), 12 preguntas por
+minuto y visitante y 60 por minuto e instancia (sin base de datos compartida no
+hay límite global exacto).
 
-- Llama 3.3 70B se descartó por timeout.
-- Phi-4 Mini se descartó porque el endpoint devolvía `410`.
-- Llama 3.1 8B funcionaba, pero Nemotron dio mejores respuestas para FAQ.
-- Nemotron respondió correctamente en Vercel con estado `200`.
+El prompt, lo que más ha costado:
+
+- Habla de Guillermo en tercera persona. El modelo pequeño tendía a contestar
+  como si fuera él ("tengo experiencia", "fui fundador").
+- Lo que mejor funciona con estos modelos son los ejemplos (`EJEMPLOS DE CÓMO
+  RESPONDES`): cada fallo repetido se arregló con un ejemplo concreto (tortilla,
+  traducción, NASA, disponibilidad, "¿eres una IA?").
+- Nunca copiar frases literales de las instrucciones: el modelo las repetía
+  ("ofrece el contacto", "texto plano, sin Markdown").
+- Las comparaciones de fechas fallaban (decía que la etapa más corta era Miss
+  Motion): la trayectoria lleva ya la duración de cada etapa calculada.
+- Black Gum es un cliente, no un estudio de Guillermo: lo confundía.
+- Disponibilidad, tarifas, remoto o freelance: no constan; no suponerlos.
+- Contesta en el idioma de la persona.
+- Solo ofrece lo que puede hacer: contar algo o llevar a una sección, y
+  concreta cuál. Antes ofrecía "enseñarte un gesto de Guillermo" y, al
+  contestarle "sí", se iba por otro lado.
+- "Sí", "vale", "venga"... se interpretan contra la última oferta del robot
+  (`isAffirmative`): el destino sale de esa oferta (su última pregunta), se le
+  dice al modelo adónde lleva la web para que lo diga en una frase, y el
+  servidor devuelve `navigate: true` para que el chat navegue. El cliente hace
+  lo mismo con la base local si la IA falla.
+- Si le piden bailar, el robot baila de verdad 5 s (`api.dance()`, lo lanza
+  el cliente al detectar la palabra) y el modelo solo dice algo corto; nada
+  de acotaciones entre paréntesis.
+- En todas las páginas hay un botón «¡Baila!» entre las preguntas sugeridas.
+  Una petición de baile a secas no pasa por el modelo (repetía siempre la
+  frase de su ejemplo): el servidor contesta al instante con una de
+  `DANCE_LINES`, firmada, sin preguntas ni ofertas. En Grafismo baila sentado
+  en la silla.
+- Se probó Gemini (Google AI Studio) el 27/9/2026 como alternativa gratuita:
+  la clave de Guillermo estaba en un proyecto de prepago sin saldo y todo
+  daba 402, incluso modelos gratuitos. Guillermo decidió quedarse con NVIDIA.
+
+Batería de pruebas: `scripts/probar-robot.mjs` (necesita `npm run dev` y la
+clave en `.env`; tarda unos 4 min). Pasarla después de tocar el prompt o los
+modelos.
 
 Variables de entorno:
 
 - `NVIDIA_API_KEY`: obligatoria en Vercel, nunca en el repositorio.
-- `NVIDIA_MODEL`: opcional para cambiar el modelo. Este es el nombre que lee
-  el código y el que está en `.env.example`.
+- `NVIDIA_MODEL`: opcional; si está, se suma a la carrera de modelos.
+- En local, la clave va en `.env` (ignorado por git) para poder probar la IA.
 
 Saludos y cortesía:
 
@@ -588,6 +724,14 @@ Seguridad y límites:
 
 ## Estado del chat
 
+- Preguntas sugeridas distintas en cada página (`PAGE_QUESTIONS`); los botones
+  los crea el JS, así que sus estilos van con `:global()`.
+- Tres puntos de "escribiendo" y la respuesta aparece palabra a palabra (de
+  golpe con movimiento reducido). "Limpiar" aborta la petición en curso.
+- En móvil la escena 3D no se crea hasta abrir el chat. Con movimiento
+  reducido no hay 3D, pero el chat sigue: cabeza en la cabecera (móvil) o
+  botón redondo abajo a la derecha (escritorio).
+
 - Historial guardado en `sessionStorage`.
 - Se conservan hasta 30 registros.
 - El hilo sobrevive a la navegación interna durante la sesión.
@@ -595,6 +739,37 @@ Seguridad y límites:
 - Preguntas imperativas como “llévame a Fratelli” pueden navegar después de
   responder.
 - Las rutas se determinan con lógica local para evitar enlaces inventados.
+
+## Rendimiento (auditoría del 27 de septiembre de 2026)
+
+- Lighthouse antes → después: Grafismo escritorio 50 → 85 (bloqueo de 3 s a
+  0,02), portada escritorio 68 → 97, Desarrollo móvil 73 → 89, accesibilidad
+  100 en casi todo.
+- Imágenes: el fondo de Black Gum era un PNG de 3,3 MB mostrado al 8 %, la
+  carta de Fratelli un JPG de 2480×3508 para una tarjeta de 300 px. Pasaron a
+  WebP al tamaño real (5 KB, 145 KB). Vigilar cualquier imagen nueva.
+- La pantalla de carga dura más a propósito: Guillermo prefiere que sea
+  épica a que sea rápida (ver "Pantalla de carga" más abajo).
+- URL canónica sin barra final, igual que el menú y el sitemap.
+
+## Pantalla de carga (27 de septiembre de 2026)
+
+- `RobotLoader.astro` sustituye al "GL". Solo en la primera carga completa
+  de la sesión (`sessionStorage` `gl-loader-seen`); en navegaciones internas y
+  recargas la página sale al instante.
+- El robot entra pieza a pieza desde fuera del plano (cuerpo desde abajo,
+  brazos por los lados, cabeza desde arriba, luego detalles), cada pieza encaja
+  con un aro naranja y deja su línea en un registro de montaje. Se enciende
+  (ojos de apagados a destello blanco y luego al color de la página), saluda
+  hacia fuera y vuela a su sitio: el widget en escritorio, la cabeza de la
+  cabecera en móvil. Tiempos: montaje 2,6 s, encendido 1,15 s, vuelo 0,9 s;
+  tope de seguridad 8,5 s.
+- Traspaso: dispara `gl:loader-done` con `handoff` y deja
+  `window.__glLoaderState`. RobotGuide espera a eso antes de su primera
+  aparición y, con traspaso, aparece en su sitio sin la entrada cohete
+  (`api.land()`). En móvil la cabeza de la cabecera rebota al recibirlo.
+- Sin WebGL, barra sencilla; con movimiento reducido, sin loader.
+- A Guillermo no le importa que dure: prefiere que sea espectacular.
 
 ## Preferencias de Git y seguridad
 

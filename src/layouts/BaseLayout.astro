@@ -9,6 +9,7 @@ import { site, social } from '../data/site';
 import Header from '../components/global/Header.astro';
 import Footer from '../components/global/Footer.astro';
 import RobotGuide from '../components/global/RobotGuide.astro';
+import RobotLoader from '../components/global/RobotLoader.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 interface Props {
@@ -23,7 +24,11 @@ const {
   ogImage = site.ogImage,
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, site.url);
+// Sin barra final, como los enlaces del menú y el sitemap. Al compilar, Astro
+// da las rutas como "/grafismo/" y Vercel sirve las dos formas: una URL
+// canónica distinta de la enlazada confunde a los buscadores.
+const canonicalPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const canonicalURL = new URL(canonicalPath, site.url);
 const ogImageURL = new URL(ogImage, site.url).toString();
 
 const personSchema = {
@@ -76,24 +81,19 @@ const personSchema = {
 
     <!-- View Transitions -->
     <ViewTransitions />
+    <!-- La marca se lee antes del primer pintado para evitar un destello al navegar. -->
+    <script is:inline>
+      try {
+        if (!sessionStorage.getItem('gl-loader-seen') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('gl-intro');
+          window.__glLoaderState = 'pending';
+          window.__glLoaderStart = performance.now();
+        }
+      } catch (_) { /* La página queda visible si el almacenamiento está bloqueado. */ }
+    </script>
   </head>
   <body>
-    <!-- Global Loader -->
-    <div class="gl-loader" id="gl-loader" aria-hidden="true">
-      <div class="gl-loader__content">
-        <div class="gl-loader__logo">
-          <span class="gl-loader__initials">GL</span>
-          <div class="gl-loader__scanline"></div>
-        </div>
-        <div class="gl-loader__progress">
-          <div class="gl-loader__bar">
-            <div class="gl-loader__fill" id="gl-loader-fill"></div>
-          </div>
-          <span class="gl-loader__pct mono" id="gl-loader-pct">0%</span>
-        </div>
-      </div>
-      <div class="gl-loader__grid"></div>
-    </div>
+    <RobotLoader />
 
     <div class="gl-page" id="gl-page">
       <Header />
@@ -284,196 +284,12 @@ const personSchema = {
       });
     </script>
 
-    <!-- Global Loader Script -->
-    <script>
-      function initGlobalLoader() {
-        const loader = document.getElementById('gl-loader');
-        const page = document.getElementById('gl-page');
-        const fill = document.getElementById('gl-loader-fill');
-        const pctEl = document.getElementById('gl-loader-pct');
-        if (!loader || !page) return;
-
-        // If already revealed (back navigation), skip
-        if (page.classList.contains('gl-page--visible')) {
-          loader.style.display = 'none';
-          return;
-        }
-
-        // Only block the reveal on above-the-fold images. Videos have posters
-        // and preload="metadata", and can weigh tens of MB — waiting on them
-        // forced the reveal to hit the timeout fallback (seconds of black screen).
-        const imgs = Array.from(page.querySelectorAll('img:not([loading="lazy"])'));
-        const total = imgs.length;
-        let loaded = 0;
-        let revealed = false;
-
-        function tick() {
-          loaded++;
-          const pct = total > 0 ? Math.round((loaded / total) * 100) : 100;
-          if (fill) fill.style.width = pct + '%';
-          if (pctEl) pctEl.textContent = pct + '%';
-          if (loaded >= total && !revealed) reveal();
-        }
-
-        function reveal() {
-          if (revealed) return;
-          revealed = true;
-          // Ensure bar is full
-          if (fill) fill.style.width = '100%';
-          if (pctEl) pctEl.textContent = '100%';
-
-          // Small delay for polish
-          setTimeout(() => {
-            loader.classList.add('gl-loader--done');
-            page.classList.add('gl-page--visible');
-            loader.addEventListener('transitionend', () => {
-              loader.style.display = 'none';
-            }, { once: true });
-          }, 300);
-        }
-
-        imgs.forEach(img => {
-          if ((img as HTMLImageElement).complete) { tick(); return; }
-          img.addEventListener('load', tick, { once: true });
-          img.addEventListener('error', tick, { once: true });
-        });
-
-        // Fallback: reveal after 3s even if images are still loading
-        setTimeout(() => { if (!revealed) reveal(); }, 3000);
-
-        // If no assets, reveal immediately
-        if (total === 0) reveal();
-      }
-
-      document.addEventListener('astro:page-load', initGlobalLoader);
-    </script>
-
     <style is:global>
-      /* ── Global Loader ── */
-      .gl-loader {
-        position: fixed;
-        inset: 0;
-        z-index: 99999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #0A0A0F;
-        transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-                    visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .gl-loader--done {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-
-      .gl-loader__grid {
-        position: absolute;
-        inset: 0;
-        background-image:
-          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-        background-size: 60px 60px;
-        pointer-events: none;
-      }
-
-      .gl-loader__content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2.5rem;
-      }
-
-      /* Logo / Initials */
-      .gl-loader__logo {
-        position: relative;
-        width: 100px;
-        height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 16px;
-        overflow: hidden;
-      }
-
-      .gl-loader__initials {
-        font-family: 'Syne Variable', 'Syne', sans-serif;
-        font-size: 2.2rem;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        color: #FAFAFA;
-        animation: gl-pulse 2s ease-in-out infinite;
-      }
-
-      .gl-loader__scanline {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          180deg,
-          transparent 0%,
-          rgba(59, 130, 246, 0.08) 50%,
-          transparent 100%
-        );
-        background-size: 100% 8px;
-        animation: gl-scan 1.5s linear infinite;
-        pointer-events: none;
-      }
-
-      /* Progress */
-      .gl-loader__progress {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        width: clamp(140px, 30vw, 240px);
-      }
-
-      .gl-loader__bar {
-        width: 100%;
-        height: 2px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 2px;
-        overflow: hidden;
-      }
-
-      .gl-loader__fill {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #3B82F6, #60A5FA);
-        border-radius: 2px;
-        transition: width 0.25s ease;
-      }
-
-      .gl-loader__pct {
-        font-size: 0.7rem;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.35);
-      }
-
-      /* Page wrapper */
-      .gl-page {
-        opacity: 0;
-        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .gl-page--visible {
-        opacity: 1;
-      }
-
-      @keyframes gl-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-      }
-
-      @keyframes gl-scan {
-        0% { transform: translateY(-100%); }
-        100% { transform: translateY(100%); }
-      }
+      .gl-page { opacity: 1; }
+      html.gl-intro .gl-page { opacity: 0; visibility: hidden; }
+      html.gl-intro.gl-loader--flight .gl-page,
+      .gl-page--visible { opacity: 1 !important; visibility: visible !important; }
+      html.gl-intro.gl-loader--flight .gl-page { transition: opacity 0.65s ease; }
     </style>
   </body>
 </html>
