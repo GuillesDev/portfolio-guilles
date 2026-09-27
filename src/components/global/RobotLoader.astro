@@ -139,7 +139,9 @@
 <script>
   type LoaderFlags = Window & { __glLoaderState?: string; __glLoaderStart?: number };
   type SceneHandle = {
-    update: (assembled: number, power: number, wave: number) => void;
+    update: (assembled: number, power: number, wave: number, turn?: number) => void;
+    /** Puntos del robot [x0, y0, x1, y1...] en píxeles del escenario sin transformar. */
+    anchors: () => number[];
     dispose: () => void;
   };
   const flags = window as LoaderFlags;
@@ -296,7 +298,7 @@
       if (cancelled()) { dispose(); return null; }
 
       return {
-        update(assembled, power, wave) {
+        update(assembled, power, wave, turn = 0) {
           if (!rig || !renderer || !edgeMat) return;
           const now = performance.now();
           for (const p of pieces) {
@@ -327,7 +329,7 @@
           }
           // Gira despacio mientras se monta y queda de frente al terminar.
           const done = smooth(assembled);
-          rig.robot.rotation.y = -0.6 * (1 - done) + Math.sin(now * 0.0012) * 0.05 * power;
+          rig.robot.rotation.y = -0.6 * (1 - done) + Math.sin(now * 0.0012) * 0.05 * power + turn;
           rig.robot.position.y = Math.sin(now * 0.002) * 0.025 * power;
           edgeMat.opacity = 0.85 * (1 - smooth((assembled - 0.82) / 0.18));
 
@@ -353,6 +355,17 @@
           camera.lookAt(0, 0.62, 0);
           updateSparks(now);
           renderer.render(scene, camera);
+        },
+        anchors() {
+          const w = mount.clientWidth;
+          const h = mount.clientHeight;
+          // Mismos puntos, en el mismo orden, que en RobotGuide.astro.
+          const r = rig!;
+          return [r.antennaTip, r.eyeL, r.eyeR, r.parts.chest, r.parts.body, r.parts.shoulderL, r.parts.shoulderR]
+            .flatMap((part) => {
+              part.getWorldPosition(worldPos).project(camera);
+              return [(worldPos.x + 1) / 2 * w, (1 - worldPos.y) / 2 * h];
+            });
         },
         dispose,
       };
@@ -398,12 +411,15 @@
     let removeTimer = 0;
     let safetyTimer = 0;
     let scene: SceneHandle | null = null;
+    // El que se funde durante el traspaso, hasta retirarlo.
+    let fading: SceneHandle | null = null;
     let simple = false;
     let phase: 'assembly' | 'ignition' | 'flight' = 'assembly';
     let phaseStart = 0;
     let mountStart = 0;
     let mountDuration = 2600;
     const startedAt = flags.__glLoaderStart ?? performance.now();
+    const seated = (window.location.pathname.replace(/\/+$/, '') || '/') === '/grafismo';
     const deadline = startedAt + 8500;
     const imgs = Array.from(page.querySelectorAll<HTMLImageElement>('img:not([loading="lazy"])'));
     let loaded = 0;
@@ -425,9 +441,9 @@
       simple = true;
       if (label) label.textContent = 'Cargando';
     }
-    function render(assembled: number, power: number, wave: number) {
+    function render(assembled: number, power: number, wave: number, turn = 0) {
       try {
-        scene?.update(assembled, power, wave);
+        scene?.update(assembled, power, wave, turn);
       } catch (_) {
         // Si WebGL se pierde durante la animación, queda la barra sencilla.
         scene?.dispose();
@@ -445,6 +461,8 @@
       clearTimeout(safetyTimer);
       scene?.dispose();
       scene = null;
+      fading?.dispose();
+      fading = null;
     }
     activeCleanup = cleanup;
     document.addEventListener('astro:before-preparation', cleanup, { once: true, signal });
@@ -462,12 +480,27 @@
       window.dispatchEvent(new CustomEvent('gl:loader-done', { detail: { handoff } }));
       cancelAnimationFrame(frame);
       clearTimeout(safetyTimer);
-      scene?.dispose();
-      scene = null;
+      if (!handoff) {
+        scene?.dispose();
+        scene = null;
+      }
       if (handoff) {
         controller.abort();
-        loader!.remove();
-        document.documentElement.classList.remove('gl-intro', 'gl-loader--flight');
+        // El robot de la esquina ya está visible debajo, en el mismo sitio y
+        // tamaño: este se funde encima y luego se retira. Sin hueco.
+        // En Grafismo la silla y las pantallas aparecen con su fundido (0,35 s)
+        // alrededor; este robot las espera encima, tapando al sentado.
+        const hold = seated && window.innerWidth > 768 ? 380 : 0;
+        fading = scene;
+        scene = null;
+        mount!.style.transition = `opacity 0.28s ease ${hold}ms`;
+        mount!.style.opacity = '0';
+        removeTimer = window.setTimeout(() => {
+          fading?.dispose();
+          fading = null;
+          loader!.remove();
+          document.documentElement.classList.remove('gl-intro', 'gl-loader--flight');
+        }, 320 + hold);
       } else {
         loader!.classList.add('gl-loader--simple-done');
         removeTimer = window.setTimeout(() => {
@@ -505,20 +538,53 @@
             phase = 'flight';
             phaseStart = now;
             document.documentElement.classList.add('gl-loader--flight');
+            // El robot de la esquina se pone en reposo para recibirlo.
+            window.dispatchEvent(new CustomEvent('gl:loader-flight'));
           }
         } else {
           const p = smooth((now - phaseStart) / 900);
+          const guide = (window as unknown as { __rgAnchors?: number[] }).__rgAnchors;
           const target = window.innerWidth > 768
             ? document.getElementById('robot-guide')
             : document.getElementById('header-robot');
           const rect = target?.getBoundingClientRect();
-          if (rect && rect.width && rect.height) {
+          if (window.innerWidth > 768 && guide?.length === 14 && scene) {
+            // Aterriza exactamente sobre el robot de la esquina: escala y
+            // desplazamiento que mejor encajan los mismos puntos de los dos
+            // robots (mínimos cuadrados; las cámaras no tienen la misma
+            // perspectiva y con dos puntos quedaba un salto de unos píxeles).
+            const own = scene.anchors();
+            const count = own.length / 2;
+            let ox = 0, oy = 0, gx = 0, gy = 0;
+            for (let i = 0; i < count; i++) {
+              ox += own[i * 2]; oy += own[i * 2 + 1];
+              gx += guide[i * 2]; gy += guide[i * 2 + 1];
+            }
+            ox /= count; oy /= count; gx /= count; gy /= count;
+            let dot = 0, norm = 0;
+            for (let i = 0; i < count; i++) {
+              const lx = own[i * 2] - ox, ly = own[i * 2 + 1] - oy;
+              dot += lx * (guide[i * 2] - gx) + ly * (guide[i * 2 + 1] - gy);
+              norm += lx * lx + ly * ly;
+            }
+            const scale = norm > 0 && dot > 0 ? dot / norm : 0.3;
+            const w = mount.clientWidth;
+            const h = mount.clientHeight;
+            // Centro del escenario en pantalla sin transformar.
+            const cx = mount.offsetLeft;
+            const cy = mount.offsetTop;
+            const tx = gx - cx - (ox - w / 2) * scale;
+            const ty = gy - cy - (oy - h / 2) * scale;
+            mount.style.transform = `translate(-50%, -50%) translate(${(tx * p).toFixed(1)}px, ${(ty * p).toFixed(1)}px) scale(${(1 + (scale - 1) * p).toFixed(4)})`;
+          } else if (rect && rect.width && rect.height) {
             const dx = rect.left + rect.width / 2 - window.innerWidth / 2;
             const dy = rect.top + rect.height / 2 - window.innerHeight / 2;
             const scale = Math.min(0.5, rect.height / Math.max(1, mount.clientHeight));
             mount.style.transform = `translate(-50%, -50%) translate(${(dx * p).toFixed(1)}px, ${(dy * p).toFixed(1)}px) scale(${(1 + (scale - 1) * p).toFixed(3)})`;
           }
-          render(1, 1, 1 - p);
+          // En Grafismo el robot de la esquina está de espaldas en su silla:
+          // este se da la vuelta mientras vuela para llegar igual.
+          render(1, 1, 1 - p, seated && window.innerWidth > 768 ? Math.PI * p : 0);
           if (scene && p >= 1) { finish(true); return; }
         }
       } else {

@@ -768,6 +768,17 @@ Seguridad y límites:
   `window.__glLoaderState`. RobotGuide espera a eso antes de su primera
   aparición y, con traspaso, aparece en su sitio sin la entrada cohete
   (`api.land()`). En móvil la cabeza de la cabecera rebota al recibirlo.
+- El traspaso en escritorio es un fundido cruzado, no un cambio de robot:
+  al empezar el vuelo el robot de la esquina se pone en reposo (invisible) y
+  publica dónde están en pantalla unos puntos suyos (`__rgAnchors`: antena,
+  ojos, pecho, cuerpo, hombros); el del loader ajusta escala y posición a
+  esos puntos (mínimos cuadrados) y aterriza encima. Al llegar, el de la
+  esquina aparece de golpe debajo, mirando al frente, y el del loader se
+  funde encima. Antes aparecía con un fundido de opacidad desde invisible,
+  apuntando al centro de la caja: un fotograma vacío, un robot gris a medio
+  fundir y un salto de tamaño. En Grafismo el del loader se da la vuelta en
+  el vuelo (el de la esquina está de espaldas en la silla) y espera encima a
+  que la silla y las pantallas se fundan.
 - Sin WebGL, barra sencilla; con movimiento reducido, sin loader.
 - A Guillermo no le importa que dure: prefiere que sea espectacular.
 
