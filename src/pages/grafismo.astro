@@ -13,6 +13,7 @@ const conAudio = (carpeta: string, piezas: { title: string; slug: string }[]) =>
   piezas.map((pieza) => ({ ...pieza, muda: esMuda(carpeta, pieza.slug) }));
 
 const broadcastPieces = [
+  { title: 'Caso Andic', slug: 'caso-andic' },
   { title: 'Cartela informativa', slug: 'cartela-1' },
   { title: 'Discotecas', slug: 'discotecas' },
   { title: 'Elecciones EE. UU.', slug: 'elecciones-eeuu' },
@@ -25,7 +26,6 @@ const broadcastPieces = [
 
 const generativePieces = [
   { title: 'Eclipse', slug: 'eclipse' },
-  { title: 'Caso Andic', slug: 'caso-andic' },
   { title: 'Che Iglesias', slug: 'che-iglesias' },
   { title: 'Abascal Wars', slug: 'abascal-wars' },
   { title: 'Aforama', slug: 'aforama' },

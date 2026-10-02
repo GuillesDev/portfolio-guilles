@@ -55,7 +55,7 @@ export const automatizacionVisualisers: AutomationVisualiser[] = [
     poster: '/media/automatizacion/cartelas-si-poster.jpg',
   },
   {
-    title: 'Plantilla Comodines',
+    title: 'Plantilla Fondos Plató',
     description:
       'Sistema modular para recursos de apoyo en directo. Del dato al asset final en segundos para mantener ritmo de emisión.',
     tags: ['Directo', 'Workflow', 'Modular'],
